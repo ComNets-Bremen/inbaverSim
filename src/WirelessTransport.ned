@@ -1,0 +1,46 @@
+//
+// A wireless transport that implements the ITransport
+// interface.
+//
+// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
+// @date   : 31-mar-2021
+//
+//
+package inbaversim;
+
+simple WirelessTransport like ITransport
+{
+    parameters:
+        
+        // wireless technology -> WLAN, Bluetooth
+        string wirelessTechnology = default("WLAN");
+
+        // wireless mode of operation -> ap, client, direct
+        string operationMode = default("client");
+        
+        // wireless connection string - for ap, client
+        string connectString = default("ccn");
+
+        // wireless range in meters
+        double wirelessRange @unit(meter) = default(10m);
+
+        // bandwidth in bits per second
+        double dataRate @unit(bps) = default(1e6bps);
+
+        // packet error rate
+        double packetErrorRate @unit(pct) = default(0.0pct);
+
+        // when AP, BS or direct, then network scan interval
+        double scanInterval @unit(s) = default(1s);
+
+        // header size
+        int headerSize @unit(byte) = default(32byte);
+
+        @display("i=block/transport");
+
+    gates:
+        inout forwarderInOut;
+        inout physicalInOut;
+        input radioIn @directIn;
+    
+}

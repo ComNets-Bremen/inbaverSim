@@ -1,0 +1,32 @@
+//
+// A wired transport that implements the ITransport
+// interface.
+//
+// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
+// @date   : 31-mar-2021
+//
+//
+
+package inbaversim;
+
+simple WiredTransport like ITransport
+{
+    parameters:
+
+        // bandwidth in bits per second
+        double dataRate @unit(bps) = default(1e6bps);
+
+        // packet error rate
+        double packetErrorRate @unit(pct) = default(0.0pct);
+
+        // header size
+        int headerSize @unit(byte) = default(32byte);
+
+        @display("i=block/transport");
+
+    gates:
+        inout forwarderInOut;
+        inout physicalInOut;
+        input radioIn @directIn;
+
+}

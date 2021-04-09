@@ -1,0 +1,63 @@
+//
+// A simple CCN network. 
+//
+// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
+// @date   : 31-mar-2021
+//
+//
+
+package inbaversim.simulations;
+
+import inbaversim.AccessRouter;
+import inbaversim.ContentServer;
+import inbaversim.CoreRouter;
+import inbaversim.Deus;
+import inbaversim.WiredNode;
+import inbaversim.WirelessAccessRouter;
+import inbaversim.WirelessNode;
+import ned.DatarateChannel;
+
+
+network SimpleNetwork
+{
+    @display("bgb=410,372");
+    submodules:
+        accessRouter: AccessRouter {
+            @display("p=90,217");
+        }
+        wirelessAccessRouter: WirelessAccessRouter {
+            @display("p=90,119");
+        }
+        wiredNode1: WiredNode {
+            @display("p=51,307");
+        }
+        wiredNode2: WiredNode {
+            @display("p=151,307");
+        }
+        wirelessNode[2]: WirelessNode {
+            @display("p=72,32");
+        }
+        coreRouter1: CoreRouter {
+            @display("p=246,237");
+        }
+        coreRouter2: CoreRouter {
+            @display("p=246,107");
+        }
+        contentServer1: ContentServer {
+            @display("p=336,284");
+        }
+        contentServer2: ContentServer {
+            @display("p=336,153");
+        }
+        deus: Deus {
+            @display("p=226,27");
+        }
+    connections allowunconnected:
+        wiredNode1.wiredInOut++ <--> DatarateChannel <--> accessRouter.wiredInOut++;
+        wiredNode2.wiredInOut++ <--> DatarateChannel <--> accessRouter.wiredInOut++;
+        accessRouter.wiredInOut++ <--> DatarateChannel <--> coreRouter1.wiredInOut++;
+        wirelessAccessRouter.wiredInOut++ <--> DatarateChannel <--> coreRouter1.wiredInOut++;
+        coreRouter1.wiredInOut++ <--> DatarateChannel <--> contentServer1.wiredInOut++;
+        coreRouter1.wiredInOut++ <--> DatarateChannel <--> coreRouter2.wiredInOut++;
+        coreRouter2.wiredInOut++ <--> DatarateChannel <--> contentServer2.wiredInOut++;
+}
