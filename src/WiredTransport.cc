@@ -11,12 +11,17 @@
 
 Define_Module(WiredTransport);
 
-void WiredTransport::initialize()
+void WiredTransport::initialize(int stage)
 {
 
 }
 
 void WiredTransport::handleMessage(cMessage *msg)
+{
+
+}
+
+void WiredTransport::finish()
 {
 
 }

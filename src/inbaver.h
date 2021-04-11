@@ -13,6 +13,8 @@
 
 using namespace std;
 
+class WirelessTransport;
+class WiredTransport;
 
 typedef struct WirelessTransportInfo {
     string macAddress;
@@ -46,7 +48,6 @@ typedef struct NodeInfo {
     list<WiredTransportInfo*> wiredTransportInfoList;
 
 } NodeInfo;
-
 
 
 typedef struct SameWirelessGroup {
@@ -96,8 +97,8 @@ typedef struct FaceEntry {
     string outputGateName; // $o appended to baseGateName
     int gateIndex;
 
-    // variables specific to transport type faces
-    string transportAddress; // MAC like address
+    //  variables specific to transport type faces
+    string transportAddress; // address assigned to face by the transport
 
 } FaceEntry;
 
@@ -109,6 +110,16 @@ typedef struct FIBEntry {
 
 } FIBEntry;
 
+typedef struct ArrivalInfo {
+
+    // arrival received face
+    FaceEntry *receivedFace;
+
+    // transport address of sender
+    string transportAddress;
+
+} ArrivalInfo;
+
 typedef struct PITEntry {
     // CCNx name segments
     string prefixName;
@@ -116,11 +127,12 @@ typedef struct PITEntry {
     string versionName;
     int segmentNum;
 
-    // sender details
-    string senderAddress;
+    //hop info
+    int hopLimit;
+    int hopsTravelled;
 
-    // interest received interface or application
-    vector <FaceEntry *> receivedFaces;
+    // arrival details of received interest
+    vector <ArrivalInfo *> arrivalInfoList;
 
 } PITEntry;
 
@@ -146,11 +158,19 @@ typedef struct CSEntry {
 
 } CSEntry;
 
+class ExchangedTransportInfo : public omnetpp::cObject
+{
+  public:
+    char *name;
+    string transportAddress;
+    ExchangedTransportInfo(const char *n) {name = (char *) malloc(strlen(n) + 1); strcpy(name, n);};
+    const char *getName() {return name;}
+    ~ExchangedTransportInfo() {free(name);}
+
+};
 
 
-
-
-
+#define INBAVER_WIRELESS_TRANSPORT_MSG_HEADER_SIZE                   16
 
 
 

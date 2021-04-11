@@ -16,9 +16,6 @@
 using namespace omnetpp;
 using namespace std;
 
-class WirelessTransport;
-class WiredTransport;
-class Numen;
 class NodeInfo;
 class SameWirelessGroup;
 
@@ -29,11 +26,6 @@ class Deus : public cSimpleModule
         virtual void handleMessage(cMessage *msg);
 
     public:
-        void registerWirelessTransport(long nodeID, string macAddress, cModule *nodeModel,
-                        inet::IMobility *mobilityModel, WirelessTransport *wirelessTransportModel, Numen *numenModel,
-                        string wirelessTechnology, string operationMode, string connectString);
-
-    private:
         list<NodeInfo*> allNodesList;
         list<SameWirelessGroup*> sameWirelessGroupList;
 

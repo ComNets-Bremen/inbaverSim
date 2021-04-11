@@ -207,11 +207,21 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     int arrivalGateIndex =  (arrivalGate->isVector() ? arrivalGate->getIndex() : (-1));
     FaceEntry *arrivalFaceEntry = getFaceEntryFromInputGateName(arrivalGate->getName(), arrivalGateIndex);
 
-    // can interest be served from CS?
+    // check and get Face and transport address info of sender of Interest,
+    ExchangedTransportInfo *arrivalTransportInfo = NULL;
+    if (interestMsg->hasObject("ExchangedTransportInfo")) {
+        arrivalTransportInfo = check_and_cast<ExchangedTransportInfo*>(interestMsg->getObject("ExchangedTransportInfo"));
+        interestMsg->removeObject("ExchangedTransportInfo");
+    }
+
+    // lookup in CS for the requested Content Obj
     CSEntry *csEntry = getCSEntry(interestMsg->getPrefixName(), interestMsg->getDataName(),
                                     interestMsg->getVersionName(), interestMsg->getSegmentNum());
+
+    // when Content Obj is in CS, send it to the Interest sender
     if (csEntry != NULL) {
 
+        // make content obj msg from cache entry
         ContentObjMsg *contentObjMsg = new ContentObjMsg("ContentObj");
         contentObjMsg->setPrefixName(csEntry->prefixName.c_str());
         contentObjMsg->setDataName(csEntry->dataName.c_str());
@@ -225,6 +235,11 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         contentObjMsg->setPayloadAsString(csEntry->payloadAsString.c_str());
         contentObjMsg->setByteLength(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE + csEntry->payloadSize);
 
+        // add the destination transport detail, if available
+        if (arrivalTransportInfo != NULL) {
+            contentObjMsg->addObject(arrivalTransportInfo);
+        }
+
         // send content obj
         cGate *sendingGate = gate(arrivalFaceEntry->outputGateName.c_str(), arrivalFaceEntry->gateIndex);
         send(contentObjMsg, sendingGate);
@@ -233,33 +248,61 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " content entry found  " << "\n";
 
 
+        // remove Interest
         delete interestMsg;
         return;
     }
 
     EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " no content entry found  " << "\n";
 
-    // has interest been seen before? (i.e., is it in PIT?)
+
+    // is there a PIT entry already for previous Interests received
+    // for same content?
     PITEntry *pitEntry = getPITEntry(interestMsg->getPrefixName(), interestMsg->getDataName(),
                                     interestMsg->getVersionName(), interestMsg->getSegmentNum());
+
+    // when there is already a PIT entry, means previous Interests were
+    // received, so add the current Interest to the PIT entry
     if (pitEntry != NULL) {
 
         EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << "  PIT entry found  " << "\n";
 
-        // if PIT entry exists, check if the same Interest was received through the same face
+        // Check if the same Interest was received through the same Face and transport address
         bool found = false;
-        for (int i = 0; i < pitEntry->receivedFaces.size(); i++) {
-            if(pitEntry->receivedFaces[i]->faceID == arrivalFaceEntry->faceID) {
-                found = true;
-                break;
+        for (int i = 0; i < pitEntry->arrivalInfoList.size(); i++) {
+            if (pitEntry->arrivalInfoList[i]->receivedFace->faceID == arrivalFaceEntry->faceID) {
+                if (arrivalTransportInfo != NULL) {
+                    if (arrivalTransportInfo->transportAddress == pitEntry->arrivalInfoList[i]->receivedFace->transportAddress) {
+                        EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << "  Interest received before from  " << arrivalFaceEntry->faceID
+                                << " " << arrivalTransportInfo->transportAddress << "\n";
+                        found = true;
+                        break;
+                    }
+                } else {
+                    EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << "  Interest received before from  " << arrivalFaceEntry->faceID << "\n";
+                    found = true;
+                    break;
+                }
             }
         }
-        if (!found) {
-            EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " no face in PIT entry found  " << "\n";
 
-            pitEntry->receivedFaces.push_back(arrivalFaceEntry);
+        // when same Interest was not received from same Face and same transport address
+        // then add it to PIT entry
+        if (!found) {
+            EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " no face and transport address in PIT entry found  " << "\n";
+
+            ArrivalInfo *arrivalInfo = new ArrivalInfo();
+            arrivalInfo->receivedFace = arrivalFaceEntry;
+            if (arrivalTransportInfo != NULL) {
+                arrivalInfo->transportAddress = arrivalTransportInfo->transportAddress;
+            } else {
+                arrivalInfo->transportAddress = "";
+            }
+
+            pitEntry->arrivalInfoList.push_back(arrivalInfo);
         }
 
+        // discard Interest
         delete interestMsg;
         return;
     }
@@ -267,24 +310,34 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " no PIT entry found  " << "\n";
 
     // discard interest if it has reached the maximum hop count
-    if ((interestMsg->getHopsTravelled() + 1) > interestMsg->getMaxHopsAllowed()) {
+    if ((interestMsg->getHopLimit() - 1) == 0) {
 
         //if (strstr(getParentModule()->getFullName(), "ContentServer02") != NULL)
-        EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " interest exceeded hops  " << "\n";
+        EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << "Interest exceeded hops, discarding Interest  " << "\n";
 
         delete interestMsg;
         return;
     }
 
-    // save interest in PIT - create new PIT entry
+    // save Interest in PIT - create new PIT entry
     pitEntry = new PITEntry;
     pitEntry->prefixName = interestMsg->getPrefixName();
     pitEntry->dataName = interestMsg->getDataName();
     pitEntry->versionName = interestMsg->getVersionName();
     pitEntry->segmentNum = interestMsg->getSegmentNum();
-    pitEntry->senderAddress = interestMsg->getSourceAddress();
-    pitEntry->receivedFaces.push_back(arrivalFaceEntry);
+    pitEntry->hopLimit = interestMsg->getHopLimit() - 1;
+    pitEntry->hopsTravelled = interestMsg->getHopsTravelled() + 1;
+
+    ArrivalInfo *arrivalInfo = new ArrivalInfo();
+    arrivalInfo->receivedFace = arrivalFaceEntry;
+    if (arrivalTransportInfo != NULL) {
+        arrivalInfo->transportAddress = arrivalTransportInfo->transportAddress;
+    } else {
+        arrivalInfo->transportAddress = "";
+    }
+    pitEntry->arrivalInfoList.push_back(arrivalInfo);
     pit.push_back(pitEntry);
+
 
     // find which FIB entry to use to forward the Interest
     FIBEntry *fibEntry = longestPrefixMatchingInFIB(interestMsg->getPrefixName());
@@ -323,6 +376,7 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         iteratorFaceEntry++;
     }
 
+    // discard Interest
     delete interestMsg;
     return;
 }
@@ -330,16 +384,20 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
 void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
 {
 
-    // check if the content obj is already in content store
+    // check if the content obj is already in CS
     CSEntry *csEntry = getCSEntry(contentObjMsg->getPrefixName(), contentObjMsg->getDataName(),
                                     contentObjMsg->getVersionName(), contentObjMsg->getSegmentNum());
+
+    // when the Content Obj is in CS, then there should not be any PIT entry
+    // so, simply disregard the Content Obj
     if (csEntry != NULL) {
         EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " content already in CS " << "\n";
         delete contentObjMsg;
         return;
     }
 
-    // before adding content to CS, check if size exceeded
+    // before adding content to CS, check if size will exceed the limit
+    // when so, remove cache entries until the new content can be added
     if (maximumContentStoreSize > 0) {
         while ((currentCSSize + contentObjMsg->getPayloadSize()) > maximumContentStoreSize) {
             CSEntry *removingCSEntry = cs.front();
@@ -363,16 +421,21 @@ void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
     cs.push_back(csEntry);
     currentCSSize += contentObjMsg->getPayloadSize();
 
-    // forward to the faces in the
+    // find the PIT entry, if there is one saved
     PITEntry *pitEntry = getPITEntry(contentObjMsg->getPrefixName(), contentObjMsg->getDataName(),
                             contentObjMsg->getVersionName(), contentObjMsg->getSegmentNum());
+
+    // when there is no PIT entry, simply drop the Content Obj
+    // because nobody to forward it to
     if (pitEntry == NULL) {
         delete contentObjMsg;
         return;
     }
 
-    for (int i = 0; i < pitEntry->receivedFaces.size(); i++) {
-        FaceEntry *faceEntry = pitEntry->receivedFaces[i];
+    // when the PIT entry exists, send Content Obj to all Interests that were
+    // recoded in the PIT (i.e., Faces and transport addresses)
+    for (int i = 0; i < pitEntry->arrivalInfoList.size(); i++) {
+        ArrivalInfo *arrivalInfo = pitEntry->arrivalInfoList[i];
 
         ContentObjMsg *newContentObjMsg = new ContentObjMsg("ContentObj");
         newContentObjMsg->setPrefixName(contentObjMsg->getPrefixName());
@@ -387,17 +450,26 @@ void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
         newContentObjMsg->setPayloadAsString(contentObjMsg->getPayloadAsString());
         newContentObjMsg->setByteLength(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE + contentObjMsg->getPayloadSize());
 
+        // add the transport address if it exists
+        if (arrivalInfo->transportAddress.size() > 0) {
+            ExchangedTransportInfo *arrivalTransportInfo = new ExchangedTransportInfo("ExchangedTransportInfo");
+            arrivalTransportInfo->transportAddress = arrivalInfo->transportAddress;
+            newContentObjMsg->addObject(arrivalTransportInfo);
+        }
+
         // send content obj
-        cGate *sendingGate = gate(faceEntry->outputGateName.c_str(), faceEntry->gateIndex);
+        cGate *sendingGate = gate(arrivalInfo->receivedFace->outputGateName.c_str(), arrivalInfo->receivedFace->gateIndex);
         send(newContentObjMsg, sendingGate);
 
     }
 
-    pitEntry->receivedFaces.clear();
+    // remove the PIT entry as it was served
+    pitEntry->arrivalInfoList.clear();
     pit.remove(pitEntry);
     delete pitEntry;
 
-
+    // remove the Content Obj as it was saved and also sent to
+    // the Interest senders
     delete contentObjMsg;
 }
 
@@ -409,15 +481,16 @@ void RFC8569Forwarder::processInterestRtn(InterestRtnMsg *interestRtnMsg)
     PITEntry *pitEntry = getPITEntry(interestRtnMsg->getPrefixName(), interestRtnMsg->getDataName(),
                                        interestRtnMsg->getVersionName(), interestRtnMsg->getSegmentNum());
 
-    // when no PIT entry exist, silently discard and return
+    // when no PIT entry exist, discard Interest
     if (pitEntry == NULL) {
         delete interestRtnMsg;
         return;
     }
 
-    // send interest return to all faces in PIT entry
-    for (int i = 0; i < pitEntry->receivedFaces.size(); i++) {
-        FaceEntry *faceEntry = pitEntry->receivedFaces[i];
+    // when the PIT entry exists, send Interest Return to all Interest senders
+    // that were recoded in the PIT (i.e., Faces and transport addresses)
+    for (int i = 0; i < pitEntry->arrivalInfoList.size(); i++) {
+        ArrivalInfo *arrivalInfo = pitEntry->arrivalInfoList[i];
 
         // create message
         InterestRtnMsg *newInterestRtnMsg = new InterestRtnMsg("InterestRtn");
@@ -430,17 +503,25 @@ void RFC8569Forwarder::processInterestRtn(InterestRtnMsg *interestRtnMsg)
         newInterestRtnMsg->setPayloadSize(interestRtnMsg->getPayloadSize());
         newInterestRtnMsg->setByteLength(interestRtnMsg->getByteLength());
 
-        // send
-        cGate *sendingGate = gate(faceEntry->outputGateName.c_str(), faceEntry->gateIndex);
+        // add the transport address if it exists
+        if (arrivalInfo->transportAddress.size() > 0) {
+            ExchangedTransportInfo *arrivalTransportInfo = new ExchangedTransportInfo("ExchangedTransportInfo");
+            arrivalTransportInfo->transportAddress = arrivalInfo->transportAddress;
+            newInterestRtnMsg->addObject(arrivalTransportInfo);
+        }
+
+        // send Interest Return
+        cGate *sendingGate = gate(arrivalInfo->receivedFace->outputGateName.c_str(), arrivalInfo->receivedFace->gateIndex);
         send(newInterestRtnMsg, sendingGate);
 
     }
 
-    // clear & remove PIT entry
-    pitEntry->receivedFaces.clear();
+    // remove the PIT entry as it was served
+    pitEntry->arrivalInfoList.clear();
     pit.remove(pitEntry);
     delete pitEntry;
 
+    // remove the Interest Return as it was sent to the Interest senders
     delete interestRtnMsg;
 }
 
