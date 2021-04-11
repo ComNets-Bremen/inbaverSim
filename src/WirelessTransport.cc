@@ -40,8 +40,8 @@ void WirelessTransport::initialize(int stage)
         getDeusModel();
         getAllOtherModels();
 
-        // register the transport with forwarding
-        registerWirelessTransport();
+        // register the transport with Deus
+        registerWirelessTransportWithDeus();
 
     } else if (stage == 2) {
 
@@ -59,7 +59,7 @@ void WirelessTransport::initialize(int stage)
 
 void WirelessTransport::handleMessage(cMessage *msg)
 {
-    // register interface with upper layer (forwarder)
+    // register transport with upper layer (forwarder)
     if (msg->isSelfMessage()) {
         if (msg->getKind() == WIRELESSTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE) {
 
@@ -237,9 +237,9 @@ void WirelessTransport::processOutgoingOnAPNode(cMessage *msg)
         transportMsg->setBroadcastMsg(false);
         transportMsg->setDestinationAddress(destinationTransportInfo->transportAddress.c_str());
         transportMsg->encapsulate((cPacket *) copyOfMsg);
-        transportMsg->setHeaderSize(INBAVER_WIRELESS_TRANSPORT_MSG_HEADER_SIZE);
+        transportMsg->setHeaderSize(headerSize);
         transportMsg->setPayloadSize(msgSize);
-        transportMsg->setByteLength(INBAVER_WIRELESS_TRANSPORT_MSG_HEADER_SIZE + msgSize);
+        transportMsg->setByteLength(headerSize + msgSize);
 
         // send msg directly to node
         sendDirect(transportMsg, wirelessTransportInfo->wirelessTransportModel, "radioIn");
@@ -269,9 +269,9 @@ void WirelessTransport::processOutgoingOnAPNode(cMessage *msg)
             transportMsg->setBroadcastMsg(false);
             transportMsg->setDestinationAddress(destinationTransportInfo->transportAddress.c_str());
             transportMsg->encapsulate((cPacket *)copyOfMsg);
-            transportMsg->setHeaderSize(INBAVER_WIRELESS_TRANSPORT_MSG_HEADER_SIZE);
+            transportMsg->setHeaderSize(headerSize);
             transportMsg->setPayloadSize(msgSize);
-            transportMsg->setByteLength(INBAVER_WIRELESS_TRANSPORT_MSG_HEADER_SIZE + msgSize);
+            transportMsg->setByteLength(headerSize + msgSize);
 
             // send msg directly to node
             sendDirect(transportMsg, wirelessTransportInfo->wirelessTransportModel, "radioIn");
@@ -365,9 +365,9 @@ void WirelessTransport::processOutgoingOnClientNode(cMessage *msg)
     transportMsg->setBroadcastMsg(false);
     transportMsg->setDestinationAddress(currentConnectAP->macAddress.c_str());
     transportMsg->encapsulate((cPacket *) copyOfMsg);
-    transportMsg->setHeaderSize(INBAVER_WIRELESS_TRANSPORT_MSG_HEADER_SIZE);
+    transportMsg->setHeaderSize(headerSize);
     transportMsg->setPayloadSize(msgSize);
-    transportMsg->setByteLength(INBAVER_WIRELESS_TRANSPORT_MSG_HEADER_SIZE + msgSize);
+    transportMsg->setByteLength(headerSize + msgSize);
 
     // send msg directly to node
     sendDirect(transportMsg, currentConnectAP->wirelessTransportModel, "radioIn");
@@ -474,9 +474,9 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
         transportMsg->setBroadcastMsg(false);
         transportMsg->setDestinationAddress(destinationTransportInfo->transportAddress.c_str());
         transportMsg->encapsulate((cPacket *) copyOfMsg);
-        transportMsg->setHeaderSize(INBAVER_WIRELESS_TRANSPORT_MSG_HEADER_SIZE);
+        transportMsg->setHeaderSize(headerSize);
         transportMsg->setPayloadSize(msgSize);
-        transportMsg->setByteLength(INBAVER_WIRELESS_TRANSPORT_MSG_HEADER_SIZE + msgSize);
+        transportMsg->setByteLength(headerSize + msgSize);
 
         // send msg directly to node
         sendDirect(transportMsg, wirelessTransportInfo->wirelessTransportModel, "radioIn");
@@ -506,9 +506,9 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
             transportMsg->setBroadcastMsg(false);
             transportMsg->setDestinationAddress(destinationTransportInfo->transportAddress.c_str());
             transportMsg->encapsulate((cPacket *)copyOfMsg);
-            transportMsg->setHeaderSize(INBAVER_WIRELESS_TRANSPORT_MSG_HEADER_SIZE);
+            transportMsg->setHeaderSize(headerSize);
             transportMsg->setPayloadSize(msgSize);
-            transportMsg->setByteLength(INBAVER_WIRELESS_TRANSPORT_MSG_HEADER_SIZE + msgSize);
+            transportMsg->setByteLength(headerSize + msgSize);
 
             // send msg directly to node
             sendDirect(transportMsg, wirelessTransportInfo->wirelessTransportModel, "radioIn");
@@ -525,7 +525,7 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
 
 void WirelessTransport::buildMACLikeAddress()
 {
-    // build own (MAC-like) unique address - 0xBB is wireless interface
+    // build own (MAC-like) unique address - 0xBB is for wireless transports
     char str[24];
     long ifcID = getId();
     int len = sizeof(ifcID) - 1;
@@ -587,7 +587,7 @@ void WirelessTransport::getAllOtherModels()
     }
 }
 
-void WirelessTransport::registerWirelessTransport()
+void WirelessTransport::registerWirelessTransportWithDeus()
 {
 
     nodeID = nodeModel->getId();

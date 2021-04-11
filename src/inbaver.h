@@ -169,9 +169,4 @@ class ExchangedTransportInfo : public omnetpp::cObject
 
 };
 
-
-#define INBAVER_WIRELESS_TRANSPORT_MSG_HEADER_SIZE                   16
-
-
-
 #endif /* INBAVER_H_ */

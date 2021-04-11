@@ -33,6 +33,34 @@ class WiredTransport : public cSimpleModule
     virtual int numInitStages() const {return 3;}
     virtual void finish();
 
+  private:
+      // model parameters
+      double dataRate;
+      double packetErrorRate;
+      int headerSize;
+
+      // globally unique MAC-like address
+      string macAddress;
+
+      // node ID
+      long nodeID;
+
+      // model info
+      Deus *deusModel;
+      Numen *numenModel;
+      cModule *nodeModel;
+      inet::IMobility *mobilityModel;
+
+      void buildMACLikeAddress();
+      void getDeusModel();
+      void getAllOtherModels();
+      void registerWiredTransportWithDeus();
+      void processOutgoingMessage(cMessage *msg);
+      void processIncomingMessage(cMessage *msg);
+
 };
+
+#define WIREDTRANSPORT_SIMMODULEINFO                   simTime() << ">!<" << getParentModule()->getFullName() << ">!<WiredTransport>!<"
+#define WIREDTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE    106
 
 #endif

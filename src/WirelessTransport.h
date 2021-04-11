@@ -63,7 +63,7 @@ class WirelessTransport : public cSimpleModule
         void buildMACLikeAddress();
         void getDeusModel();
         void getAllOtherModels();
-        void registerWirelessTransport();
+        void registerWirelessTransportWithDeus();
         bool inWirelessRange(inet::IMobility *neighbourMobilityModel, inet::IMobility *ownMobilityModel, double radius);
         void processOutgoingMessage(cMessage *msg);
         void processOutgoingOnAPNode(cMessage *msg);
