@@ -35,6 +35,7 @@ class WiredTransport : public cSimpleModule
 
   private:
       // model parameters
+      string wiredTechnology;
       double dataRate;
       double packetErrorRate;
       int headerSize;

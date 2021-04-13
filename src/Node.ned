@@ -43,7 +43,7 @@ module Node
         wireless[numWirelessTransports]: <> like ITransport {
             @display("p=309,246");
         }
-        mobility: <> like IMobility {
+        mob: <> like IMobility {
             @display("p=299,169");
         }
 

@@ -15,6 +15,7 @@ void WiredTransport::initialize(int stage)
 {
     if (stage == 0) {
         // get all parameters
+        wiredTechnology = par("wiredTechnology").stringValue();
         dataRate = par("dataRate");
         packetErrorRate = par("packetErrorRate");
         headerSize = par("headerSize");

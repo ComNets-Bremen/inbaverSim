@@ -50,6 +50,17 @@ void WirelessTransport::initialize(int stage)
         transportRegReminderEvent->setKind(WIRELESSTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE);
         scheduleAt(simTime(), transportRegReminderEvent);
 
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "macAddress: " << macAddress << "\n";
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "wirelessTechnology: " << wirelessTechnology << "\n";
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "operationMode: " << operationMode << "\n";
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "connectString: " << connectString << "\n";
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "wirelessRange: " << wirelessRange << "\n";
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "dataRate: " << dataRate << "\n";
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "packetErrorRate: " << packetErrorRate << "\n";
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "scanInterval: " << scanInterval << "\n";
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "headerSize: " << headerSize << "\n";
+
+
     } else {
         EV_INFO << WIRELESSTRANSPORT_SIMMODULEINFO << "unknown initialize() stage" << "\n";
         throw cRuntimeError("Check log for details");
@@ -292,12 +303,16 @@ void WirelessTransport::processOutgoingOnClientNode(cMessage *msg)
     // get CCNx message size
     long msgSize = ((cPacket *)msg)->getByteLength();
 
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << "here a \n";
+
     // get destination address if given
     ExchangedTransportInfo *destinationTransportInfo = NULL;
     if (msg->hasObject("ExchangedTransportInfo")) {
         destinationTransportInfo = check_and_cast<ExchangedTransportInfo*>(msg->getObject("ExchangedTransportInfo"));
         msg->removeObject("ExchangedTransportInfo");
     }
+
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here b \n";
 
     // get the ap wireless group to identify to which this client is
     // connected
@@ -320,12 +335,13 @@ void WirelessTransport::processOutgoingOnClientNode(cMessage *msg)
     // when not found, that means no ap is active in network
     // so, discard message and return
     if (!found) {
-        if (destinationTransportInfo) {
+        if (destinationTransportInfo != NULL) {
             delete destinationTransportInfo;
         }
         delete msg;
         return;
     }
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here c \n";
 
     // identify the AP to connect to
     WirelessTransportInfo* currentConnectAP = NULL;
@@ -333,20 +349,46 @@ void WirelessTransport::processOutgoingOnClientNode(cMessage *msg)
     while (iteratorWirelessTransportInfo != sameWirelessGroup->wirelessTransportInfoList.end()) {
         WirelessTransportInfo *wirelessTransportInfo = *iteratorWirelessTransportInfo;
 
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here c0 \n";
+
         // when in wireless range select AP
         if (inWirelessRange(wirelessTransportInfo->mobilityModel, mobilityModel, wirelessRange)) {
             currentConnectAP = wirelessTransportInfo;
+
+            cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here c00 \n";
+
+            // when there was no last connected AP,
+            // select the first found as the AP to connect to
+            if (lastConnectedAP == NULL) {
+                break;
+            }
 
             // when the selected AP is the same as last connected,
             // use the same - to avoid ping-pong effect of selecting APs
             if (currentConnectAP->macAddress == lastConnectedAP->macAddress) {
                 break;
             }
+            cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here c000 \n";
         }
 
         iteratorWirelessTransportInfo++;
     }
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here c1 \n";
+
+    // the AP may not be in range
+    if (currentConnectAP == NULL) {
+        if (destinationTransportInfo != NULL) {
+            delete destinationTransportInfo;
+        }
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here c2 \n";
+        delete msg;
+        return;
+    }
+
+    // use the AP
     lastConnectedAP = currentConnectAP;
+
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here d \n";
 
     // the selected AP must also be the destination,
     // if not, discard the msg
@@ -356,24 +398,33 @@ void WirelessTransport::processOutgoingOnClientNode(cMessage *msg)
         return;
     }
 
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here e \n";
+
     // make copy of original message
     cMessage *copyOfMsg = msg->dup();
 
     // create message
     TransportMsg *transportMsg = new TransportMsg();
     transportMsg->setSourceAddress(macAddress.c_str());
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here e1 \n";
     transportMsg->setBroadcastMsg(false);
     transportMsg->setDestinationAddress(currentConnectAP->macAddress.c_str());
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here e2 \n";
     transportMsg->encapsulate((cPacket *) copyOfMsg);
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here e3 \n";
     transportMsg->setHeaderSize(headerSize);
     transportMsg->setPayloadSize(msgSize);
     transportMsg->setByteLength(headerSize + msgSize);
 
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here f \n";
+
     // send msg directly to node
     sendDirect(transportMsg, currentConnectAP->wirelessTransportModel, "radioIn");
 
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << "here g \n";
+
     // remove original msg and return
-    if (destinationTransportInfo) {
+    if (destinationTransportInfo != NULL) {
         delete destinationTransportInfo;
     }
     delete msg;
@@ -385,12 +436,16 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
     // get CCNx message size
     long msgSize = ((cPacket *)msg)->getByteLength();
 
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x1 \n";
+
     // get destination address if given
     ExchangedTransportInfo *destinationTransportInfo = NULL;
     if (msg->hasObject("ExchangedTransportInfo")) {
         destinationTransportInfo = check_and_cast<ExchangedTransportInfo*>(msg->getObject("ExchangedTransportInfo"));
         msg->removeObject("ExchangedTransportInfo");
     }
+
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x2 \n";
 
     // vector to hold all the nodes to communicate with
     vector <WirelessTransportInfo*> potentialWirelessNodesList;
@@ -413,10 +468,12 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
         iteratorSameWirelessGroup++;
     }
 
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x3 \n";
+
     // when not found, that means no client nodes in direct mode to communicate with
     // so, discard message and return
     if (!found) {
-        if (destinationTransportInfo) {
+        if (destinationTransportInfo != NULL) {
             delete destinationTransportInfo;
         }
         delete msg;
@@ -429,6 +486,12 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
     while (iteratorWirelessTransportInfo != sameWirelessGroup->wirelessTransportInfoList.end()) {
         WirelessTransportInfo *wirelessTransportInfo = *iteratorWirelessTransportInfo;
 
+        // leave out yourself from the list
+        if (wirelessTransportInfo->macAddress == macAddress) {
+            iteratorWirelessTransportInfo++;
+            continue;
+        }
+
         // when in wireless range, select
         if (inWirelessRange(wirelessTransportInfo->mobilityModel, mobilityModel, wirelessRange)) {
             potentialWirelessNodesList.push_back(wirelessTransportInfo);
@@ -437,36 +500,51 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
         iteratorWirelessTransportInfo++;
     }
 
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x4 \n";
+
     // check whether a destination address is given
     // this means the message goes only to one destination
     if (destinationTransportInfo != NULL) {
 
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x41 \n";
         // when destination given, then send message to only given node
         // but still, only if  that node is in neighbourhood (i.e., connected)
         bool found = false;
         WirelessTransportInfo *wirelessTransportInfo = NULL;
         for (int i = 0; i < potentialWirelessNodesList.size(); i++) {
+
+            cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x42 \n";
+
             wirelessTransportInfo = potentialWirelessNodesList[i];
             if (wirelessTransportInfo->macAddress == destinationTransportInfo->transportAddress) {
                 found = true;
                 break;
             }
+
+            cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x43 \n";
+
         }
+
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x5 \n";
 
         // when node is not in list (i.e., neighbourhood), then that node has moved away
         // so discard message
         if (!found) {
-            if (destinationTransportInfo) {
+            if (destinationTransportInfo != NULL) {
                 delete destinationTransportInfo;
             }
             delete msg;
             return;
         }
 
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x6 \n";
+
         // when node is in wireless range, create and send the message
 
         // make copy of original message
         cMessage *copyOfMsg = msg->dup();
+
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x7 \n";
 
         // create message
         TransportMsg *transportMsg = new TransportMsg();
@@ -478,11 +556,15 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
         transportMsg->setPayloadSize(msgSize);
         transportMsg->setByteLength(headerSize + msgSize);
 
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x8 \n";
+
         // send msg directly to node
         sendDirect(transportMsg, wirelessTransportInfo->wirelessTransportModel, "radioIn");
 
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x9 \n";
+
         // remove original msg and return
-        if (destinationTransportInfo) {
+        if (destinationTransportInfo != NULL) {
             delete destinationTransportInfo;
         }
         delete msg;
@@ -490,12 +572,18 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
 
     }
 
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x10 \n";
+
     // this means the message goes to all the direct nodes in wireless range
     if (destinationTransportInfo == NULL) {
+
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " node list" << potentialWirelessNodesList.size() << " here x11 \n";
 
         // loop around list and send to every one
         for (int i = 0; i < potentialWirelessNodesList.size(); i++) {
             WirelessTransportInfo *wirelessTransportInfo = potentialWirelessNodesList[i];
+
+            cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x12 \n";
 
             // make copy of original message
             cMessage *copyOfMsg = msg->dup();
@@ -503,16 +591,22 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
             // create message
             TransportMsg *transportMsg = new TransportMsg();
             transportMsg->setSourceAddress(macAddress.c_str());
-            transportMsg->setBroadcastMsg(false);
-            transportMsg->setDestinationAddress(destinationTransportInfo->transportAddress.c_str());
+            transportMsg->setBroadcastMsg(true);
+            transportMsg->setDestinationAddress("");
             transportMsg->encapsulate((cPacket *)copyOfMsg);
             transportMsg->setHeaderSize(headerSize);
             transportMsg->setPayloadSize(msgSize);
             transportMsg->setByteLength(headerSize + msgSize);
 
+            cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x13 \n";
+
             // send msg directly to node
             sendDirect(transportMsg, wirelessTransportInfo->wirelessTransportModel, "radioIn");
+
+            cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x14 \n";
         }
+
+        cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x15 \n";
 
         // remove original msg and return
         if (destinationTransportInfo) {
@@ -521,6 +615,8 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
         delete msg;
         return;
     }
+
+    cout << WIRELESSTRANSPORT_SIMMODULEINFO << " " << msg->getName() << " here x12 \n";
 }
 
 void WirelessTransport::buildMACLikeAddress()

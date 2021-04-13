@@ -14,29 +14,48 @@ module WirelessAccessRouter extends Node
     parameters:
         @networkNode();
 
+        // transports used in node
         numWiredTransports = 1;
         numWirelessTransports = 1;
-        fwd.typename = "RFC8569Forwarder";
+        
+        // forwarder used in node
+        string forwarder = default("RFC8569Forwarder");
+
+        // WLAN transport parameters
+        string wlanConnectString = default("ccn");
+        double wlanWirelessRange @unit(meter) = default(10m);
+        double wlanDataRate @unit(bps) = default(1e6bps);
+        double wlanPacketErrorRate @unit(pct) = default(0.0pct);
+
+        // Ethernet transport parameters
+        double ethDataRate @unit(bps) = default(1e6bps);
+        double ethPacketErrorRate @unit(pct) = default(0.0pct);
+
+        // mobility model settings
+        string mobility = default("StationaryMobility");
+
+        // set forwarder used
+        fwd.typename = forwarder;
 
         // set first interface (WLAN)
         wireless[0].typename = "WirelessTransport";
         wireless[0].wirelessTechnology = "WLAN";
         wireless[0].operationMode = "ap";
-        wireless[0].connectString = "ccn";
-        wireless[0].wirelessRange = 10m;
-        wireless[0].dataRate = 6e6bps;
-        wireless[0].packetErrorRate = 0.0pct;
+        wireless[0].connectString = wlanConnectString;
+        wireless[0].wirelessRange = wlanWirelessRange;
+        wireless[0].dataRate = wlanDataRate;
+        wireless[0].packetErrorRate = wlanPacketErrorRate;
         wireless[0].scanInterval = 1s;
         wireless[0].headerSize = 32byte;
 
         // set second interface (Wired)
         wired[0].typename = "WiredTransport";
-        wired[0].dataRate = 1e6bps;
-        wired[0].packetErrorRate = 0.0pct;
+        wired[0].dataRate = ethDataRate;
+        wired[0].packetErrorRate = ethPacketErrorRate;
         wired[0].headerSize = 32byte;
 
         // set mobility default
-        mobility.typename = "StationaryMobility";
+        mob.typename = mobility;
 
         @display("i=device/accesspoint;bgb=418,317");
 

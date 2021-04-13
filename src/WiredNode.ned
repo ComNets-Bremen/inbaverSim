@@ -13,18 +13,31 @@ module WiredNode extends Node
     parameters:
         @networkNode();
 
+        // transports used in node
         numWiredTransports = 1;
         numWirelessTransports = 0;
-        fwd.typename = "RFC8569Forwarder";
+
+        // forwarder used in node
+        string forwarder = default("RFC8569Forwarder");
+
+        // Ethernet transport parameters
+        double ethDataRate @unit(bps) = default(1e6bps);
+        double ethPacketErrorRate @unit(pct) = default(0.0pct);
+
+        // mobility model settings
+        string mobility = default("StationaryMobility");
+
+        // set forwarder used
+        fwd.typename = forwarder;
 
         // set second interface (Wired)
         wired[0].typename = "WiredTransport";
-        wired[0].dataRate = 1e6bps;
-        wired[0].packetErrorRate = 0.0pct;
+        wired[0].dataRate = ethDataRate;
+        wired[0].packetErrorRate = ethPacketErrorRate;
         wired[0].headerSize = 32byte;
 
         // set mobility default
-        mobility.typename = "StationaryMobility";
+        mob.typename = mobility;
 
         @display("i=device/pc2;bgb=418,317");
 

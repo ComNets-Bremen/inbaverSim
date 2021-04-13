@@ -137,7 +137,7 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
         interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
 
 
-        EV_INFO << CONTENTDOWNLOADAPP_SIMMODULEINFO << " first interest "
+        cout << CONTENTDOWNLOADAPP_SIMMODULEINFO << " first interest "
                 << requestingPrefixName << "/" << requestingDataName
                 << ", requested seg - " << requestedSegNum
                 << ", total segs - " << totalSegments << "\n";
@@ -206,7 +206,7 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
                 // was this the last segment?
                 if ((requestedSegNum + 1) >= totalSegments) {
 
-                    EV_INFO << CONTENTDOWNLOADAPP_SIMMODULEINFO << " last segment received - delay "
+                    cout << CONTENTDOWNLOADAPP_SIMMODULEINFO << " last segment received - delay "
                             << (simTime() - startTime) << "\n";
 
                     // content downloaded, so generate duration stat
@@ -237,7 +237,7 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
                     interestMsg->setHopsTravelled(0);
                     interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
 
-                    EV_INFO << CONTENTDOWNLOADAPP_SIMMODULEINFO << " next interest "
+                    cout << CONTENTDOWNLOADAPP_SIMMODULEINFO << " next interest "
                             << requestingPrefixName << "/" << requestingDataName
                             << ", requested seg - " << requestedSegNum
                             << ", total segs - " << totalSegments << "\n";

@@ -13,6 +13,9 @@ simple WiredTransport like ITransport
 {
     parameters:
 
+        // wired technology -> Ethernet, Fibre Optic
+        string wiredTechnology = default("Ethernet");
+
         // bandwidth in bits per second
         double dataRate @unit(bps) = default(1e6bps);
 

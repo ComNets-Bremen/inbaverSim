@@ -73,6 +73,10 @@ void RFC8569Forwarder::handleMessage(cMessage *msg)
     ContentObjMsg *contentObjMsg = NULL;
     InterestRtnMsg *interestRtnMsg = NULL;
 
+    // get arrival gate details
+    arrivalGate = msg->getArrivalGate();
+    strcpy(gateName, arrivalGate->getName());
+
     // self messages
     if (msg->isSelfMessage()) {
         delete msg;
@@ -123,6 +127,8 @@ void RFC8569Forwarder::processApplicationRegistration(AppRegistrationMsg *appReg
     cGate *arrivalGate = appRegMsg->getArrivalGate();
     char gateName[64];
 
+    EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " got app registration - " << " \n";
+
     // create face entry
     FaceEntry *faceEntry = new FaceEntry;
     faceEntry->faceID = appRegMsg->getAppID();
@@ -139,6 +145,16 @@ void RFC8569Forwarder::processApplicationRegistration(AppRegistrationMsg *appReg
     }
     registeredFaces.push_back(faceEntry);
 
+    EV_INFO << RFC8569FORWARDER_SIMMODULEINFO
+            << " face registration details - "
+            << " face ID: " << faceEntry->faceID
+            << " type: " << faceEntry->faceType
+            << " input gate: " << faceEntry->inputGateName
+            << " base gate: " << faceEntry->baseGateName
+            << " output gate: " << faceEntry->outputGateName
+            << " face index: " << faceEntry->gateIndex
+            << " \n";
+
     // when app hosts prefixes, add to FIB and setup for late dissemination
     if (appRegMsg->getContentServerApp()) {
         for (int i = 0; i < appRegMsg->getHostedPrefixNamesArraySize(); i++) {
@@ -148,6 +164,11 @@ void RFC8569Forwarder::processApplicationRegistration(AppRegistrationMsg *appReg
             fibEntry->forwardedFaces.push_back(faceEntry);
 
             fib.push_back(fibEntry);
+
+            EV_INFO << RFC8569FORWARDER_SIMMODULEINFO
+                    << " adding prefixes hosted to FIB - "
+                    << " prefix: " << fibEntry->prefixName
+                    << " \n";
         }
     }
 
@@ -158,7 +179,6 @@ void RFC8569Forwarder::processTransportRegistration(TransportRegistrationMsg *tr
 {
     cGate *arrivalGate = transportRegMsg->getArrivalGate();
     char gateName[48];
-    char tempStr[32];
 
     // create face entry
     FaceEntry *faceEntry = new FaceEntry;
@@ -540,7 +560,8 @@ FaceEntry *RFC8569Forwarder::getFaceEntryFromInputGateName(string inputGateName,
         iteratorFaceEntry++;
     }
 
-    EV_FATAL <<  RFC8569FORWARDER_SIMMODULEINFO << "Something is radically wrong - face entry not found\n";
+    EV_FATAL <<  RFC8569FORWARDER_SIMMODULEINFO << "Something is radically wrong - face entry not found - gate name: "
+            << inputGateName << ", index: " << gateIndex << "\n";
     throw cRuntimeError("Check log for details");
 }
 
