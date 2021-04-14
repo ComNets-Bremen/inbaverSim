@@ -33,7 +33,7 @@ class ContentDownloadApp : public cSimpleModule
 
 
   private:
-    double contentRequestInterval;
+    double interContentDownloadInterval;
     string requestedPrefixNames;
     string dataNamePrefix;
     int maxHopsAllowed;
@@ -55,7 +55,7 @@ class ContentDownloadApp : public cSimpleModule
     string requestingDataName;
     int requestedSegNum;
     int totalSegments;
-    simtime_t startTime;
+    simtime_t contentDownloadStartTime;
 
     // stat signals
     simsignal_t contentDownloadDurationSignal;

@@ -43,7 +43,7 @@ packet InterestMsg
 
     // hops
     int hopsTravelled;
-
+    
 }
 
 
@@ -86,6 +86,8 @@ packet ContentObjMsg
     
     // any payload
     string payloadAsString;
+    
+    // 
 
 }
 

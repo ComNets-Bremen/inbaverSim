@@ -110,13 +110,10 @@ void RFC8569Forwarder::handleMessage(cMessage *msg)
 
         } else {
 
-            EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << "Received unexpected packet" << "\n";
+            cout << RFC8569FORWARDER_SIMMODULEINFO << "Received unexpected packet" << "\n";
             delete msg;
         }
     }
-
-    EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " handle msg done " << " \n";
-
 
     return;
 
@@ -126,8 +123,6 @@ void RFC8569Forwarder::processApplicationRegistration(AppRegistrationMsg *appReg
 {
     cGate *arrivalGate = appRegMsg->getArrivalGate();
     char gateName[64];
-
-    EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " got app registration - " << " \n";
 
     // create face entry
     FaceEntry *faceEntry = new FaceEntry;
@@ -145,15 +140,15 @@ void RFC8569Forwarder::processApplicationRegistration(AppRegistrationMsg *appReg
     }
     registeredFaces.push_back(faceEntry);
 
-    EV_INFO << RFC8569FORWARDER_SIMMODULEINFO
-            << " face registration details - "
-            << " face ID: " << faceEntry->faceID
-            << " type: " << faceEntry->faceType
-            << " input gate: " << faceEntry->inputGateName
-            << " base gate: " << faceEntry->baseGateName
-            << " output gate: " << faceEntry->outputGateName
-            << " face index: " << faceEntry->gateIndex
-            << " \n";
+//    cout << RFC8569FORWARDER_SIMMODULEINFO
+//            << " face registration details - "
+//            << " face ID: " << faceEntry->faceID
+//            << " type: " << faceEntry->faceType
+//            << " input gate: " << faceEntry->inputGateName
+//            << " base gate: " << faceEntry->baseGateName
+//            << " output gate: " << faceEntry->outputGateName
+//            << " face index: " << faceEntry->gateIndex
+//            << " \n";
 
     // when app hosts prefixes, add to FIB and setup for late dissemination
     if (appRegMsg->getContentServerApp()) {
@@ -165,10 +160,10 @@ void RFC8569Forwarder::processApplicationRegistration(AppRegistrationMsg *appReg
 
             fib.push_back(fibEntry);
 
-            EV_INFO << RFC8569FORWARDER_SIMMODULEINFO
-                    << " adding prefixes hosted to FIB - "
-                    << " prefix: " << fibEntry->prefixName
-                    << " \n";
+//            cout << RFC8569FORWARDER_SIMMODULEINFO
+//                    << " adding prefixes hosted to FIB - "
+//                    << " prefix: " << fibEntry->prefixName
+//                    << " \n";
         }
     }
 
@@ -227,6 +222,13 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     int arrivalGateIndex =  (arrivalGate->isVector() ? arrivalGate->getIndex() : (-1));
     FaceEntry *arrivalFaceEntry = getFaceEntryFromInputGateName(arrivalGate->getName(), arrivalGateIndex);
 
+//    cout << RFC8569FORWARDER_SIMMODULEINFO << " - got Interest:" << interestMsg->getName()
+//            << ", prefix:" << interestMsg->getPrefixName()
+//            << ", data name:" << interestMsg->getDataName()
+//            << ", version:" << interestMsg->getVersionName()
+//            << ", segment:" << interestMsg->getSegmentNum()
+//            << "\n";
+
     // check and get Face and transport address info of sender of Interest,
     ExchangedTransportInfo *arrivalTransportInfo = NULL;
     if (interestMsg->hasObject("ExchangedTransportInfo")) {
@@ -265,7 +267,7 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         send(contentObjMsg, sendingGate);
 
         //if (strstr(getParentModule()->getFullName(), "ContentServer02") != NULL)
-        EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " content entry found  " << "\n";
+//        cout << RFC8569FORWARDER_SIMMODULEINFO << " content entry found  " << "\n";
 
 
         // remove Interest
@@ -273,7 +275,7 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         return;
     }
 
-    EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " no content entry found  " << "\n";
+//    cout << RFC8569FORWARDER_SIMMODULEINFO << " no content entry found  " << "\n";
 
 
     // is there a PIT entry already for previous Interests received
@@ -285,7 +287,7 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     // received, so add the current Interest to the PIT entry
     if (pitEntry != NULL) {
 
-        EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << "  PIT entry found  " << "\n";
+//        cout << RFC8569FORWARDER_SIMMODULEINFO << "  PIT entry found  " << "\n";
 
         // Check if the same Interest was received through the same Face and transport address
         bool found = false;
@@ -293,13 +295,13 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
             if (pitEntry->arrivalInfoList[i]->receivedFace->faceID == arrivalFaceEntry->faceID) {
                 if (arrivalTransportInfo != NULL) {
                     if (arrivalTransportInfo->transportAddress == pitEntry->arrivalInfoList[i]->receivedFace->transportAddress) {
-                        EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << "  Interest received before from  " << arrivalFaceEntry->faceID
-                                << " " << arrivalTransportInfo->transportAddress << "\n";
+//                        cout << RFC8569FORWARDER_SIMMODULEINFO << "  Interest received before from  " << arrivalFaceEntry->faceID
+//                                << " " << arrivalTransportInfo->transportAddress << "\n";
                         found = true;
                         break;
                     }
                 } else {
-                    EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << "  Interest received before from  " << arrivalFaceEntry->faceID << "\n";
+//                    cout << RFC8569FORWARDER_SIMMODULEINFO << "  Interest received before from  " << arrivalFaceEntry->faceID << "\n";
                     found = true;
                     break;
                 }
@@ -309,7 +311,7 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         // when same Interest was not received from same Face and same transport address
         // then add it to PIT entry
         if (!found) {
-            EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " no face and transport address in PIT entry found  " << "\n";
+//            cout << RFC8569FORWARDER_SIMMODULEINFO << " no face and transport address in PIT entry found  " << "\n";
 
             ArrivalInfo *arrivalInfo = new ArrivalInfo();
             arrivalInfo->receivedFace = arrivalFaceEntry;
@@ -327,13 +329,13 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         return;
     }
 
-    EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " no PIT entry found  " << "\n";
+//    cout << RFC8569FORWARDER_SIMMODULEINFO << " no PIT entry found  " << "\n";
 
     // discard interest if it has reached the maximum hop count
     if ((interestMsg->getHopLimit() - 1) == 0) {
 
         //if (strstr(getParentModule()->getFullName(), "ContentServer02") != NULL)
-        EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << "Interest exceeded hops, discarding Interest  " << "\n";
+//        cout << RFC8569FORWARDER_SIMMODULEINFO << "Interest exceeded hops, discarding Interest  " << "\n";
 
         delete interestMsg;
         return;
@@ -362,7 +364,7 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     // find which FIB entry to use to forward the Interest
     FIBEntry *fibEntry = longestPrefixMatchingInFIB(interestMsg->getPrefixName());
 
-    EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " doing longestPrefixMatchingInFIB, at least the default must be returned  " << "\n";
+//    cout << RFC8569FORWARDER_SIMMODULEINFO << " doing longestPrefixMatchingInFIB, at least the default must be returned  " << "\n";
 
     // forward interest to all the faces listed in the FIB entry
     FaceEntry *faceEntry = NULL;
@@ -389,7 +391,7 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
 
             send(newInterestMsg, sendingGate);
 
-            EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " sending interest out  " << "\n";
+//            cout << RFC8569FORWARDER_SIMMODULEINFO << " sending interest out  " << "\n";
 
         }
 
@@ -404,6 +406,14 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
 void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
 {
 
+//    cout << RFC8569FORWARDER_SIMMODULEINFO << " - got Content Obj:" << contentObjMsg->getName()
+//            << ", prefix:" << contentObjMsg->getPrefixName()
+//            << ", data name:" << contentObjMsg->getDataName()
+//            << ", version:" << contentObjMsg->getVersionName()
+//            << ", segment:" << contentObjMsg->getSegmentNum()
+//            << "\n";
+
+
     // check if the content obj is already in CS
     CSEntry *csEntry = getCSEntry(contentObjMsg->getPrefixName(), contentObjMsg->getDataName(),
                                     contentObjMsg->getVersionName(), contentObjMsg->getSegmentNum());
@@ -411,7 +421,7 @@ void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
     // when the Content Obj is in CS, then there should not be any PIT entry
     // so, simply disregard the Content Obj
     if (csEntry != NULL) {
-        EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " content already in CS " << "\n";
+//        cout << RFC8569FORWARDER_SIMMODULEINFO << " content already in CS " << "\n";
         delete contentObjMsg;
         return;
     }
@@ -495,7 +505,7 @@ void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
 
 void RFC8569Forwarder::processInterestRtn(InterestRtnMsg *interestRtnMsg)
 {
-    EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " got upper layer interest rtn "  << " \n";
+//    cout << RFC8569FORWARDER_SIMMODULEINFO << " got upper layer interest rtn "  << " \n";
 
     // Is there a PIT entry for the returning interest?
     PITEntry *pitEntry = getPITEntry(interestRtnMsg->getPrefixName(), interestRtnMsg->getDataName(),
@@ -547,7 +557,7 @@ void RFC8569Forwarder::processInterestRtn(InterestRtnMsg *interestRtnMsg)
 
 FaceEntry *RFC8569Forwarder::getFaceEntryFromInputGateName(string inputGateName, int gateIndex)
 {
-    EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " get face from gate "  << " \n";
+//    cout << RFC8569FORWARDER_SIMMODULEINFO << " get face from gate "  << " \n";
 
     FaceEntry *faceEntry = NULL;
 
@@ -591,7 +601,7 @@ CSEntry *RFC8569Forwarder::getCSEntry(string prefixName, string dataName, string
 
 PITEntry *RFC8569Forwarder::getPITEntry(string prefixName, string dataName, string versionName, int segmentNum)
 {
-    EV_INFO << RFC8569FORWARDER_SIMMODULEINFO << " get PIT entry "  << " \n";
+//    cout << RFC8569FORWARDER_SIMMODULEINFO << " get PIT entry "  << " \n";
 
     PITEntry *pitEntry = NULL;
 

@@ -22,6 +22,9 @@ module Node
         int numWiredTransports = default(0);
         int numWirelessTransports = default(0);
 
+		// statistics
+		@statistic[appContentDownloadDuration](source=appContentDownloadDuration; record=min,max,count,vector);
+		
         @display("bgb=423,301");
 
     gates:

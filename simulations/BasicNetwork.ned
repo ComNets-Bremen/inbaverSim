@@ -21,7 +21,7 @@ network BasicNetwork
         wirelessAccessRouter: WirelessAccessRouter {
             @display("p=206,149");
         }
-        wirelessNode[2]: WirelessNode {
+        wirelessNode: WirelessNode {
             @display("p=82,104");
         }
         contentServer: ContentServer {
@@ -32,5 +32,5 @@ network BasicNetwork
         }
 
     connections allowunconnected:
-        wirelessAccessRouter.wiredInOut++ <--> DatarateChannel <--> contentServer.wiredInOut++;
+        wirelessAccessRouter.wiredInOut++ <--> DatarateChannel {  datarate = 1e6bps; } <--> contentServer.wiredInOut++;
 }

@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="res/images/inbaverSim.png" width="400"/>
+  <img src="res/images/inbaverSim.png" width="300"/>
 </p>
 
 Content Centric Networking (CCN) is a clean-slate solution to solve some of the main problems faced by Internet Protocol based networks of today...
@@ -7,7 +7,7 @@ Content Centric Networking (CCN) is a clean-slate solution to solve some of the 
 
 
 <p align="center">
-  <img src="res/images/net-topology.png" width="300"/>
+  <img src="res/images/net-topology.png" width="500"/>
 </p>
 
 
@@ -15,7 +15,7 @@ Content Centric Networking (CCN) is a clean-slate solution to solve some of the 
 ## Protocol Stack 
 
 <p align="center">
-  <img src="res/images/proto-stack.png" width="300"/>
+  <img src="res/images/proto-stack.png" width="500"/>
 </p>
 
 

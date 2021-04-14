@@ -86,9 +86,6 @@ void ContentHostApp::handleMessage(cMessage *msg)
     // process interest message
     } else {
 
-
-        EV_INFO << CONTENTHOSTAPP_SIMMODULEINFO << " interest arrived " << "\n";
-
         cGate *arrivalGate;
         char gateName[32];
 
@@ -99,8 +96,6 @@ void ContentHostApp::handleMessage(cMessage *msg)
         InterestMsg* interestMsg = dynamic_cast<InterestMsg*>(msg);
 
         if (strstr(gateName, "forwarderInOut$i") != NULL && interestMsg != NULL) {
-
-            EV_INFO << CONTENTHOSTAPP_SIMMODULEINFO << " processing interest " << "\n";
 
             // look for details of file in list
             bool found = false;
@@ -115,8 +110,6 @@ void ContentHostApp::handleMessage(cMessage *msg)
                 }
             }
 
-            EV_INFO << CONTENTHOSTAPP_SIMMODULEINFO << " looked for file name and total segments " << "\n";
-
             // if not found, insert new file details
             if (!found) {
                 hostedContentEntry = new HostedContentEntry;
@@ -126,15 +119,15 @@ void ContentHostApp::handleMessage(cMessage *msg)
                 hostedContentEntry->totalNumSegments = par("numSegmentsPerFile");
                 hostedContentList.push_back(hostedContentEntry);
 
-                EV_INFO << CONTENTHOSTAPP_SIMMODULEINFO << " no such file name and total segments, so created, segments "
-                        << hostedContentEntry->totalNumSegments << "\n";
+//                cout << CONTENTHOSTAPP_SIMMODULEINFO << " no such file name and total segments, so created, segments "
+//                        << hostedContentEntry->totalNumSegments << "\n";
 
             }
 
             // requested seg is not valid, send interest return
             if (interestMsg->getSegmentNum() >= hostedContentEntry->totalNumSegments) {
 
-                EV_INFO << CONTENTHOSTAPP_SIMMODULEINFO << " segment num not within range, so creating reply interest rtn " << "\n";
+//                cout << CONTENTHOSTAPP_SIMMODULEINFO << " segment num not within range, so creating reply interest rtn " << "\n";
 
                 InterestRtnMsg* interestRtnMsg = new InterestRtnMsg("Interest Return");
                 interestRtnMsg->setReturnCode(ReturnCodeTypeNoRoute);
@@ -149,13 +142,8 @@ void ContentHostApp::handleMessage(cMessage *msg)
                 // send msg to forwarding layer
                 send(interestRtnMsg, "forwarderInOut$o");
 
-                EV_INFO << CONTENTHOSTAPP_SIMMODULEINFO << " sent interest rtn " << "\n";
-
-
             // if right data segment requested, send data
             } else {
-
-                EV_INFO << CONTENTHOSTAPP_SIMMODULEINFO << " segment num within range, so creating reply content obj " << "\n";
 
                 segmentSize = par("segmentSize");
                 cacheTime = par("cacheTime");
@@ -174,8 +162,6 @@ void ContentHostApp::handleMessage(cMessage *msg)
 
                 // send msg to forwarding layer
                 send(contentObjMsg, "forwarderInOut$o");
-
-                EV_INFO << CONTENTHOSTAPP_SIMMODULEINFO << " sent content obj " << "\n";
 
             }
         } else {
