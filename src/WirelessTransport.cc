@@ -252,8 +252,11 @@ void WirelessTransport::processOutgoingOnAPNode(cMessage *msg)
         transportMsg->setPayloadSize(msgSize);
         transportMsg->setByteLength(headerSize + msgSize);
 
+        // compute transmission delay of msg
+        simtime_t txDelay = (headerSize + msgSize) * 8 / dataRate;
+
         // send msg directly to node
-        sendDirect(transportMsg, wirelessTransportInfo->wirelessTransportModel, "radioIn");
+        sendDirect(transportMsg, 0.0, txDelay, wirelessTransportInfo->wirelessTransportModel, "radioIn");
 
         // remove original msg and return
         if (destinationTransportInfo) {
@@ -285,8 +288,11 @@ void WirelessTransport::processOutgoingOnAPNode(cMessage *msg)
             transportMsg->setPayloadSize(msgSize);
             transportMsg->setByteLength(headerSize + msgSize);
 
+            // compute transmission delay of msg
+            simtime_t txDelay = (headerSize + msgSize) * 8 / dataRate;
+
             // send msg directly to node
-            sendDirect(transportMsg, wirelessTransportInfo->wirelessTransportModel, "radioIn");
+            sendDirect(transportMsg, 0.0, txDelay, wirelessTransportInfo->wirelessTransportModel, "radioIn");
         }
 
         // remove original msg and return
@@ -400,8 +406,11 @@ void WirelessTransport::processOutgoingOnClientNode(cMessage *msg)
     transportMsg->setPayloadSize(msgSize);
     transportMsg->setByteLength(headerSize + msgSize);
 
+    // compute transmission delay of msg
+    simtime_t txDelay = (headerSize + msgSize) * 8 / dataRate;
+
     // send msg directly to node
-    sendDirect(transportMsg, currentConnectAP->wirelessTransportModel, "radioIn");
+    sendDirect(transportMsg, 0.0, txDelay, currentConnectAP->wirelessTransportModel, "radioIn");
 
     // remove original msg and return
     if (destinationTransportInfo != NULL) {
@@ -517,8 +526,11 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
         transportMsg->setPayloadSize(msgSize);
         transportMsg->setByteLength(headerSize + msgSize);
 
+        // compute transmission delay of msg
+        simtime_t txDelay = (headerSize + msgSize) * 8 / dataRate;
+
         // send msg directly to node
-        sendDirect(transportMsg, wirelessTransportInfo->wirelessTransportModel, "radioIn");
+        sendDirect(transportMsg, 0.0, txDelay, wirelessTransportInfo->wirelessTransportModel, "radioIn");
 
         // remove original msg and return
         if (destinationTransportInfo != NULL) {

@@ -57,6 +57,12 @@ class RFC8569Forwarder : public cSimpleModule
     CSEntry *getCSEntry(string prefixName, string dataName, string versionName, int segmentNum);
     PITEntry *getPITEntry(string prefixName, string dataName, string versionName, int segmentNum);
     FIBEntry *longestPrefixMatchingInFIB(string prefixName);
+
+    void dumpFIB();
+    void dumpFaces();
+    void dumpCS();
+    void dumpPIT();
+
 };
 
 #define RFC8569FORWARDER_SIMMODULEINFO                 simTime() << ">!<" << getParentModule()->getFullName() << ">!<RFC8569Forwarder>!<"

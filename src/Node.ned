@@ -23,7 +23,7 @@ module Node
         int numWirelessTransports = default(0);
 
 		// statistics
-		@statistic[appContentDownloadDuration](source=appContentDownloadDuration; record=min,max,count,vector);
+		@statistic[appContentDownloadDuration](source=appContentDownloadDuration; record=min,max,count,mean,timeavg,vector);
 		
         @display("bgb=423,301");
 

@@ -21,7 +21,7 @@ network BasicNetwork
         wirelessAccessRouter: WirelessAccessRouter {
             @display("p=206,149");
         }
-        wirelessNode: WirelessNode {
+        wirelessNode[2]: WirelessNode {
             @display("p=82,104");
         }
         contentServer: ContentServer {

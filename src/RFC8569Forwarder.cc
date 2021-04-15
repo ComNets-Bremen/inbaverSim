@@ -643,9 +643,88 @@ FIBEntry *RFC8569Forwarder::longestPrefixMatchingInFIB(string prefixName)
 
 void RFC8569Forwarder::finish()
 {
+    // dump info
+    dumpFaces();
+    dumpFIB();
+    dumpPIT();
+    dumpCS();
+
     // remove fib
     // remove pit
     // remove faces
     // remove cs
+}
+
+void RFC8569Forwarder::dumpFIB()
+{
+    cout << RFC8569FORWARDER_SIMMODULEINFO << "==FIB===\n";
+    list<FIBEntry*>::iterator iteratorFIBEntry = fib.begin();
+    while (iteratorFIBEntry != fib.end()) {
+        FIBEntry *fibEntry = *iteratorFIBEntry;
+        cout << RFC8569FORWARDER_SIMMODULEINFO << " " << fibEntry->prefixName << "\n";
+        list<FaceEntry*>::iterator iteratorFaceEntry = fibEntry->forwardedFaces.begin();
+        while (iteratorFaceEntry != fibEntry->forwardedFaces.end()) {
+            FaceEntry *faceEntry = *iteratorFaceEntry;
+            cout << RFC8569FORWARDER_SIMMODULEINFO << "   " << faceEntry->faceID
+                    << " " << faceEntry->faceDescription << " "
+                    << faceEntry->baseGateName << "\n";
+            iteratorFaceEntry++;
+        }
+        iteratorFIBEntry++;
+    }
+    cout << RFC8569FORWARDER_SIMMODULEINFO << "=====\n";
+}
+
+void RFC8569Forwarder::dumpFaces()
+{
+    FaceEntry *faceEntry = NULL;
+
+    cout << RFC8569FORWARDER_SIMMODULEINFO << "==Faces===\n";
+    list<FaceEntry*>::iterator iteratorFaceEntry = registeredFaces.begin();
+    while (iteratorFaceEntry != registeredFaces.end()) {
+        faceEntry = *iteratorFaceEntry;
+        cout <<  RFC8569FORWARDER_SIMMODULEINFO << " "
+                << faceEntry->faceID << " "
+                << faceEntry->faceDescription << " "
+                << faceEntry->baseGateName << "\n";
+
+        iteratorFaceEntry++;
+    }
+    cout << RFC8569FORWARDER_SIMMODULEINFO << "=====\n";
+}
+
+void RFC8569Forwarder::dumpCS()
+{
+    cout << RFC8569FORWARDER_SIMMODULEINFO << "==CS===\n";
+    cout << RFC8569FORWARDER_SIMMODULEINFO << " cached entries: " << cs.size() << "\n";
+
+//    list<CSEntry*>::iterator iteratorCSEntry = cs.begin();
+//    while (iteratorCSEntry != cs.end()) {
+//        CSEntry *csEntry = *iteratorCSEntry;
+//        cout << RFC8569FORWARDER_SIMMODULEINFO << " "
+//                << csEntry->prefixName << " "
+//                << csEntry->dataName << " "
+//                << csEntry->versionName << " "
+//                << csEntry->segmentNum << "\n";
+//        iteratorCSEntry++;
+//    }
+
+    cout << RFC8569FORWARDER_SIMMODULEINFO << "=====\n";
+}
+
+void RFC8569Forwarder::dumpPIT()
+{
+    cout << RFC8569FORWARDER_SIMMODULEINFO << "==PIT===\n";
+    list<PITEntry*>::iterator iteratorPITEntry = pit.begin();
+    while (iteratorPITEntry != pit.end()) {
+        PITEntry *pitEntry = *iteratorPITEntry;
+        cout << RFC8569FORWARDER_SIMMODULEINFO << " "
+                << pitEntry->prefixName << " "
+                << pitEntry->dataName << " "
+                << pitEntry->versionName << " "
+                << pitEntry->segmentNum << "\n";
+        iteratorPITEntry++;
+    }
+    cout << RFC8569FORWARDER_SIMMODULEINFO << "=====\n";
 }
 

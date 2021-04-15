@@ -53,11 +53,11 @@ network SimpleNetwork
             @display("p=226,27");
         }
     connections allowunconnected:
-        wiredNode1.wiredInOut++ <--> DatarateChannel <--> accessRouter.wiredInOut++;
-        wiredNode2.wiredInOut++ <--> DatarateChannel <--> accessRouter.wiredInOut++;
-        accessRouter.wiredInOut++ <--> DatarateChannel <--> coreRouter1.wiredInOut++;
-        wirelessAccessRouter.wiredInOut++ <--> DatarateChannel <--> coreRouter1.wiredInOut++;
-        coreRouter1.wiredInOut++ <--> DatarateChannel <--> contentServer1.wiredInOut++;
-        coreRouter1.wiredInOut++ <--> DatarateChannel <--> coreRouter2.wiredInOut++;
-        coreRouter2.wiredInOut++ <--> DatarateChannel <--> contentServer2.wiredInOut++;
+        wiredNode1.wiredInOut++ <--> DatarateChannel {  datarate = 1e6bps; } <--> accessRouter.wiredInOut++;
+        wiredNode2.wiredInOut++ <--> DatarateChannel {  datarate = 1e6bps; } <--> accessRouter.wiredInOut++;
+        accessRouter.wiredInOut++ <--> DatarateChannel {  datarate = 1e6bps; } <--> coreRouter1.wiredInOut++;
+        wirelessAccessRouter.wiredInOut++ <--> DatarateChannel {  datarate = 1e6bps; } <--> coreRouter1.wiredInOut++;
+        coreRouter1.wiredInOut++ <--> DatarateChannel {  datarate = 1e6bps; } <--> contentServer1.wiredInOut++;
+        coreRouter1.wiredInOut++ <--> DatarateChannel {  datarate = 1e6bps; } <--> coreRouter2.wiredInOut++;
+        coreRouter2.wiredInOut++ <--> DatarateChannel {  datarate = 1e6bps; } <--> contentServer2.wiredInOut++;
 }
