@@ -37,7 +37,7 @@ void ContentHostApp::initialize(int stage)
             }
         }
         if (deusModel == NULL) {
-            EV_FATAL <<  CONTENTHOSTAPP_SIMMODULEINFO << "The single Deus model instance not found. Please define one at the network level.\n";
+            EV_FATAL << "The single Deus model instance not found. Please define one at the network level.\n";
             throw cRuntimeError("Check log for details");
         }
 
@@ -48,7 +48,6 @@ void ContentHostApp::initialize(int stage)
             hostedPrefixList.push_back(ccnPrefix);
         }
 
-
     } else if (stage == 2) {
 
         // reminder to generate content host app registration event
@@ -56,10 +55,13 @@ void ContentHostApp::initialize(int stage)
         appRegReminderEvent->setKind(CONTENTHOSTAPP_APP_REG_REM_EVENT_CODE);
         scheduleAt(simTime(), appRegReminderEvent);
 
-
+        // register stat signals
+        totalInterestsBytesReceivedSignal = registerSignal("appTotalInterestsBytesReceived");
+        totalContentObjsBytesSentSignal = registerSignal("appTotalContentObjsBytesSent");
+        totalDataBytesSentSignal = registerSignal("appTotalDataBytesSent");
 
     } else {
-        EV_FATAL <<  CONTENTHOSTAPP_SIMMODULEINFO << "Something is radically wrong\n";
+        EV_FATAL << "Something is radically wrong\n";
         throw cRuntimeError("Check log for details");
 
     }
@@ -70,12 +72,17 @@ void ContentHostApp::handleMessage(cMessage *msg)
     // register app with lower layer (forwarder)
     if (msg->isSelfMessage() && msg->getKind() == CONTENTHOSTAPP_APP_REG_REM_EVENT_CODE) {
 
+        EV_INFO << simTime() << " Registering application with ID: " << getId() << endl;
+
         AppRegistrationMsg *appRegMsg = new AppRegistrationMsg();
         appRegMsg->setAppID(getId());
         appRegMsg->setContentServerApp(true);
         appRegMsg->setHostedPrefixNamesArraySize(hostedPrefixList.size());
         for (int i = 0; i < hostedPrefixList.size(); i++) {
             appRegMsg->setHostedPrefixNames(i, hostedPrefixList[i].c_str());
+
+            EV_INFO << simTime() << " Registering prefix: " << hostedPrefixList[i] << endl;
+
         }
         appRegMsg->setAppDescription("Content Host Application");
 
@@ -96,6 +103,15 @@ void ContentHostApp::handleMessage(cMessage *msg)
         InterestMsg* interestMsg = dynamic_cast<InterestMsg*>(msg);
 
         if (strstr(gateName, "forwarderInOut$i") != NULL && interestMsg != NULL) {
+
+            EV_INFO << simTime() << " Received Interest: "
+                    << interestMsg->getPrefixName()
+                    << " " << interestMsg->getDataName()
+                    << " " << interestMsg->getVersionName()
+                    << " " << interestMsg->getSegmentNum() << endl;
+
+            // generate stat for received interest size
+            emit(totalInterestsBytesReceivedSignal, (long) interestMsg->getByteLength());
 
             // look for details of file in list
             bool found = false;
@@ -119,15 +135,17 @@ void ContentHostApp::handleMessage(cMessage *msg)
                 hostedContentEntry->totalNumSegments = par("numSegmentsPerFile");
                 hostedContentList.push_back(hostedContentEntry);
 
-//                cout << CONTENTHOSTAPP_SIMMODULEINFO << " no such file name and total segments, so created, segments "
-//                        << hostedContentEntry->totalNumSegments << "\n";
+                EV_INFO << simTime() << " Content created and added: "
+                        << interestMsg->getPrefixName()
+                        << " " << interestMsg->getDataName()
+                        << " " << interestMsg->getVersionName()
+                        << " " << interestMsg->getSegmentNum()
+                        << " " << hostedContentEntry->totalNumSegments << endl;
 
             }
 
             // requested seg is not valid, send interest return
             if (interestMsg->getSegmentNum() >= hostedContentEntry->totalNumSegments) {
-
-//                cout << CONTENTHOSTAPP_SIMMODULEINFO << " segment num not within range, so creating reply interest rtn " << "\n";
 
                 InterestRtnMsg* interestRtnMsg = new InterestRtnMsg("Interest Return");
                 interestRtnMsg->setReturnCode(ReturnCodeTypeNoRoute);
@@ -138,6 +156,13 @@ void ContentHostApp::handleMessage(cMessage *msg)
                 interestRtnMsg->setHeaderSize(INBAVER_INTEREST_RTN_MSG_HEADER_SIZE);
                 interestRtnMsg->setPayloadSize(0);
                 interestRtnMsg->setByteLength(INBAVER_INTEREST_RTN_MSG_HEADER_SIZE);
+
+                EV_INFO << simTime() << " Sending InterestRtn: "
+                        << interestRtnMsg->getPrefixName()
+                        << " " << interestRtnMsg->getDataName()
+                        << " " << interestRtnMsg->getVersionName()
+                        << " " << interestRtnMsg->getSegmentNum()
+                        << " " << interestRtnMsg->getReturnCode() << endl;
 
                 // send msg to forwarding layer
                 send(interestRtnMsg, "forwarderInOut$o");
@@ -160,12 +185,25 @@ void ContentHostApp::handleMessage(cMessage *msg)
                 contentObjMsg->setPayloadAsString("");
                 contentObjMsg->setByteLength(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE + segmentSize);
 
+                EV_INFO << simTime() << " Sending ContentObj: "
+                        << interestMsg->getPrefixName()
+                        << " " << interestMsg->getDataName()
+                        << " " << interestMsg->getVersionName()
+                        << " " << interestMsg->getSegmentNum()
+                        << " " << hostedContentEntry->totalNumSegments
+                        << " " << simTime() + cacheTime
+                        << " " << segmentSize << endl;
+
                 // send msg to forwarding layer
                 send(contentObjMsg, "forwarderInOut$o");
 
+                // generate stat for sent content obj
+                emit(totalContentObjsBytesSentSignal, (long) contentObjMsg->getByteLength());
+                emit(totalDataBytesSentSignal, (long) contentObjMsg->getPayloadSize());
+
             }
         } else {
-            EV_INFO <<  CONTENTHOSTAPP_SIMMODULEINFO << " Ignoring message - " << msg->getName() << "\n";
+            EV_INFO << " Ignoring message - " << msg->getName() << "\n";
 
         }
 

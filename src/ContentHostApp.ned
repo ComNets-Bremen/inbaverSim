@@ -15,9 +15,15 @@ simple ContentHostApp like IApplication
         // hosted data details
         string hostedPrefixNames = default("ccnx://spacetime.com/;ccnx://relativity.com/;ccnx://universe.com/");
         string dataNamePrefix = default("file");
-        volatile int segmentSize = default(10000);
+        volatile int segmentSize @unit(byte) = default(10000byte);
         volatile int numSegmentsPerFile = default(intuniform(5, 100));
-        volatile double cacheTime @unit(s) = default(3600s); // 0 means indefinite 
+        volatile double cacheTime @unit(s) = default(3600s); // 0 means infinite 
+
+        // statistic signals
+        @signal[appTotalInterestsBytesReceived](type=long);
+        @signal[appTotalContentObjsBytesSent](type=long);
+        @signal[appTotalDataBytesSent](type=long);
+
 
         @display("i=block/app");
 

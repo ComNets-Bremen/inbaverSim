@@ -23,8 +23,28 @@ module Node
         int numWirelessTransports = default(0);
 
 		// statistics
-		@statistic[appContentDownloadDuration](source=appContentDownloadDuration; record=min,max,count,mean,timeavg,vector);
-		
+		@statistic[appContentDownloadDuration](source=appContentDownloadDuration; record=min,max,count,mean,vector);
+        @statistic[appSegmentDownloadDuration](source=appSegmentDownloadDuration; record=min,max,count,mean,vector);
+        @statistic[appTotalInterestsBytesSent](source=appTotalInterestsBytesSent; record=count,mean,sum,vector);
+        @statistic[appRetransmissionInterestsBytesSent](source=appRetransmissionInterestsBytesSent; record=count,mean,sum,vector);
+        @statistic[appTotalContentObjsBytesReceived](source=appTotalContentObjsBytesReceived; record=count,mean,sum,vector);
+        @statistic[appTotalDataBytesReceived](source=appTotalDataBytesReceived; record=count,mean,sum,vector);
+
+        @statistic[appTotalInterestsBytesReceived](source=appTotalInterestsBytesReceived; record=count,mean,sum,vector);
+        @statistic[appTotalContentObjsBytesSent](source=appTotalContentObjsBytesSent; record=count,mean,sum,vector);
+        @statistic[appTotalDataBytesSent](source=appTotalDataBytesSent; record=count,mean,sum,vector);
+
+        @statistic[fwdTotalInterestsBytesReceived](source=fwdTotalInterestsBytesReceived; record=count,mean,sum,vector);
+        @statistic[fwdTotalInterestRtnsBytesReceived](source=fwdTotalInterestRtnsBytesReceived; record=count,mean,sum,vector);
+        @statistic[fwdTotalContentObjsBytesReceived](source=fwdTotalContentObjsBytesReceived; record=count,mean,sum,vector);
+        @statistic[fwdTotalInterestsBytesSent](source=fwdTotalInterestsBytesSent; record=count,mean,sum,vector);
+        @statistic[fwdTotalInterestRtnsBytesSent](source=fwdTotalInterestRtnsBytesSent; record=count,mean,sum,vector);
+        @statistic[fwdTotalContentObjsBytesSent](source=fwdTotalContentObjsBytesSent; record=count,mean,sum,vector);
+        @statistic[fwdCacheSizeBytes](source=fwdCacheSizeBytes; record=min,max,count,mean,timeavg,last,vector);
+        @statistic[fwdCacheAdditionsBytes](source=fwdCacheAdditionsBytes; record=count,mean,sum,vector);
+        @statistic[fwdCacheRemovalsBytes](source=fwdCacheRemovalsBytes; record=count,mean,sum,vector);
+
+
         @display("bgb=423,301");
 
     gates:

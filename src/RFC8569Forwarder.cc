@@ -48,7 +48,7 @@ void RFC8569Forwarder::initialize(int stage)
 
         // when Deus or Numen not found, terminate
         if (deusModel == NULL || numenModel == NULL) {
-            EV_FATAL <<  RFC8569FORWARDER_SIMMODULEINFO << "The global Deus instance and/or node specific Numen instance not found.\n";
+            EV_FATAL << simTime() << "The global Deus instance and/or node specific Numen instance not found.\n";
             throw cRuntimeError("Check log for details");
         }
 
@@ -56,8 +56,19 @@ void RFC8569Forwarder::initialize(int stage)
 
     } else if (stage == 2) {
 
+        // init stat signals
+        totalInterestsBytesReceivedSignal = registerSignal("fwdTotalInterestsBytesReceived");
+        totalInterestRtnsBytesReceivedSignal = registerSignal("fwdTotalInterestRtnsBytesReceived");
+        totalContentObjsBytesReceivedSignal = registerSignal("fwdTotalContentObjsBytesReceived");
+        totalInterestsBytesSentSignal = registerSignal("fwdTotalInterestsBytesSent");
+        totalInterestRtnsBytesSentSignal = registerSignal("fwdTotalInterestRtnsBytesSent");
+        totalContentObjsBytesSentSignal = registerSignal("fwdTotalContentObjsBytesSent");
+        cacheSizeBytesSignal = registerSignal("fwdCacheSizeBytes");
+        cacheAdditionsBytesSignal = registerSignal("fwdCacheAdditionsBytes");
+        cacheRemovalsBytesSignal = registerSignal("fwdCacheRemovalsBytes");
+
     } else {
-        EV_FATAL <<  RFC8569FORWARDER_SIMMODULEINFO << "Something is radically wrong\n";
+        EV_FATAL << simTime() << "Something is radically wrong\n";
         throw cRuntimeError("Check log for details");
     }
 
@@ -110,7 +121,8 @@ void RFC8569Forwarder::handleMessage(cMessage *msg)
 
         } else {
 
-            cout << RFC8569FORWARDER_SIMMODULEINFO << "Received unexpected packet" << "\n";
+            EV_INFO << simTime() << "Received unexpected packet"
+                    << endl;
             delete msg;
         }
     }
@@ -140,15 +152,9 @@ void RFC8569Forwarder::processApplicationRegistration(AppRegistrationMsg *appReg
     }
     registeredFaces.push_back(faceEntry);
 
-//    cout << RFC8569FORWARDER_SIMMODULEINFO
-//            << " face registration details - "
-//            << " face ID: " << faceEntry->faceID
-//            << " type: " << faceEntry->faceType
-//            << " input gate: " << faceEntry->inputGateName
-//            << " base gate: " << faceEntry->baseGateName
-//            << " output gate: " << faceEntry->outputGateName
-//            << " face index: " << faceEntry->gateIndex
-//            << " \n";
+    EV_INFO << simTime() << " Received application registration: "
+            << appRegMsg->getAppID()
+            << endl;
 
     // when app hosts prefixes, add to FIB and setup for late dissemination
     if (appRegMsg->getContentServerApp()) {
@@ -160,10 +166,11 @@ void RFC8569Forwarder::processApplicationRegistration(AppRegistrationMsg *appReg
 
             fib.push_back(fibEntry);
 
-//            cout << RFC8569FORWARDER_SIMMODULEINFO
-//                    << " adding prefixes hosted to FIB - "
-//                    << " prefix: " << fibEntry->prefixName
-//                    << " \n";
+            EV_INFO << simTime() << " Adding application prefix to FIB: "
+                    << prefixName
+                    << " " << appRegMsg->getAppID()
+                    << endl;
+
         }
     }
 
@@ -192,6 +199,10 @@ void RFC8569Forwarder::processTransportRegistration(TransportRegistrationMsg *tr
     }
     registeredFaces.push_back(faceEntry);
 
+    EV_INFO << simTime() << " Received transport registration: "
+            << transportRegMsg->getTransportID()
+            << endl;
+
     // append face to the default FIB entry
     bool found = false;
     FIBEntry *fibEntry = NULL;
@@ -209,6 +220,12 @@ void RFC8569Forwarder::processTransportRegistration(TransportRegistrationMsg *tr
         fibEntry = new FIBEntry;
         fibEntry->prefixName = "default";
         fib.push_back(fibEntry);
+
+        EV_INFO << simTime() << " Received transport prefix to FIB: "
+                << "default"
+                << " " << transportRegMsg->getTransportID()
+                << endl;
+
     }
     fibEntry->forwardedFaces.push_back(faceEntry);
 
@@ -222,12 +239,18 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     int arrivalGateIndex =  (arrivalGate->isVector() ? arrivalGate->getIndex() : (-1));
     FaceEntry *arrivalFaceEntry = getFaceEntryFromInputGateName(arrivalGate->getName(), arrivalGateIndex);
 
-//    cout << RFC8569FORWARDER_SIMMODULEINFO << " - got Interest:" << interestMsg->getName()
-//            << ", prefix:" << interestMsg->getPrefixName()
-//            << ", data name:" << interestMsg->getDataName()
-//            << ", version:" << interestMsg->getVersionName()
-//            << ", segment:" << interestMsg->getSegmentNum()
-//            << "\n";
+    EV_INFO << simTime() << "Received Interest: "
+            << arrivalFaceEntry->faceID
+            << " " << interestMsg->getPrefixName()
+            << " " << interestMsg->getDataName()
+            << " " << interestMsg->getVersionName()
+            << " " << interestMsg->getSegmentNum()
+            << endl;
+
+    // generate stats
+    if (arrivalFaceEntry->faceType == TransportTypeFace) {
+        emit(totalInterestsBytesReceivedSignal, (long) interestMsg->getByteLength());
+    }
 
     // check and get Face and transport address info of sender of Interest,
     ExchangedTransportInfo *arrivalTransportInfo = NULL;
@@ -262,21 +285,29 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
             contentObjMsg->addObject(arrivalTransportInfo);
         }
 
+        EV_INFO << simTime() << "Sending ContentObj from Cache: "
+                << csEntry->prefixName
+                << " " << csEntry->dataName
+                << " " << csEntry->versionName
+                << " " << csEntry->segmentNum
+                << " " << csEntry->expirytime
+                << " " << csEntry->payloadSize
+                << " " << csEntry->totalNumSegments
+                << endl;
+
         // send content obj
         cGate *sendingGate = gate(arrivalFaceEntry->outputGateName.c_str(), arrivalFaceEntry->gateIndex);
         send(contentObjMsg, sendingGate);
 
-        //if (strstr(getParentModule()->getFullName(), "ContentServer02") != NULL)
-//        cout << RFC8569FORWARDER_SIMMODULEINFO << " content entry found  " << "\n";
-
+        // generate stats
+        if (arrivalFaceEntry->faceType == TransportTypeFace) {
+            emit(totalContentObjsBytesSentSignal, (long) contentObjMsg->getByteLength());
+        }
 
         // remove Interest
         delete interestMsg;
         return;
     }
-
-//    cout << RFC8569FORWARDER_SIMMODULEINFO << " no content entry found  " << "\n";
-
 
     // is there a PIT entry already for previous Interests received
     // for same content?
@@ -287,21 +318,16 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     // received, so add the current Interest to the PIT entry
     if (pitEntry != NULL) {
 
-//        cout << RFC8569FORWARDER_SIMMODULEINFO << "  PIT entry found  " << "\n";
-
         // Check if the same Interest was received through the same Face and transport address
         bool found = false;
         for (int i = 0; i < pitEntry->arrivalInfoList.size(); i++) {
             if (pitEntry->arrivalInfoList[i]->receivedFace->faceID == arrivalFaceEntry->faceID) {
                 if (arrivalTransportInfo != NULL) {
                     if (arrivalTransportInfo->transportAddress == pitEntry->arrivalInfoList[i]->receivedFace->transportAddress) {
-//                        cout << RFC8569FORWARDER_SIMMODULEINFO << "  Interest received before from  " << arrivalFaceEntry->faceID
-//                                << " " << arrivalTransportInfo->transportAddress << "\n";
                         found = true;
                         break;
                     }
                 } else {
-//                    cout << RFC8569FORWARDER_SIMMODULEINFO << "  Interest received before from  " << arrivalFaceEntry->faceID << "\n";
                     found = true;
                     break;
                 }
@@ -311,8 +337,6 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         // when same Interest was not received from same Face and same transport address
         // then add it to PIT entry
         if (!found) {
-//            cout << RFC8569FORWARDER_SIMMODULEINFO << " no face and transport address in PIT entry found  " << "\n";
-
             ArrivalInfo *arrivalInfo = new ArrivalInfo();
             arrivalInfo->receivedFace = arrivalFaceEntry;
             if (arrivalTransportInfo != NULL) {
@@ -320,6 +344,17 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
             } else {
                 arrivalInfo->transportAddress = "";
             }
+
+            EV_INFO << simTime() << "PIT entry exists. Adding new arrival Face: "
+                    << pitEntry->prefixName
+                    << " " << pitEntry->dataName
+                    << " " << pitEntry->versionName
+                    << " " << pitEntry->segmentNum
+                    << " " << pitEntry->hopLimit
+                    << " " << pitEntry->hopsTravelled
+                    << " " << arrivalFaceEntry->faceID
+                    << " " << arrivalInfo->transportAddress
+                    << endl;
 
             pitEntry->arrivalInfoList.push_back(arrivalInfo);
         }
@@ -329,13 +364,13 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         return;
     }
 
-//    cout << RFC8569FORWARDER_SIMMODULEINFO << " no PIT entry found  " << "\n";
-
     // discard interest if it has reached the maximum hop count
     if ((interestMsg->getHopLimit() - 1) == 0) {
 
-        //if (strstr(getParentModule()->getFullName(), "ContentServer02") != NULL)
-//        cout << RFC8569FORWARDER_SIMMODULEINFO << "Interest exceeded hops, discarding Interest  " << "\n";
+        EV_INFO << simTime() << "Hop limit exceeded. Discarding Interest: "
+                << pitEntry->hopLimit
+                << " " << pitEntry->hopsTravelled
+                << endl;
 
         delete interestMsg;
         return;
@@ -358,13 +393,25 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         arrivalInfo->transportAddress = "";
     }
     pitEntry->arrivalInfoList.push_back(arrivalInfo);
-    pit.push_back(pitEntry);
 
+    EV_INFO << simTime() << "Adding PIT entry: "
+            << pitEntry->prefixName
+            << " " << pitEntry->dataName
+            << " " << pitEntry->versionName
+            << " " << pitEntry->segmentNum
+            << " " << pitEntry->hopLimit
+            << " " << pitEntry->hopsTravelled
+            << " " << arrivalFaceEntry->faceID
+            << " " << arrivalInfo->transportAddress
+            << endl;
+
+    pit.push_back(pitEntry);
 
     // find which FIB entry to use to forward the Interest
     FIBEntry *fibEntry = longestPrefixMatchingInFIB(interestMsg->getPrefixName());
 
-//    cout << RFC8569FORWARDER_SIMMODULEINFO << " doing longestPrefixMatchingInFIB, at least the default must be returned  " << "\n";
+    EV_INFO << simTime() << "Longest Prefix Matching and found: "
+            << fibEntry->prefixName << endl;
 
     // forward interest to all the faces listed in the FIB entry
     FaceEntry *faceEntry = NULL;
@@ -389,10 +436,19 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
 
             cGate *sendingGate = gate(faceEntry->outputGateName.c_str(), faceEntry->gateIndex);
 
+            EV_INFO << simTime() << "Sending Interest to Face: "
+                    << interestMsg->getPrefixName()
+                    << " " << interestMsg->getDataName()
+                    << " " << interestMsg->getVersionName()
+                    << " " << interestMsg->getSegmentNum()
+                    << " " << faceEntry->faceID << endl;
+
             send(newInterestMsg, sendingGate);
 
-//            cout << RFC8569FORWARDER_SIMMODULEINFO << " sending interest out  " << "\n";
-
+            // generate stats
+            if (faceEntry->faceType == TransportTypeFace) {
+                emit(totalInterestsBytesSentSignal, (long) newInterestMsg->getByteLength());
+            }
         }
 
         iteratorFaceEntry++;
@@ -405,14 +461,23 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
 
 void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
 {
+    // get arrival gate details
+    cGate *arrivalGate = contentObjMsg->getArrivalGate();
+    int arrivalGateIndex =  (arrivalGate->isVector() ? arrivalGate->getIndex() : (-1));
+    FaceEntry *arrivalFaceEntry = getFaceEntryFromInputGateName(arrivalGate->getName(), arrivalGateIndex);
 
-//    cout << RFC8569FORWARDER_SIMMODULEINFO << " - got Content Obj:" << contentObjMsg->getName()
-//            << ", prefix:" << contentObjMsg->getPrefixName()
-//            << ", data name:" << contentObjMsg->getDataName()
-//            << ", version:" << contentObjMsg->getVersionName()
-//            << ", segment:" << contentObjMsg->getSegmentNum()
-//            << "\n";
+    EV_INFO << simTime() << "Received ContentObj: "
+            << arrivalFaceEntry->faceID
+            << " " << contentObjMsg->getPrefixName()
+            << " " << contentObjMsg->getDataName()
+            << " " << contentObjMsg->getVersionName()
+            << " " << contentObjMsg->getSegmentNum()
+            << endl;
 
+    // generate stats
+    if (arrivalFaceEntry->faceType == TransportTypeFace) {
+        emit(totalContentObjsBytesReceivedSignal, (long) contentObjMsg->getByteLength());
+    }
 
     // check if the content obj is already in CS
     CSEntry *csEntry = getCSEntry(contentObjMsg->getPrefixName(), contentObjMsg->getDataName(),
@@ -421,7 +486,14 @@ void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
     // when the Content Obj is in CS, then there should not be any PIT entry
     // so, simply disregard the Content Obj
     if (csEntry != NULL) {
-//        cout << RFC8569FORWARDER_SIMMODULEINFO << " content already in CS " << "\n";
+
+        EV_INFO << simTime() << "ContentObj already in Cache: "
+                << " " << contentObjMsg->getPrefixName()
+                << " " << contentObjMsg->getDataName()
+                << " " << contentObjMsg->getVersionName()
+                << " " << contentObjMsg->getSegmentNum()
+                << endl;
+
         delete contentObjMsg;
         return;
     }
@@ -429,11 +501,29 @@ void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
     // before adding content to CS, check if size will exceed the limit
     // when so, remove cache entries until the new content can be added
     if (maximumContentStoreSize > 0) {
+        long removedBytes = 0;
         while ((currentCSSize + contentObjMsg->getPayloadSize()) > maximumContentStoreSize) {
             CSEntry *removingCSEntry = cs.front();
             cs.pop_front();
             currentCSSize -= removingCSEntry->payloadSize;
+            removedBytes += removingCSEntry->payloadSize;
+
+            EV_INFO << simTime() << "Cache is full, cannot insert, removing: "
+                    << " " << removingCSEntry->prefixName
+                    << " " << removingCSEntry->dataName
+                    << " " << removingCSEntry->versionName
+                    << " " << removingCSEntry->segmentNum
+                    << " " << removingCSEntry->payloadSize
+                    << " " << currentCSSize
+                    << endl;
+
             delete removingCSEntry;
+        }
+
+        // generate stats
+        if (removedBytes > 0) {
+            emit(cacheRemovalsBytesSignal, removedBytes);
+            emit(cacheSizeBytesSignal, currentCSSize);
         }
     }
 
@@ -451,6 +541,19 @@ void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
     cs.push_back(csEntry);
     currentCSSize += contentObjMsg->getPayloadSize();
 
+    EV_INFO << simTime() << "Added Cache entry: "
+            << " " << csEntry->prefixName
+            << " " << csEntry->dataName
+            << " " << csEntry->versionName
+            << " " << csEntry->segmentNum
+            << " " << csEntry->payloadSize
+            << " " << currentCSSize
+            << endl;
+
+    // generate stats
+    emit(cacheAdditionsBytesSignal, csEntry->payloadSize);
+    emit(cacheSizeBytesSignal, currentCSSize);
+
     // find the PIT entry, if there is one saved
     PITEntry *pitEntry = getPITEntry(contentObjMsg->getPrefixName(), contentObjMsg->getDataName(),
                             contentObjMsg->getVersionName(), contentObjMsg->getSegmentNum());
@@ -458,6 +561,14 @@ void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
     // when there is no PIT entry, simply drop the Content Obj
     // because nobody to forward it to
     if (pitEntry == NULL) {
+
+        EV_INFO << simTime() << "PIT entry not found: "
+                    << " " << contentObjMsg->getPrefixName()
+                    << " " << contentObjMsg->getDataName()
+                    << " " << contentObjMsg->getVersionName()
+                    << " " << contentObjMsg->getSegmentNum()
+                    << endl;
+
         delete contentObjMsg;
         return;
     }
@@ -487,10 +598,22 @@ void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
             newContentObjMsg->addObject(arrivalTransportInfo);
         }
 
+        EV_INFO << simTime() << "Sending ContentObj to Face: "
+                << newContentObjMsg->getPrefixName()
+                << " " << newContentObjMsg->getDataName()
+                << " " << newContentObjMsg->getVersionName()
+                << " " << newContentObjMsg->getSegmentNum()
+                << " " << arrivalInfo->receivedFace->faceID
+                << endl;
+
         // send content obj
         cGate *sendingGate = gate(arrivalInfo->receivedFace->outputGateName.c_str(), arrivalInfo->receivedFace->gateIndex);
         send(newContentObjMsg, sendingGate);
 
+        // generate stats
+        if (arrivalInfo->receivedFace->faceType == TransportTypeFace) {
+            emit(totalContentObjsBytesSentSignal, (long) newContentObjMsg->getByteLength());
+        }
     }
 
     // remove the PIT entry as it was served
@@ -505,7 +628,23 @@ void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
 
 void RFC8569Forwarder::processInterestRtn(InterestRtnMsg *interestRtnMsg)
 {
-//    cout << RFC8569FORWARDER_SIMMODULEINFO << " got upper layer interest rtn "  << " \n";
+    // get arrival gate details
+    cGate *arrivalGate = interestRtnMsg->getArrivalGate();
+    int arrivalGateIndex =  (arrivalGate->isVector() ? arrivalGate->getIndex() : (-1));
+    FaceEntry *arrivalFaceEntry = getFaceEntryFromInputGateName(arrivalGate->getName(), arrivalGateIndex);
+
+    EV_INFO << simTime() << "Received InterestRtn: "
+            << arrivalFaceEntry->faceID
+            << " " << interestRtnMsg->getPrefixName()
+            << " " << interestRtnMsg->getDataName()
+            << " " << interestRtnMsg->getVersionName()
+            << " " << interestRtnMsg->getSegmentNum()
+            << endl;
+
+    // generate stats
+    if (arrivalFaceEntry->faceType == TransportTypeFace) {
+        emit(totalInterestRtnsBytesReceivedSignal, (long) interestRtnMsg->getByteLength());
+    }
 
     // Is there a PIT entry for the returning interest?
     PITEntry *pitEntry = getPITEntry(interestRtnMsg->getPrefixName(), interestRtnMsg->getDataName(),
@@ -513,6 +652,14 @@ void RFC8569Forwarder::processInterestRtn(InterestRtnMsg *interestRtnMsg)
 
     // when no PIT entry exist, discard Interest
     if (pitEntry == NULL) {
+
+        EV_INFO << simTime() << "PIT entry not found: "
+                    << " " << interestRtnMsg->getPrefixName()
+                    << " " << interestRtnMsg->getDataName()
+                    << " " << interestRtnMsg->getVersionName()
+                    << " " << interestRtnMsg->getSegmentNum()
+                    << endl;
+
         delete interestRtnMsg;
         return;
     }
@@ -540,10 +687,22 @@ void RFC8569Forwarder::processInterestRtn(InterestRtnMsg *interestRtnMsg)
             newInterestRtnMsg->addObject(arrivalTransportInfo);
         }
 
+        EV_INFO << simTime() << "Sending InterestRtn to Face: "
+                << interestRtnMsg->getPrefixName()
+                << " " << interestRtnMsg->getDataName()
+                << " " << interestRtnMsg->getVersionName()
+                << " " << interestRtnMsg->getSegmentNum()
+                << " " << arrivalInfo->receivedFace->faceID
+                << endl;
+
         // send Interest Return
         cGate *sendingGate = gate(arrivalInfo->receivedFace->outputGateName.c_str(), arrivalInfo->receivedFace->gateIndex);
         send(newInterestRtnMsg, sendingGate);
 
+        // generate stats
+        if (arrivalInfo->receivedFace->faceType == TransportTypeFace) {
+            emit(totalInterestRtnsBytesSentSignal, (long) newInterestRtnMsg->getByteLength());
+        }
     }
 
     // remove the PIT entry as it was served
@@ -557,8 +716,6 @@ void RFC8569Forwarder::processInterestRtn(InterestRtnMsg *interestRtnMsg)
 
 FaceEntry *RFC8569Forwarder::getFaceEntryFromInputGateName(string inputGateName, int gateIndex)
 {
-//    cout << RFC8569FORWARDER_SIMMODULEINFO << " get face from gate "  << " \n";
-
     FaceEntry *faceEntry = NULL;
 
     list<FaceEntry*>::iterator iteratorFaceEntry = registeredFaces.begin();
@@ -570,8 +727,10 @@ FaceEntry *RFC8569Forwarder::getFaceEntryFromInputGateName(string inputGateName,
         iteratorFaceEntry++;
     }
 
-    EV_FATAL <<  RFC8569FORWARDER_SIMMODULEINFO << "Something is radically wrong - face entry not found - gate name: "
-            << inputGateName << ", index: " << gateIndex << "\n";
+    EV_FATAL << simTime() << "Something is radically wrong - face entry not found - gate name: "
+            << inputGateName
+            << ", index: " << gateIndex
+            << endl;
     throw cRuntimeError("Check log for details");
 }
 
@@ -601,8 +760,6 @@ CSEntry *RFC8569Forwarder::getCSEntry(string prefixName, string dataName, string
 
 PITEntry *RFC8569Forwarder::getPITEntry(string prefixName, string dataName, string versionName, int segmentNum)
 {
-//    cout << RFC8569FORWARDER_SIMMODULEINFO << " get PIT entry "  << " \n";
-
     PITEntry *pitEntry = NULL;
 
     list<PITEntry*>::iterator iteratorPITEntry = pit.begin();
@@ -644,10 +801,10 @@ FIBEntry *RFC8569Forwarder::longestPrefixMatchingInFIB(string prefixName)
 void RFC8569Forwarder::finish()
 {
     // dump info
-    dumpFaces();
-    dumpFIB();
-    dumpPIT();
-    dumpCS();
+//    dumpFaces();
+//    dumpFIB();
+//    dumpPIT();
+//    dumpCS();
 
     // remove fib
     // remove pit
@@ -657,51 +814,51 @@ void RFC8569Forwarder::finish()
 
 void RFC8569Forwarder::dumpFIB()
 {
-    cout << RFC8569FORWARDER_SIMMODULEINFO << "==FIB===\n";
+    EV_INFO << simTime() << "==FIB===\n";
     list<FIBEntry*>::iterator iteratorFIBEntry = fib.begin();
     while (iteratorFIBEntry != fib.end()) {
         FIBEntry *fibEntry = *iteratorFIBEntry;
-        cout << RFC8569FORWARDER_SIMMODULEINFO << " " << fibEntry->prefixName << "\n";
+        EV_INFO << simTime() << " " << fibEntry->prefixName << "\n";
         list<FaceEntry*>::iterator iteratorFaceEntry = fibEntry->forwardedFaces.begin();
         while (iteratorFaceEntry != fibEntry->forwardedFaces.end()) {
             FaceEntry *faceEntry = *iteratorFaceEntry;
-            cout << RFC8569FORWARDER_SIMMODULEINFO << "   " << faceEntry->faceID
+            EV_INFO << simTime() << "   " << faceEntry->faceID
                     << " " << faceEntry->faceDescription << " "
                     << faceEntry->baseGateName << "\n";
             iteratorFaceEntry++;
         }
         iteratorFIBEntry++;
     }
-    cout << RFC8569FORWARDER_SIMMODULEINFO << "=====\n";
+    EV_INFO << simTime() << "=====\n";
 }
 
 void RFC8569Forwarder::dumpFaces()
 {
     FaceEntry *faceEntry = NULL;
 
-    cout << RFC8569FORWARDER_SIMMODULEINFO << "==Faces===\n";
+    EV_INFO << simTime() << "==Faces===\n";
     list<FaceEntry*>::iterator iteratorFaceEntry = registeredFaces.begin();
     while (iteratorFaceEntry != registeredFaces.end()) {
         faceEntry = *iteratorFaceEntry;
-        cout <<  RFC8569FORWARDER_SIMMODULEINFO << " "
+        EV_INFO << simTime() << " "
                 << faceEntry->faceID << " "
                 << faceEntry->faceDescription << " "
                 << faceEntry->baseGateName << "\n";
 
         iteratorFaceEntry++;
     }
-    cout << RFC8569FORWARDER_SIMMODULEINFO << "=====\n";
+    EV_INFO << simTime() << "=====\n";
 }
 
 void RFC8569Forwarder::dumpCS()
 {
-    cout << RFC8569FORWARDER_SIMMODULEINFO << "==CS===\n";
-    cout << RFC8569FORWARDER_SIMMODULEINFO << " cached entries: " << cs.size() << "\n";
+    EV_INFO << simTime() << "==CS===\n";
+    EV_INFO << simTime() << " cached entries: " << cs.size() << "\n";
 
 //    list<CSEntry*>::iterator iteratorCSEntry = cs.begin();
 //    while (iteratorCSEntry != cs.end()) {
 //        CSEntry *csEntry = *iteratorCSEntry;
-//        cout << RFC8569FORWARDER_SIMMODULEINFO << " "
+//        EV_INFO << simTime() << " "
 //                << csEntry->prefixName << " "
 //                << csEntry->dataName << " "
 //                << csEntry->versionName << " "
@@ -709,22 +866,27 @@ void RFC8569Forwarder::dumpCS()
 //        iteratorCSEntry++;
 //    }
 
-    cout << RFC8569FORWARDER_SIMMODULEINFO << "=====\n";
+    EV_INFO << simTime() << "=====\n";
 }
 
 void RFC8569Forwarder::dumpPIT()
 {
-    cout << RFC8569FORWARDER_SIMMODULEINFO << "==PIT===\n";
+    EV_INFO << simTime() << "==PIT===\n";
     list<PITEntry*>::iterator iteratorPITEntry = pit.begin();
     while (iteratorPITEntry != pit.end()) {
         PITEntry *pitEntry = *iteratorPITEntry;
-        cout << RFC8569FORWARDER_SIMMODULEINFO << " "
+        EV_INFO << simTime() << " "
                 << pitEntry->prefixName << " "
                 << pitEntry->dataName << " "
                 << pitEntry->versionName << " "
                 << pitEntry->segmentNum << "\n";
+        for (int i = 0; i < pitEntry->arrivalInfoList.size(); i++) {
+            EV_INFO << simTime() << "   arrival face: "
+                    << pitEntry->arrivalInfoList[i]->receivedFace->faceID
+                    << "\n";
+        }
         iteratorPITEntry++;
     }
-    cout << RFC8569FORWARDER_SIMMODULEINFO << "=====\n";
+    EV_INFO << simTime() << "=====\n";
 }
 

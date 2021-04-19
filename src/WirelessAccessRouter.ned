@@ -14,10 +14,10 @@ module WirelessAccessRouter extends Node
     parameters:
         @networkNode();
 
-        // transports used in node
-        numWiredTransports = 1;
-        numWirelessTransports = 1;
-        
+        // number of transports
+        int wirelessAccessRouterNumWiredTransports = default(1);
+        int wirelessAccessRouterNumWirelessTransports = default(1);
+                
         // forwarder used in node
         string forwarder = default("RFC8569Forwarder");
 
@@ -36,6 +36,10 @@ module WirelessAccessRouter extends Node
 
         // set forwarder used
         fwd.typename = forwarder;
+
+        // set tnum transports
+        numWiredTransports = wirelessAccessRouterNumWiredTransports;
+        numWirelessTransports = wirelessAccessRouterNumWirelessTransports;
 
         // set first interface (WLAN)
         wireless[0].typename = "WirelessTransport";

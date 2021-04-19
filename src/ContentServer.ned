@@ -14,8 +14,8 @@ module ContentServer extends Node
         @networkNode();
 
         // transports used in node
-        numWiredTransports = 1;
-        numWirelessTransports = 0;
+        int contentServerNumWiredTransports = default(1);
+        int contentServerNumWirelessTransports = default(0);
 
         // forwarder used in node
         string forwarder = default("RFC8569Forwarder");
@@ -29,6 +29,10 @@ module ContentServer extends Node
 
         // set forwarder used
         fwd.typename = forwarder;
+
+        // set transports
+        numWiredTransports = contentServerNumWiredTransports;
+        numWirelessTransports = contentServerNumWirelessTransports;
 
         // set second interface (Wired)
         wired[0].typename = "WiredTransport";

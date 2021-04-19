@@ -14,9 +14,9 @@ module AccessRouter extends Node
     parameters:
         @networkNode();
 
-        // transports used in node
-        numWiredTransports = 10;
-        numWirelessTransports = 0;
+        // number of transports
+        int accessRouterNumWiredTransports = default(0);
+        int accessRouterNumWirelessTransports = default(0);
 
         // forwarder used in node
         string forwarder = default("RFC8569Forwarder");
@@ -30,6 +30,10 @@ module AccessRouter extends Node
 
         // set forwarder used
         fwd.typename = forwarder;
+
+        // set transports used in node
+        numWiredTransports = accessRouterNumWiredTransports;
+        numWirelessTransports = accessRouterNumWirelessTransports;
 
         // set second interface (Wired)
         wired[*].typename = "WiredTransport";

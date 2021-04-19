@@ -53,7 +53,7 @@ void ContentDownloadApp::initialize(int stage)
 
         // when Deus or Numen not found, terminate
         if (deusModel == NULL || numenModel == NULL) {
-            EV_FATAL <<  CONTENTDOWNLOADAPP_SIMMODULEINFO << "The global Deus instance and/or node specific Numen instance not found.\n";
+            EV_FATAL << "The global Deus instance and/or node specific Numen instance not found.\n";
             throw cRuntimeError("Check log for details");
         }
 
@@ -76,7 +76,7 @@ void ContentDownloadApp::initialize(int stage)
         // start downloading content event
         contentDownloadStartEvent = new cMessage("Content Download Start Event");
         contentDownloadStartEvent->setKind(CONTENTDOWNLOADAPP_START_CONTENT_DOWNLOAD_EVENT_CODE);
-        scheduleAt(simTime() + interContentDownloadInterval, contentDownloadStartEvent);
+        scheduleAt(simTime() + par("interContentDownloadInterval"), contentDownloadStartEvent);
 
         // interest retransmission event
         interestRetransmitEvent = new cMessage("Interest Retransmission Event");
@@ -84,9 +84,14 @@ void ContentDownloadApp::initialize(int stage)
 
         // register stat signals
         contentDownloadDurationSignal = registerSignal("appContentDownloadDuration");
+        segmentDownloadDurationSignal = registerSignal("appSegmentDownloadDuration");
+        totalInterestsBytesSentSignal = registerSignal("appTotalInterestsBytesSent");
+        retransmissionInterestsBytesSentSignal = registerSignal("appRetransmissionInterestsBytesSent");
+        totalContentObjsBytesReceivedSignal = registerSignal("appTotalContentObjsBytesReceived");
+        totalDataBytesReceivedSignal = registerSignal("appTotalDataBytesReceived");
 
     } else {
-        EV_FATAL <<  CONTENTDOWNLOADAPP_SIMMODULEINFO << "Something is radically wrong\n";
+        EV_FATAL << "Something is radically wrong\n";
         throw cRuntimeError("Check log for details");
     }
 }
@@ -95,6 +100,8 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
 {
     // register app with lower layer (forwarder)
     if (msg->isSelfMessage() && msg->getKind() == CONTENTDOWNLOADAPP_APP_REG_REM_EVENT_CODE) {
+
+        EV_INFO << simTime() << " Registering application with ID: " << getId() << endl;
 
         AppRegistrationMsg *appRegMsg = new AppRegistrationMsg();
         appRegMsg->setAppID(getId());
@@ -112,16 +119,15 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
         // identify data to download
         rndNum = intuniform(0, (requestedPrefixList.size() - 1));
         requestingPrefixName = requestedPrefixList[rndNum];
-        rndNum = intuniform(0, 9999);
+        rndNum = par("nextFileSuffix");
         sprintf(tempString, "%s%04d", dataNamePrefix.c_str(), rndNum);
         requestingDataName = string(tempString);
         requestedSegNum = 0;
         totalSegments = -1;
         contentDownloadStartTime = simTime();
 
-//        cout << CONTENTDOWNLOADAPP_SIMMODULEINFO << " content details start - "
-//                << requestingPrefixName << ", " << requestingDataName
-//                << ", prefix list size - " << requestedPrefixList.size() << "\n";
+        EV_INFO << simTime() << " Content download start: " << requestingPrefixName
+                << " " << requestingDataName << " v01" << endl;
 
         // generate 1st interest
         InterestMsg* interestMsg = new InterestMsg("Interest");
@@ -136,13 +142,18 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
         interestMsg->setHopsTravelled(0);
         interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
 
-//        cout << CONTENTDOWNLOADAPP_SIMMODULEINFO << " first interest "
-//                << requestingPrefixName << "/" << requestingDataName
-//                << ", requested seg - " << requestedSegNum
-//                << ", total segs - " << totalSegments << "\n";
+        EV_INFO << simTime() << " Sending Interest: " << requestingPrefixName
+                << " " << requestingDataName << " v01 " << requestedSegNum
+                << " " << totalSegments << endl;
 
         // send msg to forwarding layer
         send(interestMsg, "forwarderInOut$o");
+
+        // remember last interest sent time for statistic
+        lastInterestSentTime = simTime();
+
+        // write stats
+        emit(totalInterestsBytesSentSignal, (long) interestMsg->getByteLength());
 
         // set interest re-send timer
         if (interestRetransmitEvent->isScheduled()) {
@@ -152,12 +163,6 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
 
     // interest retransmit timeout
     } else if (msg->isSelfMessage() && msg->getKind() == CONTENTDOWNLOADAPP_INTEREST_RETRANSMIT_EVENT_CODE) {
-
-//        cout << CONTENTDOWNLOADAPP_SIMMODULEINFO << " retransmission triggered sending interest "
-//                << requestingPrefixName << "/" << requestingDataName
-//                << ", requested seg - " << requestedSegNum
-//                << ", total segs - " << totalSegments << "\n";
-
 
         // generate next interest
         InterestMsg* interestMsg = new InterestMsg("Interest");
@@ -172,8 +177,16 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
         interestMsg->setHopsTravelled(0);
         interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
 
+        EV_INFO << simTime() << " Re-transmitting Interest: " << requestingPrefixName
+                << " " << requestingDataName << " v01 " << requestedSegNum
+                << " " << totalSegments << endl;
+
         // send msg to forwarding layer
         send(interestMsg, "forwarderInOut$o");
+
+        // write stats
+        emit(totalInterestsBytesSentSignal, (long) interestMsg->getByteLength());
+        emit(retransmissionInterestsBytesSentSignal, (long) interestMsg->getByteLength());
 
         // set interest re-send timer
         scheduleAt(simTime() + interestRetransmitTimeout, interestRetransmitEvent);
@@ -193,11 +206,20 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
 
             totalSegments = contentObjMsg->getTotalNumSegments();
 
-//            cout << CONTENTDOWNLOADAPP_SIMMODULEINFO << " received segment "
-//                    << contentObjMsg->getPrefixName() << "/" << contentObjMsg->getDataName()
-//                    << ", requested seg - " << contentObjMsg->getSegmentNum()
-//                    << ", total segs - " << contentObjMsg->getTotalNumSegments() << "\n";
+            // write stats
+            emit(segmentDownloadDurationSignal, (simTime() - lastInterestSentTime));
+            emit(totalContentObjsBytesReceivedSignal, (long) contentObjMsg->getByteLength());
+            emit(totalDataBytesReceivedSignal, contentObjMsg->getPayloadSize());
 
+            EV_INFO << simTime() << " Received ContentObj: "
+                    << contentObjMsg->getPrefixName()
+                    << " " << contentObjMsg->getDataName()
+                    << " " << contentObjMsg->getVersionName()
+                    << " " << contentObjMsg->getSegmentNum()
+                    << " " << contentObjMsg->getTotalNumSegments()
+                    << " " << contentObjMsg->getExpirytime()
+                    << " " << contentObjMsg->getPayloadSize()
+                    << " " << totalSegments << endl;
 
             // requested segment received check
             if (contentObjMsg->getSegmentNum() == requestedSegNum) {
@@ -205,8 +227,10 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
                 // was this the last segment?
                 if ((requestedSegNum + 1) >= totalSegments) {
 
-//                    cout << CONTENTDOWNLOADAPP_SIMMODULEINFO << " last segment received - delay "
-//                            << (simTime() - contentDownloadStartTime) << "\n";
+                    EV_INFO << simTime() << " Content download complete: "
+                            << contentObjMsg->getPrefixName()
+                            << " " << contentObjMsg->getDataName()
+                            << " " << contentObjMsg->getVersionName() << endl;
 
                     // content downloaded, so generate duration stat
                     emit(contentDownloadDurationSignal, (simTime() - contentDownloadStartTime));
@@ -215,7 +239,7 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
                     if (interestRetransmitEvent->isScheduled()) {
                         cancelEvent(interestRetransmitEvent);
                     }
-                    scheduleAt(simTime() + interContentDownloadInterval, contentDownloadStartEvent);
+                    scheduleAt(simTime() + par("interContentDownloadInterval"), contentDownloadStartEvent);
 
                 // generate interest for next segment
                 } else {
@@ -235,13 +259,18 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
                     interestMsg->setHopsTravelled(0);
                     interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
 
-//                    cout << CONTENTDOWNLOADAPP_SIMMODULEINFO << " next interest "
-//                            << requestingPrefixName << "/" << requestingDataName
-//                            << ", requested seg - " << requestedSegNum
-//                            << ", total segs - " << totalSegments << "\n";
+                    EV_INFO << simTime() << " Sending Interest: " << requestingPrefixName
+                            << " " << requestingDataName << " v01 " << requestedSegNum
+                            << " " << totalSegments << endl;
 
                     // send msg to forwarding layer
                     send(interestMsg, "forwarderInOut$o");
+
+                    // remember last interest sent time for statistic
+                    lastInterestSentTime = simTime();
+
+                    // write stats
+                    emit(totalInterestsBytesSentSignal, (long) interestMsg->getByteLength());
 
                     // set interest re-send timer
                     if (interestRetransmitEvent->isScheduled()) {

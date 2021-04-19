@@ -26,7 +26,7 @@ void WirelessTransport::initialize(int stage)
 
         // validate parameters
         if (!(operationMode == "ap" || operationMode == "client" || operationMode == "direct")) {
-            EV_INFO << WIRELESSTRANSPORT_SIMMODULEINFO << "operationMode must be - ap, client or direct" << "\n";
+            EV_FATAL << simTime() << "operationMode must be - ap, client or direct" << "\n";
             throw cRuntimeError("Check log for details");
         }
 
@@ -50,19 +50,8 @@ void WirelessTransport::initialize(int stage)
         transportRegReminderEvent->setKind(WIRELESSTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE);
         scheduleAt(simTime(), transportRegReminderEvent);
 
-//        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "macAddress: " << macAddress << "\n";
-//        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "wirelessTechnology: " << wirelessTechnology << "\n";
-//        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "operationMode: " << operationMode << "\n";
-//        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "connectString: " << connectString << "\n";
-//        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "wirelessRange: " << wirelessRange << "\n";
-//        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "dataRate: " << dataRate << "\n";
-//        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "packetErrorRate: " << packetErrorRate << "\n";
-//        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "scanInterval: " << scanInterval << "\n";
-//        cout << WIRELESSTRANSPORT_SIMMODULEINFO << "headerSize: " << headerSize << "\n";
-
-
     } else {
-        EV_INFO << WIRELESSTRANSPORT_SIMMODULEINFO << "unknown initialize() stage" << "\n";
+        EV_FATAL << simTime() << "unknown initialize() stage" << "\n";
         throw cRuntimeError("Check log for details");
 
     }
@@ -79,8 +68,9 @@ void WirelessTransport::handleMessage(cMessage *msg)
             transportRegMsg->setTransportDescription("Wireless Transport");
             transportRegMsg->setTransportAddress(macAddress.c_str());
 
-            send(transportRegMsg, "forwarderInOut$o");
+            EV_INFO << simTime() << " Registering transport with ID: " << getId() << endl;
 
+            send(transportRegMsg, "forwarderInOut$o");
         }
 
         delete msg;
@@ -143,6 +133,13 @@ void WirelessTransport::processIncomingMessage(cMessage *msg)
 
     // decapsulate and get original packet
     cMessage *decapsulatedMsg = transportMsg->decapsulate();
+
+    EV_INFO << simTime() << "Received incoming message: "
+            << decapsulatedMsg->getName()
+            << " " << transportMsg->getSourceAddress()
+            << " " << transportMsg->getBroadcastMsg()
+            << " " << transportMsg->getDestinationAddress()
+            << endl;
 
     // attach source info
     decapsulatedMsg->addObject(arrivalTransportInfo);
@@ -243,7 +240,7 @@ void WirelessTransport::processOutgoingOnAPNode(cMessage *msg)
         cMessage *copyOfMsg = msg->dup();
 
         // create message
-        TransportMsg *transportMsg = new TransportMsg();
+        TransportMsg *transportMsg = new TransportMsg(copyOfMsg->getName());
         transportMsg->setSourceAddress(macAddress.c_str());
         transportMsg->setBroadcastMsg(false);
         transportMsg->setDestinationAddress(destinationTransportInfo->transportAddress.c_str());
@@ -254,6 +251,13 @@ void WirelessTransport::processOutgoingOnAPNode(cMessage *msg)
 
         // compute transmission delay of msg
         simtime_t txDelay = (headerSize + msgSize) * 8 / dataRate;
+
+        EV_INFO << simTime() << "Sending outgoing message (AP Node): "
+                << copyOfMsg->getName()
+                << " " << transportMsg->getSourceAddress()
+                << " " << transportMsg->getBroadcastMsg()
+                << " " << transportMsg->getDestinationAddress()
+                << endl;
 
         // send msg directly to node
         sendDirect(transportMsg, 0.0, txDelay, wirelessTransportInfo->wirelessTransportModel, "radioIn");
@@ -279,7 +283,7 @@ void WirelessTransport::processOutgoingOnAPNode(cMessage *msg)
             cMessage *copyOfMsg = msg->dup();
 
             // create message
-            TransportMsg *transportMsg = new TransportMsg();
+            TransportMsg *transportMsg = new TransportMsg(copyOfMsg->getName());
             transportMsg->setSourceAddress(macAddress.c_str());
             transportMsg->setBroadcastMsg(true);
             transportMsg->setDestinationAddress("");
@@ -290,6 +294,13 @@ void WirelessTransport::processOutgoingOnAPNode(cMessage *msg)
 
             // compute transmission delay of msg
             simtime_t txDelay = (headerSize + msgSize) * 8 / dataRate;
+
+            EV_INFO << simTime() << "Sending outgoing message (AP Node): "
+                    << copyOfMsg->getName()
+                    << " " << transportMsg->getSourceAddress()
+                    << " " << transportMsg->getBroadcastMsg()
+                    << " " << transportMsg->getDestinationAddress()
+                    << endl;
 
             // send msg directly to node
             sendDirect(transportMsg, 0.0, txDelay, wirelessTransportInfo->wirelessTransportModel, "radioIn");
@@ -397,7 +408,7 @@ void WirelessTransport::processOutgoingOnClientNode(cMessage *msg)
     cMessage *copyOfMsg = msg->dup();
 
     // create message
-    TransportMsg *transportMsg = new TransportMsg();
+    TransportMsg *transportMsg = new TransportMsg(copyOfMsg->getName());
     transportMsg->setSourceAddress(macAddress.c_str());
     transportMsg->setBroadcastMsg(false);
     transportMsg->setDestinationAddress(currentConnectAP->macAddress.c_str());
@@ -408,6 +419,13 @@ void WirelessTransport::processOutgoingOnClientNode(cMessage *msg)
 
     // compute transmission delay of msg
     simtime_t txDelay = (headerSize + msgSize) * 8 / dataRate;
+
+    EV_INFO << simTime() << "Sending outgoing message (Client Node): "
+            << copyOfMsg->getName()
+            << " " << transportMsg->getSourceAddress()
+            << " " << transportMsg->getBroadcastMsg()
+            << " " << transportMsg->getDestinationAddress()
+            << endl;
 
     // send msg directly to node
     sendDirect(transportMsg, 0.0, txDelay, currentConnectAP->wirelessTransportModel, "radioIn");
@@ -517,7 +535,7 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
         cMessage *copyOfMsg = msg->dup();
 
         // create message
-        TransportMsg *transportMsg = new TransportMsg();
+        TransportMsg *transportMsg = new TransportMsg(copyOfMsg->getName());
         transportMsg->setSourceAddress(macAddress.c_str());
         transportMsg->setBroadcastMsg(false);
         transportMsg->setDestinationAddress(destinationTransportInfo->transportAddress.c_str());
@@ -528,6 +546,13 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
 
         // compute transmission delay of msg
         simtime_t txDelay = (headerSize + msgSize) * 8 / dataRate;
+
+        EV_INFO << simTime() << "Sending outgoing message (Direct Node): "
+                << copyOfMsg->getName()
+                << " " << transportMsg->getSourceAddress()
+                << " " << transportMsg->getBroadcastMsg()
+                << " " << transportMsg->getDestinationAddress()
+                << endl;
 
         // send msg directly to node
         sendDirect(transportMsg, 0.0, txDelay, wirelessTransportInfo->wirelessTransportModel, "radioIn");
@@ -552,7 +577,7 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
             cMessage *copyOfMsg = msg->dup();
 
             // create message
-            TransportMsg *transportMsg = new TransportMsg();
+            TransportMsg *transportMsg = new TransportMsg(copyOfMsg->getName());
             transportMsg->setSourceAddress(macAddress.c_str());
             transportMsg->setBroadcastMsg(true);
             transportMsg->setDestinationAddress("");
@@ -560,6 +585,13 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
             transportMsg->setHeaderSize(headerSize);
             transportMsg->setPayloadSize(msgSize);
             transportMsg->setByteLength(headerSize + msgSize);
+
+            EV_INFO << simTime() << "Sending outgoing message (Direct Node): "
+                    << copyOfMsg->getName()
+                    << " " << transportMsg->getSourceAddress()
+                    << " " << transportMsg->getBroadcastMsg()
+                    << " " << transportMsg->getDestinationAddress()
+                    << endl;
 
             // send msg directly to node
             sendDirect(transportMsg, wirelessTransportInfo->wirelessTransportModel, "radioIn");
@@ -610,7 +642,7 @@ void WirelessTransport::getDeusModel()
         }
     }
     if (deusModel == NULL) {
-        EV_INFO << WIRELESSTRANSPORT_SIMMODULEINFO << "The single Deus model instance not found. Please define one at the network level." << "\n";
+        EV_FATAL << simTime() << "The single Deus model instance not found. Please define one at the network level." << "\n";
         throw cRuntimeError("Check log for details");
     }
 }
@@ -634,7 +666,7 @@ void WirelessTransport::getAllOtherModels()
         }
     }
     if (numenModel == NULL || mobilityModel == NULL) {
-        EV_INFO << WIRELESSTRANSPORT_SIMMODULEINFO << "The Numen and/or Mobility model instances not found. They are part of every node model." << "\n";
+        EV_FATAL << simTime() << "The Numen and/or Mobility model instances not found. They are part of every node model." << "\n";
         throw cRuntimeError("Check log for details");
 
     }
@@ -712,13 +744,6 @@ bool WirelessTransport::inWirelessRange(inet::IMobility *neighbourMobilityModel,
 
     ownCoord = ownMobilityModel->getCurrentPosition();
     neighCoord = neighbourMobilityModel->getCurrentPosition();
-
-//    cout << WIRELESSTRANSPORT_SIMMODULEINFO
-//            << " neighbour coord (x, y): " << neighCoord.x << ", " << neighCoord.y
-//            << " own coord (x, y): " << ownCoord.x << ", " << ownCoord.y
-//            << " range: " << radius
-//            << "\n";
-
 
     double l = ((neighCoord.x - ownCoord.x) * (neighCoord.x - ownCoord.x))
         + ((neighCoord.y - ownCoord.y) * (neighCoord.y - ownCoord.y));

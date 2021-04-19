@@ -14,8 +14,8 @@ module WiredNode extends Node
         @networkNode();
 
         // transports used in node
-        numWiredTransports = 1;
-        numWirelessTransports = 0;
+        int wiredNodeNumWiredTransports = default(1);
+        int wiredNodeNumWirelessTransports = default(0);
 
         // forwarder used in node
         string forwarder = default("RFC8569Forwarder");
@@ -29,6 +29,10 @@ module WiredNode extends Node
 
         // set forwarder used
         fwd.typename = forwarder;
+
+        // set transports
+        numWiredTransports = wiredNodeNumWiredTransports;
+        numWirelessTransports = wiredNodeNumWirelessTransports;
 
         // set second interface (Wired)
         wired[0].typename = "WiredTransport";

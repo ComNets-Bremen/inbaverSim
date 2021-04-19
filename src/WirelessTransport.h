@@ -73,7 +73,6 @@ class WirelessTransport : public cSimpleModule
 
 };
 
-#define WIRELESSTRANSPORT_SIMMODULEINFO                 simTime() << ">!<" << getParentModule()->getFullName() << ">!<WirelessTransport>!<"
 #define WIRELESSTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE    116
 
 #endif

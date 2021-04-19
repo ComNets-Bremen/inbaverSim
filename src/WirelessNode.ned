@@ -15,8 +15,8 @@ module WirelessNode extends Node
         @networkNode();
 
         // transports used in node
-        numWiredTransports = 0;
-        numWirelessTransports = 2;
+        int wirelessNodeNumWiredTransports = default(0);
+        int wirelessNodeNumWirelessTransports = default(2);
         
         // forwarder used in node
         string forwarder = default("RFC8569Forwarder");
@@ -39,6 +39,10 @@ module WirelessNode extends Node
         // set forwarder used
         fwd.typename = forwarder;
 
+        // set transports
+        numWiredTransports = wirelessNodeNumWiredTransports;
+        numWirelessTransports = wirelessNodeNumWirelessTransports;
+        
         // set first interface (WLAN)
         wireless[0].typename = "WirelessTransport";
         wireless[0].wirelessTechnology = "WLAN";

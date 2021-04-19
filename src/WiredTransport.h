@@ -11,6 +11,7 @@
 #define __INBAVERSIM_WIREDTRANSPORT_H_
 
 #include <omnetpp.h>
+#include <queue>
 #include "inbaver.h"
 #include "InternalMessages_m.h"
 #include "TransportMessages_m.h"
@@ -52,16 +53,21 @@ class WiredTransport : public cSimpleModule
       cModule *nodeModel;
       inet::IMobility *mobilityModel;
 
+      // queues messages arriving from forwarding
+      queue<cMessage*> messageQueue;
+      cMessage *msgSendCompletedEvent;
+
       void buildMACLikeAddress();
       void getDeusModel();
       void getAllOtherModels();
       void registerWiredTransportWithDeus();
       void processOutgoingMessage(cMessage *msg);
       void processIncomingMessage(cMessage *msg);
+      void sendOutgoingMessage(cMessage *msg);
 
 };
 
-#define WIREDTRANSPORT_SIMMODULEINFO                   simTime() << ">!<" << getParentModule()->getFullName() << ">!<WiredTransport>!<"
 #define WIREDTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE    106
+#define WIREDTRANSPORT_MSG_SEND_COMPLETED_EVENT_CODE   107
 
 #endif

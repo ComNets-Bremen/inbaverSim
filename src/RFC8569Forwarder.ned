@@ -18,7 +18,19 @@ simple RFC8569Forwarder like IForwarder
 
         // size of cache in bytes - zero means unlimited caching
         int maximumContentStoreSize @unit(byte) = default(0byte);
-        
+
+        // statistic signals
+        @signal[fwdTotalInterestsBytesReceived](type=long);
+        @signal[fwdTotalInterestRtnsBytesReceived](type=long);
+        @signal[fwdTotalContentObjsBytesReceived](type=long);
+        @signal[fwdTotalInterestsBytesSent](type=long);
+        @signal[fwdTotalInterestRtnsBytesSent](type=long);
+        @signal[fwdTotalContentObjsBytesSent](type=long);
+        @signal[fwdCacheSizeBytes](type=long);
+        @signal[fwdCacheAdditionsBytes](type=long);
+        @signal[fwdCacheRemovalsBytes](type=long);
+
+        // display icon
         @display("i=block/fork");
 
     gates:

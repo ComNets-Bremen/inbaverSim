@@ -56,13 +56,18 @@ class ContentDownloadApp : public cSimpleModule
     int requestedSegNum;
     int totalSegments;
     simtime_t contentDownloadStartTime;
+    simtime_t lastInterestSentTime;
+
 
     // stat signals
     simsignal_t contentDownloadDurationSignal;
-
+    simsignal_t segmentDownloadDurationSignal;
+    simsignal_t totalInterestsBytesSentSignal;
+    simsignal_t retransmissionInterestsBytesSentSignal;
+    simsignal_t totalContentObjsBytesReceivedSignal;
+    simsignal_t totalDataBytesReceivedSignal;
 };
 
-#define CONTENTDOWNLOADAPP_SIMMODULEINFO                       simTime() << ">!<" << getParentModule()->getFullName() << ">!<ContentDownloadApp>!<"
 #define CONTENTDOWNLOADAPP_APP_REG_REM_EVENT_CODE              116
 #define CONTENTDOWNLOADAPP_START_CONTENT_DOWNLOAD_EVENT_CODE   117
 #define CONTENTDOWNLOADAPP_INTEREST_RETRANSMIT_EVENT_CODE      118

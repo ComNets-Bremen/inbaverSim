@@ -40,8 +40,13 @@ void WiredTransport::initialize(int stage)
         transportRegReminderEvent->setKind(WIREDTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE);
         scheduleAt(simTime(), transportRegReminderEvent);
 
+        // setup pkt send event message
+        msgSendCompletedEvent = new cMessage("Message Send Completed Event");
+        msgSendCompletedEvent->setKind(WIREDTRANSPORT_MSG_SEND_COMPLETED_EVENT_CODE);
+
     } else {
-        EV_INFO << WIREDTRANSPORT_SIMMODULEINFO << "unknown initialize() stage" << "\n";
+        EV_FATAL << simTime() << "unknown initialize() stage"
+                << "\n";
         throw cRuntimeError("Check log for details");
 
     }
@@ -49,8 +54,9 @@ void WiredTransport::initialize(int stage)
 
 void WiredTransport::handleMessage(cMessage *msg)
 {
-    // register transport with upper layer (forwarder)
     if (msg->isSelfMessage()) {
+
+        // register transport with upper layer (forwarder)
         if (msg->getKind() == WIREDTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE) {
 
             TransportRegistrationMsg *transportRegMsg = new TransportRegistrationMsg();
@@ -58,10 +64,27 @@ void WiredTransport::handleMessage(cMessage *msg)
             transportRegMsg->setTransportDescription("Wired Transport");
             transportRegMsg->setTransportAddress(macAddress.c_str());
 
-            send(transportRegMsg, "forwarderInOut$o");
-        }
+            EV_INFO << simTime() << " Registering transport with ID: " << getId() << endl;
 
-        delete msg;
+            send(transportRegMsg, "forwarderInOut$o");
+
+            delete msg;
+
+        // last message sent, see if queued messages exist
+        } else if (msg->getKind() == WIREDTRANSPORT_MSG_SEND_COMPLETED_EVENT_CODE) {
+
+            // are there queued messages? if so, pop
+            // and send message out
+            if (!messageQueue.empty()) {
+
+                // pop queued message
+                cMessage *queuedMsg = messageQueue.front();
+                messageQueue.pop();
+
+                // send message immediately out
+                sendOutgoingMessage(queuedMsg);
+            }
+        }
 
     } else {
         cGate *gate;
@@ -82,10 +105,34 @@ void WiredTransport::handleMessage(cMessage *msg)
 
         }
     }
-
 }
 
 void WiredTransport::processOutgoingMessage(cMessage *msg)
+{
+
+    EV_INFO << simTime() << "Received outgoing message: "
+            << msg->getName()
+            << endl;
+
+    // is there a message send in progress
+    if (msgSendCompletedEvent->isScheduled()) {
+
+        EV_INFO << simTime() << "Queuing outgoing message: "
+                << msg->getName()
+                << endl;
+
+        // queue the message until current sent
+        messageQueue.push(msg);
+
+    } else {
+
+        // send message immediately out
+        sendOutgoingMessage(msg);
+
+    }
+}
+
+void WiredTransport::sendOutgoingMessage(cMessage *msg)
 {
     // get CCNx message size
     long msgSize = ((cPacket *)msg)->getByteLength();
@@ -101,7 +148,7 @@ void WiredTransport::processOutgoingMessage(cMessage *msg)
     cMessage *copyOfMsg = msg->dup();
 
     // create message
-    TransportMsg *transportMsg = new TransportMsg();
+    TransportMsg *transportMsg = new TransportMsg(copyOfMsg->getName());
     transportMsg->setSourceAddress(macAddress.c_str());
     if (destinationTransportInfo != NULL) {
         transportMsg->setBroadcastMsg(false);
@@ -115,6 +162,14 @@ void WiredTransport::processOutgoingMessage(cMessage *msg)
     transportMsg->setPayloadSize(msgSize);
     transportMsg->setByteLength(headerSize + msgSize);
 
+    EV_INFO << simTime() << "Sending outgoing message: "
+            << msg->getName()
+            << " " << macAddress
+            << " " << transportMsg->getBroadcastMsg()
+            << " " << transportMsg->getDestinationAddress()
+            << endl;
+
+
     // send msg directly to node
     send(transportMsg, "physicalInOut$o");
 
@@ -122,8 +177,14 @@ void WiredTransport::processOutgoingMessage(cMessage *msg)
     if (destinationTransportInfo) {
         delete destinationTransportInfo;
     }
+
+    // set send message completed timeout
+    cChannel *txChannel = gate("physicalInOut$o")->getTransmissionChannel();
+    simtime_t txFinishTime = txChannel->getTransmissionFinishTime();
+    scheduleAt(txFinishTime, msgSendCompletedEvent);
+
     delete msg;
-    return;
+
 }
 
 void WiredTransport::processIncomingMessage(cMessage *msg)
@@ -141,6 +202,13 @@ void WiredTransport::processIncomingMessage(cMessage *msg)
 
     // decapsulate and get original packet
     cMessage *decapsulatedMsg = transportMsg->decapsulate();
+
+    EV_INFO << simTime() << "Received incoming message: "
+            << decapsulatedMsg->getName()
+            << " " << transportMsg->getSourceAddress()
+            << " " << transportMsg->getBroadcastMsg()
+            << " " << transportMsg->getDestinationAddress()
+            << endl;
 
     // attach source info
     decapsulatedMsg->addObject(arrivalTransportInfo);
@@ -185,7 +253,7 @@ void WiredTransport::getDeusModel()
         }
     }
     if (deusModel == NULL) {
-        EV_INFO << WIREDTRANSPORT_SIMMODULEINFO << "The single Deus model instance not found. Please define one at the network level." << "\n";
+        EV_FATAL << simTime() << "The single Deus model instance not found. Please define one at the network level." << "\n";
         throw cRuntimeError("Check log for details");
     }
 }
@@ -209,7 +277,7 @@ void WiredTransport::getAllOtherModels()
         }
     }
     if (numenModel == NULL || mobilityModel == NULL) {
-        EV_INFO << WIREDTRANSPORT_SIMMODULEINFO << "The Numen and/or Mobility model instances not found. They are part of every node model." << "\n";
+        EV_FATAL << simTime() << "The Numen and/or Mobility model instances not found. They are part of every node model." << "\n";
         throw cRuntimeError("Check log for details");
 
     }
@@ -253,13 +321,30 @@ void WiredTransport::registerWiredTransportWithDeus()
     nodeInfo->wiredTransportInfoList.push_back(wiredTransportInfo);
 }
 
-
-
-
-
-
-
 void WiredTransport::finish()
 {
+    // stop msg send trigger, if active
+    if (msgSendCompletedEvent->isScheduled()) {
+        cancelEvent(msgSendCompletedEvent);
+    }
 
+    // remove msg send trigger
+    delete msgSendCompletedEvent;
+
+    // remove queued messages
+    while (!messageQueue.empty()) {
+
+        // pop queued message
+        cMessage *queuedMsg = messageQueue.front();
+        messageQueue.pop();
+
+        if (queuedMsg->hasObject("ExchangedTransportInfo")) {
+            ExchangedTransportInfo *destinationTransportInfo = check_and_cast<ExchangedTransportInfo*>(queuedMsg->getObject("ExchangedTransportInfo"));
+            queuedMsg->removeObject("ExchangedTransportInfo");
+            delete destinationTransportInfo;
+        }
+
+        delete queuedMsg;
+
+    }
 }

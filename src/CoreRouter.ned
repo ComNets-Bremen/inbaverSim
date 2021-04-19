@@ -15,9 +15,9 @@ module CoreRouter extends Node
         @networkNode();
 
         // transports used in node
-        numWiredTransports = 10;
-        numWirelessTransports = 0;
-
+        int coreRouterNumWiredTransports = default(0);
+        int coreRouterNumWirelessTransports = default(0);
+        
         // forwarder used in node
         string forwarder = default("RFC8569Forwarder");
 
@@ -30,6 +30,10 @@ module CoreRouter extends Node
 
         // set forwarder used
         fwd.typename = forwarder;
+
+        // set transports
+        numWiredTransports = coreRouterNumWiredTransports;
+        numWirelessTransports = coreRouterNumWirelessTransports;
 
         // set wired transports
         wired[*].typename = "WiredTransport";

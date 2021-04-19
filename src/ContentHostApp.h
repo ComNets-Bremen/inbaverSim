@@ -50,9 +50,13 @@ class ContentHostApp : public cSimpleModule
     // list to keep already requested file details
     vector <HostedContentEntry *> hostedContentList;
 
+    // stat signals
+    simsignal_t totalInterestsBytesReceivedSignal;
+    simsignal_t totalContentObjsBytesSentSignal;
+    simsignal_t totalDataBytesSentSignal;
+
 };
 
-#define CONTENTHOSTAPP_SIMMODULEINFO             simTime() << ">!<" << getParentModule()->getFullName() << ">!<ContentHostApp>!<"
 #define CONTENTHOSTAPP_APP_REG_REM_EVENT_CODE    116
 
 #endif

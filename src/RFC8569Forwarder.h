@@ -63,9 +63,16 @@ class RFC8569Forwarder : public cSimpleModule
     void dumpCS();
     void dumpPIT();
 
+    simsignal_t totalInterestsBytesReceivedSignal;
+    simsignal_t totalInterestRtnsBytesReceivedSignal;
+    simsignal_t totalContentObjsBytesReceivedSignal;
+    simsignal_t totalInterestsBytesSentSignal;
+    simsignal_t totalInterestRtnsBytesSentSignal;
+    simsignal_t totalContentObjsBytesSentSignal;
+    simsignal_t cacheSizeBytesSignal;
+    simsignal_t cacheAdditionsBytesSignal;
+    simsignal_t cacheRemovalsBytesSignal;
+
 };
-
-#define RFC8569FORWARDER_SIMMODULEINFO                 simTime() << ">!<" << getParentModule()->getFullName() << ">!<RFC8569Forwarder>!<"
-
 
 #endif

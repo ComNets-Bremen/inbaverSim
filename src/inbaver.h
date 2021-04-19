@@ -141,20 +141,20 @@ typedef struct CSEntry {
     string prefixName;
     string dataName;
     string versionName;
-    int segmentNum;
+    long segmentNum;
 
     // CCNx other fields
     simtime_t cachetime;
     simtime_t expirytime;
 
     // total segments in the requested data (identified by prefixName + dataName)
-    int totalNumSegments;
+    long totalNumSegments;
 
     // any payload
     string payloadAsString;
 
     // size in bytes
-    int payloadSize;
+    long payloadSize;
 
 } CSEntry;
 
@@ -163,8 +163,9 @@ class ExchangedTransportInfo : public omnetpp::cObject
   public:
     char *name;
     string transportAddress;
-    ExchangedTransportInfo(const char *n) {name = (char *) malloc(strlen(n) + 1); strcpy(name, n);};
+    ExchangedTransportInfo(const char *n):cObject() {name = (char *) malloc(strlen(n) + 1); strcpy(name, n);};
     const char *getName() {return name;}
+    virtual ExchangedTransportInfo *dup() const {ExchangedTransportInfo *t = new ExchangedTransportInfo("ExchangedTransportInfo"); t->transportAddress = transportAddress; return t;};
     ~ExchangedTransportInfo() {free(name);}
 
 };
