@@ -229,6 +229,8 @@ void RFC8569Forwarder::processTransportRegistration(TransportRegistrationMsg *tr
     }
     fibEntry->forwardedFaces.push_back(faceEntry);
 
+    dumpFIB();
+
     delete transportRegMsg;
 }
 
@@ -239,13 +241,15 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     int arrivalGateIndex =  (arrivalGate->isVector() ? arrivalGate->getIndex() : (-1));
     FaceEntry *arrivalFaceEntry = getFaceEntryFromInputGateName(arrivalGate->getName(), arrivalGateIndex);
 
-    EV_INFO << simTime() << "Received Interest: "
+    EV_INFO << simTime() << " Received Interest: "
             << arrivalFaceEntry->faceID
             << " " << interestMsg->getPrefixName()
             << " " << interestMsg->getDataName()
             << " " << interestMsg->getVersionName()
             << " " << interestMsg->getSegmentNum()
             << endl;
+
+    dumpFaces();
 
     // generate stats
     if (arrivalFaceEntry->faceType == TransportTypeFace) {
@@ -285,7 +289,7 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
             contentObjMsg->addObject(arrivalTransportInfo);
         }
 
-        EV_INFO << simTime() << "Sending ContentObj from Cache: "
+        EV_INFO << simTime() << " Sending ContentObj from Cache: "
                 << csEntry->prefixName
                 << " " << csEntry->dataName
                 << " " << csEntry->versionName
@@ -313,6 +317,8 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     // for same content?
     PITEntry *pitEntry = getPITEntry(interestMsg->getPrefixName(), interestMsg->getDataName(),
                                     interestMsg->getVersionName(), interestMsg->getSegmentNum());
+
+    dumpPIT();
 
     // when there is already a PIT entry, means previous Interests were
     // received, so add the current Interest to the PIT entry
@@ -411,7 +417,7 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     FIBEntry *fibEntry = longestPrefixMatchingInFIB(interestMsg->getPrefixName());
 
     EV_INFO << simTime() << "Longest Prefix Matching and found: "
-            << fibEntry->prefixName << endl;
+            << fibEntry->prefixName << " " << fibEntry->forwardedFaces.size() << endl;
 
     // forward interest to all the faces listed in the FIB entry
     FaceEntry *faceEntry = NULL;
@@ -736,35 +742,25 @@ FaceEntry *RFC8569Forwarder::getFaceEntryFromInputGateName(string inputGateName,
 
 CSEntry *RFC8569Forwarder::getCSEntry(string prefixName, string dataName, string versionName, int segmentNum)
 {
-    CSEntry *csEntry = NULL;
-
     list<CSEntry*>::iterator iteratorCSEntry = cs.begin();
-    bool found = false;
     while (iteratorCSEntry != cs.end()) {
-        csEntry = *iteratorCSEntry;
+        CSEntry *csEntry = *iteratorCSEntry;
 
         if (strcmp(prefixName.c_str(), csEntry->prefixName.c_str()) == 0 && strcmp(dataName.c_str(), csEntry->dataName.c_str()) == 0
                 && strcmp(versionName.c_str(), csEntry->versionName.c_str()) == 0 && segmentNum == csEntry->segmentNum) {
-            found = true;
-            break;
+            return csEntry;
         }
         iteratorCSEntry++;
     }
 
-    if (found) {
-        return csEntry;
-    } else {
-        return NULL;
-    }
+    return NULL;
 }
 
 PITEntry *RFC8569Forwarder::getPITEntry(string prefixName, string dataName, string versionName, int segmentNum)
 {
-    PITEntry *pitEntry = NULL;
-
     list<PITEntry*>::iterator iteratorPITEntry = pit.begin();
     while (iteratorPITEntry != pit.end()) {
-        pitEntry = *iteratorPITEntry;
+        PITEntry *pitEntry = *iteratorPITEntry;
         if (strcmp(prefixName.c_str(), pitEntry->prefixName.c_str()) == 0 && strcmp(dataName.c_str(), pitEntry->dataName.c_str()) == 0
                  && strcmp(versionName.c_str(), pitEntry->versionName.c_str()) == 0 && segmentNum == pitEntry->segmentNum) {
             return pitEntry;
@@ -773,7 +769,7 @@ PITEntry *RFC8569Forwarder::getPITEntry(string prefixName, string dataName, stri
         iteratorPITEntry++;
     }
 
-    return pitEntry;
+    return NULL;
 }
 
 // TODO: re-implement a proper LPM

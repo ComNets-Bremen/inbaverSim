@@ -14,7 +14,7 @@ simple ContentDownloadApp like IApplication
     parameters:
 
         // time between content downloads
-        volatile double interContentDownloadInterval @unit(s) = default(intuniform(200s,500s));
+        volatile double interContentDownloadInterval @unit(s) = default(uniform(200s,500s));
 
         // requested prefixs
         string requestedPrefixNames = default("ccnx://universe.com/;ccnx://spacetime.com/");

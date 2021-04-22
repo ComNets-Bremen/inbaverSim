@@ -76,7 +76,8 @@ void ContentDownloadApp::initialize(int stage)
         // start downloading content event
         contentDownloadStartEvent = new cMessage("Content Download Start Event");
         contentDownloadStartEvent->setKind(CONTENTDOWNLOADAPP_START_CONTENT_DOWNLOAD_EVENT_CODE);
-        scheduleAt(simTime() + par("interContentDownloadInterval"), contentDownloadStartEvent);
+        interContentDownloadInterval = par("interContentDownloadInterval");
+        scheduleAt(simTime() + interContentDownloadInterval, contentDownloadStartEvent);
 
         // interest retransmission event
         interestRetransmitEvent = new cMessage("Interest Retransmission Event");
@@ -239,7 +240,8 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
                     if (interestRetransmitEvent->isScheduled()) {
                         cancelEvent(interestRetransmitEvent);
                     }
-                    scheduleAt(simTime() + par("interContentDownloadInterval"), contentDownloadStartEvent);
+                    interContentDownloadInterval = par("interContentDownloadInterval");
+                    scheduleAt(simTime() + interContentDownloadInterval, contentDownloadStartEvent);
 
                 // generate interest for next segment
                 } else {

@@ -44,6 +44,11 @@ module Node
         @statistic[fwdCacheAdditionsBytes](source=fwdCacheAdditionsBytes; record=count,mean,sum,vector);
         @statistic[fwdCacheRemovalsBytes](source=fwdCacheRemovalsBytes; record=count,mean,sum,vector);
 
+        @statistic[transportTotalWiredBytesReceived](source=transportTotalWiredBytesReceived; record=count,mean,sum,vector);
+        @statistic[transportTotalWiredBytesSent](source=transportTotalWiredBytesSent; record=count,mean,sum,vector);
+
+        @statistic[transportTotalWirlessdBytesReceived](source=transportTotalWirlessdBytesReceived; record=count,mean,sum,vector);
+        @statistic[transportTotalWirelessBytesSent](source=transportTotalWirelessBytesSent; record=count,mean,sum,vector);
 
         @display("bgb=423,301");
 

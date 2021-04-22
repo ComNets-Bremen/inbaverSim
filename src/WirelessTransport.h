@@ -71,6 +71,9 @@ class WirelessTransport : public cSimpleModule
         void processOutgoingOnDirectNode(cMessage *msg);
         void processIncomingMessage(cMessage *msg);
 
+        simsignal_t totalWirelessBytesReceivedSignal;
+        simsignal_t totalWirelessBytesSentSignal;
+
 };
 
 #define WIRELESSTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE    116

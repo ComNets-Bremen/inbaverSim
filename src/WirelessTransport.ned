@@ -36,6 +36,11 @@ simple WirelessTransport like ITransport
         // header size
         int headerSize @unit(byte) = default(32byte);
 
+        // statistic signals
+        @signal[transportTotalWirelessBytesReceived](type=long);
+        @signal[transportTotalWirelessBytesSent](type=long);
+
+        // display icon
         @display("i=block/transport");
 
     gates:

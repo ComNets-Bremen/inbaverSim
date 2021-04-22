@@ -44,6 +44,10 @@ void WiredTransport::initialize(int stage)
         msgSendCompletedEvent = new cMessage("Message Send Completed Event");
         msgSendCompletedEvent->setKind(WIREDTRANSPORT_MSG_SEND_COMPLETED_EVENT_CODE);
 
+        // init stat signals
+        totalWiredBytesReceivedSignal = registerSignal("transportTotalWiredBytesReceived");
+        totalWiredBytesSentSignal = registerSignal("transportTotalWiredBytesSent");
+
     } else {
         EV_FATAL << simTime() << "unknown initialize() stage"
                 << "\n";
@@ -173,6 +177,9 @@ void WiredTransport::sendOutgoingMessage(cMessage *msg)
     // send msg directly to node
     send(transportMsg, "physicalInOut$o");
 
+    // generate stats
+    emit(totalWiredBytesSentSignal, (long) transportMsg->getByteLength());
+
     // remove original msg and return
     if (destinationTransportInfo) {
         delete destinationTransportInfo;
@@ -195,6 +202,9 @@ void WiredTransport::processIncomingMessage(cMessage *msg)
         delete msg;
         return;
     }
+
+    // generate stats
+    emit(totalWiredBytesReceivedSignal, (long) transportMsg->getByteLength());
 
     // get source of the msg
     ExchangedTransportInfo *arrivalTransportInfo = new ExchangedTransportInfo("ExchangedTransportInfo");

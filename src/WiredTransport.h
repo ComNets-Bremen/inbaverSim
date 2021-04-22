@@ -65,6 +65,9 @@ class WiredTransport : public cSimpleModule
       void processIncomingMessage(cMessage *msg);
       void sendOutgoingMessage(cMessage *msg);
 
+      simsignal_t totalWiredBytesReceivedSignal;
+      simsignal_t totalWiredBytesSentSignal;
+
 };
 
 #define WIREDTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE    106

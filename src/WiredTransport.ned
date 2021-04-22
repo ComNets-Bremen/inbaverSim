@@ -25,6 +25,11 @@ simple WiredTransport like ITransport
         // header size
         int headerSize @unit(byte) = default(32byte);
 
+        // statistic signals
+        @signal[transportTotalWiredBytesReceived](type=long);
+        @signal[transportTotalWiredBytesSent](type=long);
+
+        // display icon
         @display("i=block/transport");
 
     gates:

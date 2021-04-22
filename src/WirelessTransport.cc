@@ -50,6 +50,10 @@ void WirelessTransport::initialize(int stage)
         transportRegReminderEvent->setKind(WIRELESSTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE);
         scheduleAt(simTime(), transportRegReminderEvent);
 
+        // init stat signals
+        totalWirelessBytesReceivedSignal = registerSignal("transportTotalWirelessBytesReceived");
+        totalWirelessBytesSentSignal = registerSignal("transportTotalWirelessBytesSent");
+
     } else {
         EV_FATAL << simTime() << "unknown initialize() stage" << "\n";
         throw cRuntimeError("Check log for details");
@@ -126,6 +130,9 @@ void WirelessTransport::processIncomingMessage(cMessage *msg)
         delete msg;
         return;
     }
+
+    // generate stats
+    emit(totalWirelessBytesReceivedSignal, (long) transportMsg->getByteLength());
 
     // get source of the msg
     ExchangedTransportInfo *arrivalTransportInfo = new ExchangedTransportInfo("ExchangedTransportInfo");
@@ -262,6 +269,9 @@ void WirelessTransport::processOutgoingOnAPNode(cMessage *msg)
         // send msg directly to node
         sendDirect(transportMsg, 0.0, txDelay, wirelessTransportInfo->wirelessTransportModel, "radioIn");
 
+        // generate stats
+        emit(totalWirelessBytesSentSignal, (long) transportMsg->getByteLength());
+
         // remove original msg and return
         if (destinationTransportInfo) {
             delete destinationTransportInfo;
@@ -276,6 +286,7 @@ void WirelessTransport::processOutgoingOnAPNode(cMessage *msg)
     if (destinationTransportInfo == NULL) {
 
         // loop around list and send to every one
+        bool statsGeneratedForBroadcast = false;
         for (int i = 0; i < potentialWirelessNodesList.size(); i++) {
             WirelessTransportInfo *wirelessTransportInfo = potentialWirelessNodesList[i];
 
@@ -304,6 +315,12 @@ void WirelessTransport::processOutgoingOnAPNode(cMessage *msg)
 
             // send msg directly to node
             sendDirect(transportMsg, 0.0, txDelay, wirelessTransportInfo->wirelessTransportModel, "radioIn");
+
+            // generate stats
+            if (!statsGeneratedForBroadcast) {
+                emit(totalWirelessBytesSentSignal, (long) transportMsg->getByteLength());
+                statsGeneratedForBroadcast = true;
+            }
         }
 
         // remove original msg and return
@@ -429,6 +446,9 @@ void WirelessTransport::processOutgoingOnClientNode(cMessage *msg)
 
     // send msg directly to node
     sendDirect(transportMsg, 0.0, txDelay, currentConnectAP->wirelessTransportModel, "radioIn");
+
+    // generate stats
+    emit(totalWirelessBytesSentSignal, (long) transportMsg->getByteLength());
 
     // remove original msg and return
     if (destinationTransportInfo != NULL) {
@@ -557,6 +577,9 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
         // send msg directly to node
         sendDirect(transportMsg, 0.0, txDelay, wirelessTransportInfo->wirelessTransportModel, "radioIn");
 
+        // generate stats
+        emit(totalWirelessBytesSentSignal, (long) transportMsg->getByteLength());
+
         // remove original msg and return
         if (destinationTransportInfo != NULL) {
             delete destinationTransportInfo;
@@ -570,6 +593,7 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
     if (destinationTransportInfo == NULL) {
 
         // loop around list and send to every one
+        bool statsGeneratedForBroadcast = false;
         for (int i = 0; i < potentialWirelessNodesList.size(); i++) {
             WirelessTransportInfo *wirelessTransportInfo = potentialWirelessNodesList[i];
 
@@ -595,6 +619,12 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
 
             // send msg directly to node
             sendDirect(transportMsg, wirelessTransportInfo->wirelessTransportModel, "radioIn");
+
+            // generate stats
+            if (!statsGeneratedForBroadcast) {
+                emit(totalWirelessBytesSentSignal, (long) transportMsg->getByteLength());
+                statsGeneratedForBroadcast = true;
+            }
 
         }
 
