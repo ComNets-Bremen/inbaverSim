@@ -72,6 +72,8 @@ class RFC8569Forwarder : public cSimpleModule
     simsignal_t cacheSizeBytesSignal;
     simsignal_t cacheAdditionsBytesSignal;
     simsignal_t cacheRemovalsBytesSignal;
+    simsignal_t fibEntryCountSignal;
+    simsignal_t pitEntryCountSignal;
 
 };
 

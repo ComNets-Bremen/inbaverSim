@@ -66,6 +66,8 @@ void RFC8569Forwarder::initialize(int stage)
         cacheSizeBytesSignal = registerSignal("fwdCacheSizeBytes");
         cacheAdditionsBytesSignal = registerSignal("fwdCacheAdditionsBytes");
         cacheRemovalsBytesSignal = registerSignal("fwdCacheRemovalsBytes");
+        fibEntryCountSignal = registerSignal("fwdFIBEntryCount");
+        pitEntryCountSignal = registerSignal("fwdPITEntryCount");
 
     } else {
         EV_FATAL << simTime() << "Something is radically wrong\n";
@@ -166,6 +168,9 @@ void RFC8569Forwarder::processApplicationRegistration(AppRegistrationMsg *appReg
 
             fib.push_back(fibEntry);
 
+            // gen stats
+            emit(fibEntryCountSignal, (long) fib.size());
+
             EV_INFO << simTime() << " Adding application prefix to FIB: "
                     << prefixName
                     << " " << appRegMsg->getAppID()
@@ -220,6 +225,9 @@ void RFC8569Forwarder::processTransportRegistration(TransportRegistrationMsg *tr
         fibEntry = new FIBEntry;
         fibEntry->prefixName = "default";
         fib.push_back(fibEntry);
+
+        // gen stats
+        emit(fibEntryCountSignal, (long) fib.size());
 
         EV_INFO << simTime() << " Received transport prefix to FIB: "
                 << "default"
@@ -412,6 +420,9 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
             << endl;
 
     pit.push_back(pitEntry);
+
+    // gen stats
+    emit(pitEntryCountSignal, (long) pit.size());
 
     // find which FIB entry to use to forward the Interest
     FIBEntry *fibEntry = longestPrefixMatchingInFIB(interestMsg->getPrefixName());
@@ -627,6 +638,9 @@ void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
     pit.remove(pitEntry);
     delete pitEntry;
 
+    // gen stats
+    emit(pitEntryCountSignal, (long) pit.size());
+
     // remove the Content Obj as it was saved and also sent to
     // the Interest senders
     delete contentObjMsg;
@@ -715,6 +729,9 @@ void RFC8569Forwarder::processInterestRtn(InterestRtnMsg *interestRtnMsg)
     pitEntry->arrivalInfoList.clear();
     pit.remove(pitEntry);
     delete pitEntry;
+
+    // gen stats
+    emit(pitEntryCountSignal, (long) pit.size());
 
     // remove the Interest Return as it was sent to the Interest senders
     delete interestRtnMsg;

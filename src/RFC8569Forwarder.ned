@@ -29,6 +29,8 @@ simple RFC8569Forwarder like IForwarder
         @signal[fwdCacheSizeBytes](type=long);
         @signal[fwdCacheAdditionsBytes](type=long);
         @signal[fwdCacheRemovalsBytes](type=long);
+        @signal[fwdFIBEntryCount](type=long);
+        @signal[fwdPITEntryCount](type=long);
 
         // display icon
         @display("i=block/fork");
