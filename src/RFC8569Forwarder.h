@@ -56,6 +56,7 @@ class RFC8569Forwarder : public cSimpleModule
     FaceEntry *getFaceEntryFromInputGateName(string inputGateName, int gateIndex);
     CSEntry *getCSEntry(string prefixName, string dataName, string versionName, int segmentNum);
     PITEntry *getPITEntry(string prefixName, string dataName, string versionName, int segmentNum);
+    FIBEntry *updateFIB(string prefixName, FaceEntry *faceEntry);
     FIBEntry *longestPrefixMatchingInFIB(string prefixName);
 
     void dumpFIB();

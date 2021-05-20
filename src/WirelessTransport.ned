@@ -30,7 +30,8 @@ simple WirelessTransport like ITransport
         // packet error rate
         double packetErrorRate @unit(pct) = default(0.0pct);
 
-        // when AP, BS or direct, then network scan interval
+        // when direct, this is the interval of scanning neighbourhood
+        // to send a list of neighbours to the forwarding layer
         double scanInterval @unit(s) = default(1s);
 
         // header size

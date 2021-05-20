@@ -70,6 +70,7 @@ class WirelessTransport : public cSimpleModule
         void processOutgoingOnClientNode(cMessage *msg);
         void processOutgoingOnDirectNode(cMessage *msg);
         void processIncomingMessage(cMessage *msg);
+        void processSendingNeighbourList();
 
         simsignal_t totalWirelessBytesReceivedSignal;
         simsignal_t totalWirelessBytesSentSignal;
@@ -77,5 +78,6 @@ class WirelessTransport : public cSimpleModule
 };
 
 #define WIRELESSTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE    116
+#define WIRELESSTRANSPORT_SCAN_NEIGH_EVENT_CODE           117
 
 #endif

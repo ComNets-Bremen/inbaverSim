@@ -85,6 +85,7 @@ void RFC8569Forwarder::handleMessage(cMessage *msg)
     InterestMsg *interestMsg = NULL;
     ContentObjMsg *contentObjMsg = NULL;
     InterestRtnMsg *interestRtnMsg = NULL;
+    NeighbourListMsg *neighbourListMsg;
 
     // get arrival gate details
     arrivalGate = msg->getArrivalGate();
@@ -120,6 +121,13 @@ void RFC8569Forwarder::handleMessage(cMessage *msg)
         } else if ((interestRtnMsg = dynamic_cast<InterestRtnMsg*>(msg)) != NULL) {
 
             processInterestRtn(interestRtnMsg);
+
+        // process neighbour list msg when transport is in direct mode
+        } else if ((neighbourListMsg = dynamic_cast<NeighbourListMsg*>(msg)) != NULL) {
+
+            // TODO: handle neighbour list messages
+
+            delete msg;
 
         } else {
 
@@ -162,19 +170,7 @@ void RFC8569Forwarder::processApplicationRegistration(AppRegistrationMsg *appReg
     if (appRegMsg->getContentServerApp()) {
         for (int i = 0; i < appRegMsg->getHostedPrefixNamesArraySize(); i++) {
             string prefixName = appRegMsg->getHostedPrefixNames(i);
-            FIBEntry *fibEntry = new FIBEntry;
-            fibEntry->prefixName = prefixName;
-            fibEntry->forwardedFaces.push_back(faceEntry);
-
-            fib.push_back(fibEntry);
-
-            // gen stats
-            emit(fibEntryCountSignal, (long) fib.size());
-
-            EV_INFO << simTime() << " Adding application prefix to FIB: "
-                    << prefixName
-                    << " " << appRegMsg->getAppID()
-                    << endl;
+            updateFIB(prefixName, faceEntry);
 
         }
     }
@@ -208,36 +204,8 @@ void RFC8569Forwarder::processTransportRegistration(TransportRegistrationMsg *tr
             << transportRegMsg->getTransportID()
             << endl;
 
-    // append face to the default FIB entry
-    bool found = false;
-    FIBEntry *fibEntry = NULL;
-    list<FIBEntry*>::iterator iteratorFIBEntry = fib.begin();
-    while (iteratorFIBEntry != fib.end()) {
-        fibEntry = *iteratorFIBEntry;
-        if (strcmp(fibEntry->prefixName.c_str(), "default") == 0) {
-            found = true;
-            break;
-        }
-
-        iteratorFIBEntry++;
-    }
-    if (!found) {
-        fibEntry = new FIBEntry;
-        fibEntry->prefixName = "default";
-        fib.push_back(fibEntry);
-
-        // gen stats
-        emit(fibEntryCountSignal, (long) fib.size());
-
-        EV_INFO << simTime() << " Received transport prefix to FIB: "
-                << "default"
-                << " " << transportRegMsg->getTransportID()
-                << endl;
-
-    }
-    fibEntry->forwardedFaces.push_back(faceEntry);
-
-    dumpFIB();
+    // append face to the default FIB entry (ccnx://)
+    updateFIB("ccnx://", faceEntry);
 
     delete transportRegMsg;
 }
@@ -789,27 +757,119 @@ PITEntry *RFC8569Forwarder::getPITEntry(string prefixName, string dataName, stri
     return NULL;
 }
 
-// TODO: re-implement a proper LPM
-FIBEntry *RFC8569Forwarder::longestPrefixMatchingInFIB(string prefixName)
+FIBEntry *RFC8569Forwarder::updateFIB(string prefixName, FaceEntry *faceEntry)
 {
-    FIBEntry *fibEntry, *defaultFIBEntry = NULL;
+    // NOTE: default FIB entry has the prefix - ccnx://
 
-    // search for FIB entry for given prefix
+    FIBEntry *fibEntry = NULL;
+
+    bool found = false;
     list<FIBEntry*>::iterator iteratorFIBEntry = fib.begin();
     while (iteratorFIBEntry != fib.end()) {
         fibEntry = *iteratorFIBEntry;
         if (strcmp(fibEntry->prefixName.c_str(), prefixName.c_str()) == 0) {
-            return fibEntry;
-        } else if (strcmp(fibEntry->prefixName.c_str(), "default") == 0) {
-            defaultFIBEntry = fibEntry;
+            found = true;
+            break;
+        } else if (strcmp(fibEntry->prefixName.c_str(), prefixName.c_str()) < 0) {
+            break;
         }
+
         iteratorFIBEntry++;
     }
 
-    // return the default entry
-    return defaultFIBEntry;
+    // if the pointer reached the end of the FIB list
+    if (iteratorFIBEntry == fib.end()) {
+
+        // append the FIB entry to the end
+        fibEntry = new FIBEntry;
+        fibEntry->prefixName = prefixName;
+        fibEntry->forwardedFaces.push_back(faceEntry);
+        fib.push_back(fibEntry);
+
+    // if a prefix found that is lower than what is to be added
+    } else if(!found) {
+
+        // insert the FIB entry before the found entry
+        fibEntry = new FIBEntry;
+        fibEntry->prefixName = prefixName;
+        fibEntry->forwardedFaces.push_back(faceEntry);
+        fib.insert((--iteratorFIBEntry), fibEntry);
+
+    // if exact prefix found
+    } else if(found) {
+
+        // append the face entry to found FIB entry
+        fibEntry->forwardedFaces.push_back(faceEntry);
+
+    }
+
+    EV_INFO << simTime() << " Updated FIB: "
+            << prefixName
+            << " " << faceEntry->faceID
+            << " " << faceEntry->faceType
+            << endl;
+
+    // generate stats
+    emit(fibEntryCountSignal, (long) fib.size());
+
+    dumpFIB();
+
+    return fibEntry;
 }
 
+FIBEntry *RFC8569Forwarder::longestPrefixMatchingInFIB(string prefixName)
+{
+    // NOTE: default FIB entry (ccnx://) is assumed to be always present
+
+    // create list to hold prefixes to check and append first prefix to check
+    vector <string> prefixPartsList;
+    prefixPartsList.push_back(prefixName);
+
+    // create part prefixes and append to list
+    char *prefixPart = new char[prefixName.size() + 1];
+    strcpy(prefixPart, prefixName.c_str());
+    for (int i = (prefixName.size() - 1); i >= 0; i--) {
+        if (prefixPart[i] == '/') {
+            prefixPart[i + 1] = '\0';
+            if (strlen(prefixPart) > 0) {
+                prefixPartsList.push_back(string(prefixPart));
+            }
+        }
+    }
+
+    EV_INFO << simTime() << " LPM started for " << prefixName << ", checking for following entries \n";
+    for (int i = 0; i < prefixPartsList.size(); i++) {
+        EV_INFO << simTime() << " " << prefixPartsList[i] << "\n";
+    }
+    EV_INFO << simTime() << " Current FIB below " << "\n";
+    dumpFIB();
+
+    // search for every prefix part in FIB - from longest to shortest
+    FIBEntry *fibEntry;
+    bool found = false;
+    for (int i = 0; i < prefixPartsList.size(); i++) {
+
+        list<FIBEntry*>::iterator iteratorFIBEntry = fib.begin();
+        while (iteratorFIBEntry != fib.end()) {
+            fibEntry = *iteratorFIBEntry;
+            if (strcmp(fibEntry->prefixName.c_str(), prefixPartsList[i].c_str()) == 0) {
+                found = true;
+                break;
+            }
+            iteratorFIBEntry++;
+        }
+
+        if (found) {
+            return fibEntry;
+        }
+    }
+
+    EV_FATAL << simTime() << "Something is radically wrong - FIB entry not found - "
+            << prefixName
+            << ", at least default (ccnx://) must be found "
+            << endl;
+    throw cRuntimeError("Check log for details ---");
+}
 
 void RFC8569Forwarder::finish()
 {

@@ -50,6 +50,13 @@ void WirelessTransport::initialize(int stage)
         transportRegReminderEvent->setKind(WIRELESSTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE);
         scheduleAt(simTime(), transportRegReminderEvent);
 
+        // when in direct mode, reminder to send the neighbour list regularly
+        if (operationMode == "direct") {
+            cMessage *scanNeighbourhoodEvent = new cMessage("Scan Neighbourhood Event");
+            transportRegReminderEvent->setKind(WIRELESSTRANSPORT_SCAN_NEIGH_EVENT_CODE);
+            scheduleAt(simTime() + scanInterval, scanNeighbourhoodEvent);
+        }
+
         // init stat signals
         totalWirelessBytesReceivedSignal = registerSignal("transportTotalWirelessBytesReceived");
         totalWirelessBytesSentSignal = registerSignal("transportTotalWirelessBytesSent");
@@ -75,9 +82,21 @@ void WirelessTransport::handleMessage(cMessage *msg)
             EV_INFO << simTime() << " Registering transport with ID: " << getId() << endl;
 
             send(transportRegMsg, "forwarderInOut$o");
-        }
 
-        delete msg;
+            delete msg;
+
+        } else if (msg->getKind() == WIRELESSTRANSPORT_SCAN_NEIGH_EVENT_CODE) {
+
+            // create and send neighbour list to forwarder
+            processSendingNeighbourList();
+
+            // reschedule the neighbour list sending reminder
+            scheduleAt(simTime() + scanInterval, msg);
+
+        } else {
+
+            delete msg;
+        }
 
     } else {
         cGate *gate;
@@ -636,6 +655,76 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
         return;
     }
 
+}
+
+void WirelessTransport::processSendingNeighbourList()
+{
+
+    // get the relevant client wireless group whose members can potentially be neighbour
+    // nodes
+    bool found = false;
+    SameWirelessGroup *sameWirelessGroup = NULL;
+    list<SameWirelessGroup*>::iterator iteratorSameWirelessGroup = deusModel->sameWirelessGroupList.begin();
+    while (iteratorSameWirelessGroup != deusModel->sameWirelessGroupList.end()) {
+        sameWirelessGroup = *iteratorSameWirelessGroup;
+
+        if (strcmp(sameWirelessGroup->wirelessTechnology.c_str(), wirelessTechnology.c_str()) == 0
+                && strcmp(sameWirelessGroup->operationMode.c_str(), "direct") == 0
+                && strcmp(sameWirelessGroup->connectString.c_str(), connectString.c_str()) == 0) {
+            found = true;
+            break;
+        }
+
+        iteratorSameWirelessGroup++;
+    }
+
+    // when not found, that means no client nodes in direct mode in neighbourhood
+    if (!found) {
+        return;
+    }
+
+    // vector to hold all the nodes to communicate with
+    vector <WirelessTransportInfo*> neighbourWirelessNodesList;
+
+    // add all the neighbours with whom this node is a neighbour, in direct mode
+    list<WirelessTransportInfo*>::iterator iteratorWirelessTransportInfo = sameWirelessGroup->wirelessTransportInfoList.begin();
+    while (iteratorWirelessTransportInfo != sameWirelessGroup->wirelessTransportInfoList.end()) {
+        WirelessTransportInfo *wirelessTransportInfo = *iteratorWirelessTransportInfo;
+
+        // leave out yourself from the list
+        if (wirelessTransportInfo->macAddress == macAddress) {
+            iteratorWirelessTransportInfo++;
+            continue;
+        }
+
+        // when in wireless range, select
+        if (inWirelessRange(wirelessTransportInfo->mobilityModel, mobilityModel, wirelessRange)) {
+            neighbourWirelessNodesList.push_back(wirelessTransportInfo);
+        }
+
+        iteratorWirelessTransportInfo++;
+    }
+
+    // crete and send neighbour list message if nodes in neighbourhood
+    if (neighbourWirelessNodesList.size() > 0) {
+
+        // create the neighbour list message with initial values
+        // to send to forwarder
+        NeighbourListMsg *neighbourListMsg = new NeighbourListMsg("Neighbour List");
+        neighbourListMsg->setTransportID(getId());
+        neighbourListMsg->setNeighbourAddressListArraySize(neighbourWirelessNodesList.size());
+
+        // get each neighbour address and at to message array
+        for (int i = 0; i < neighbourWirelessNodesList.size(); i++) {
+
+            neighbourListMsg->setNeighbourAddressList(i, neighbourWirelessNodesList[i]->macAddress.c_str());
+
+        }
+
+        // send neighbour list msg to the forwarder
+        send(neighbourListMsg, "forwarderInOut$o");
+
+    }
 }
 
 void WirelessTransport::buildMACLikeAddress()

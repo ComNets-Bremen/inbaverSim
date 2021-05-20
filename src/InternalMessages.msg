@@ -42,3 +42,16 @@ packet TransportRegistrationMsg {
 
 }
 
+//
+// Format of neighbour list message sent regularly by direct type
+// transports to the forwrder.
+//
+packet NeighbourListMsg {
+    
+    // ID that uniquely identifies the transport
+    long transportID;
+        
+	string neighbourAddressList[];
+}
+
+
