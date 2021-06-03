@@ -9,7 +9,7 @@
 
 package inbaversim;
 
-simple Deus
+simple Demiurge
 {
     parameters:
 

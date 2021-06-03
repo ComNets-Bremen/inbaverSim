@@ -15,16 +15,16 @@
 #include <string>
 #include <queue>
 
+#include "Demiurge.h"
 #include "inbaver.h"
 #include "RFC8609Messages_m.h"
 #include "InternalMessages_m.h"
-#include "Deus.h"
 #include "Numen.h"
 
 using namespace omnetpp;
 using namespace std;
 
-class Deus;
+class Demiurge;
 class Numen;
 
 class RFC8569Forwarder : public cSimpleModule
@@ -38,7 +38,7 @@ class RFC8569Forwarder : public cSimpleModule
   private:
     int maximumContentStoreSize;
 
-    Deus *deusModel;
+    Demiurge *demiurgeModel;
     Numen *numenModel;
 
     list <FaceEntry *> registeredFaces;

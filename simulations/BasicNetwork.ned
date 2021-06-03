@@ -9,7 +9,7 @@
 package inbaversim.simulations;
 
 import inbaversim.ContentServer;
-import inbaversim.Deus;
+import inbaversim.Demiurge;
 import inbaversim.WirelessAccessRouter;
 import inbaversim.WirelessNode;
 import ned.DatarateChannel;
@@ -27,7 +27,7 @@ network BasicNetwork
         contentServer: ContentServer {
             @display("p=295,236");
         }
-        deus: Deus {
+        demiurge: Demiurge {
             @display("p=226,27");
         }
 

@@ -27,11 +27,11 @@ void WiredTransport::initialize(int stage)
         buildMACLikeAddress();
 
         // get references to models
-        getDeusModel();
+        getDemiurgeModel();
         getAllOtherModels();
 
-        // register the transport with Deus
-        registerWiredTransportWithDeus();
+        // register the transport with Demiurge
+        registerWiredTransportWithDemiurge();
 
     } else if (stage == 2) {
 
@@ -248,22 +248,22 @@ void WiredTransport::buildMACLikeAddress()
     macAddress = str;
 }
 
-void WiredTransport::getDeusModel()
+void WiredTransport::getDemiurgeModel()
 {
-    // get Deus
-    deusModel = NULL;
+    // get Demiurge
+    demiurgeModel = NULL;
     for (int id = 0; id <= getSimulation()->getLastComponentId(); id++) {
         cModule *unknownModel = getSimulation()->getModule(id);
         if (unknownModel == NULL) {
             continue;
         }
-        if (dynamic_cast<Deus*>(unknownModel) != NULL) {
-            deusModel = dynamic_cast<Deus*>(unknownModel);
+        if (dynamic_cast<Demiurge*>(unknownModel) != NULL) {
+            demiurgeModel = dynamic_cast<Demiurge*>(unknownModel);
             break;
         }
     }
-    if (deusModel == NULL) {
-        EV_FATAL << simTime() << "The single Deus model instance not found. Please define one at the network level." << "\n";
+    if (demiurgeModel == NULL) {
+        EV_FATAL << simTime() << "The single Demiurge model instance not found. Please define one at the network level." << "\n";
         throw cRuntimeError("Check log for details");
     }
 }
@@ -294,7 +294,7 @@ void WiredTransport::getAllOtherModels()
 }
 
 
-void WiredTransport::registerWiredTransportWithDeus()
+void WiredTransport::registerWiredTransportWithDemiurge()
 {
 
     nodeID = nodeModel->getId();
@@ -302,8 +302,8 @@ void WiredTransport::registerWiredTransportWithDeus()
     // check if node is already registered
     bool found = false;
     NodeInfo *nodeInfo;
-    list<NodeInfo*>::iterator iteratorAllNodesList = deusModel->allNodesList.begin();
-    while (iteratorAllNodesList != deusModel->allNodesList.end()) {
+    list<NodeInfo*>::iterator iteratorAllNodesList = demiurgeModel->allNodesList.begin();
+    while (iteratorAllNodesList != demiurgeModel->allNodesList.end()) {
         nodeInfo = *iteratorAllNodesList;
         if (nodeInfo->nodeID == nodeID) {
             found = true;
@@ -319,7 +319,7 @@ void WiredTransport::registerWiredTransportWithDeus()
         nodeInfo->nodeModel = nodeModel;
         nodeInfo->mobilityModel = mobilityModel;
         nodeInfo->numenModel = numenModel;
-        deusModel->allNodesList.push_back(nodeInfo);
+        demiurgeModel->allNodesList.push_back(nodeInfo);
     }
 
     WiredTransportInfo *wiredTransportInfo = new WiredTransportInfo;

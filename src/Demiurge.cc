@@ -7,16 +7,16 @@
 //
 //
 
-#include "Deus.h"
+#include "Demiurge.h"
 
-Define_Module(Deus);
+Define_Module(Demiurge);
 
-void Deus::initialize()
+void Demiurge::initialize()
 {
 
 }
 
-void Deus::handleMessage(cMessage *msg)
+void Demiurge::handleMessage(cMessage *msg)
 {
 
 }

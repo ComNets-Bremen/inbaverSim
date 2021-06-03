@@ -11,7 +11,7 @@ package inbaversim.simulations;
 import inbaversim.AccessRouter;
 import inbaversim.ContentServer;
 import inbaversim.CoreRouter;
-import inbaversim.Deus;
+import inbaversim.Demiurge;
 import inbaversim.WiredNode;
 import inbaversim.WirelessAccessRouter;
 import inbaversim.WirelessNode;
@@ -49,7 +49,7 @@ network SimpleNetwork
         contentServer2: ContentServer {
             @display("p=336,153");
         }
-        deus: Deus {
+        demiurge: Demiurge {
             @display("p=226,27");
         }
     connections allowunconnected:

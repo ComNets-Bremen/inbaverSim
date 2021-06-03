@@ -19,8 +19,8 @@ The text immediately below is a TL;DR summary of how to install and run simulati
 1. Install the latest version of [OMNeT++](https://omnetpp.org/documentation/)
 2. Run the OMNeT++ IDE and install the INET model framework
 3. Build the INET model framework in `release` mode
-4. Import this repository (**inbaverSim*) by cloning from [GitHub](https://github.com/ComNets-Bremen/inbaverSim.git)
-5. Build **inbaverSim* project
+4. Import **inbaverSim** repository (this respository) by cloning from [GitHub inbaverSim](https://github.com/ComNets-Bremen/inbaverSim.git)
+5. Build **inbaverSim** project
 6. Run simulations using the `omnetpp-simple-network.ini`
 
 
@@ -53,10 +53,10 @@ stack as seen from the following picture.
   <img src="res/images/proto-stack.png" width="500"/>
 </p>
 
-- Application: All CCN based applications are deployed at this layer
-- Forwarding: The fowarding mechanism described in [RFC 8569](https://tools.ietf.org/html/rfc8569) or 
+- **Application**: All CCN based applications are deployed at this layer
+- **Forwarding**: The fowarding mechanism described in [RFC 8569](https://tools.ietf.org/html/rfc8569) or 
 any other custom CCN forwarding mechanism is implemented at this layer
-- Transport: This layer implements different transports that connect nodes to deliver CCN packets. 
+- **Transport**: This layer implements different transports that connect nodes to deliver CCN packets. 
 Currently, two transports are supported - wired and wireless transports 
 
 The picture below shows the **inbaverSim** node model architecture in OMNeT++.
@@ -78,14 +78,14 @@ to install OMNeT++ in different operating systems. **inbaverSim** has been
 developed using the version 5.6.1 of OMNeT++.
 
 2. Install INET Model Framework - Installing is done through the OMNeT++ IDE. The steps are as follows.
-   a. Run the OMNeT++ IDE
-   b. Create a new workspace
-   c. After creating the workspace, the IDE will prompt asking to install INET
-   d. Once the INET code base is installed, rebuild INET in `release` mode
+  - Run the OMNeT++ IDE
+  - Create a new workspace
+  - After creating the workspace, the IDE will prompt asking to install INET
+  - Once the INET code base is installed, rebuild INET in `release` mode
 
 3. Install **inbaverSim** and build as follows.
-   a. Import the code from the [GitHub](https://github.com/ComNets-Bremen/inbaverSim.git) repositorty
-   b. Build **inbaverSim**
+  - Import the code from the [GitHub](https://github.com/ComNets-Bremen/inbaverSim.git) repositorty
+  - Build **inbaverSim**
 
 
 
@@ -96,15 +96,15 @@ The `simulation` folder has sample `.ini` files to run simulations. The procedur
 a simulation is given below.
 
 1. Setup the `'.ini` file to run simulations as follows.
-   a. Select a sample `.ini` file from `simulations` folder
-   b. Open file by double clicking
-   c. Add/adjust parameters as required (e.g., change `sim-time-limit` to a smaller duration)
+  - Select a sample `.ini` file from `simulations` folder
+  - Open file by double clicking
+  - Add/adjust parameters as required (e.g., change `sim-time-limit` to a different duration)
 
 2. Run the simulation as follows.
-   a. Select `.ini` file
-   b. Right-click and click on `Run As`->`OMNeT++ Simulation`
-   c. Select the `Config name` in the new window that will pop up
-   d. Select the `Run` button to run the simulation
+  - Select `.ini` file
+  - Right-click and click on `Run As`->`OMNeT++ Simulation`
+  - Select the `Config name` in the new window that will pop up
+  - Select the `Run` button to run the simulation
 
 The picture below shows a network created to simulate a CCN network.
 
@@ -120,7 +120,13 @@ Every simulation creates statistics during the simulation run. These statistics
 are collected in the `simulations/results` folder. Use the results viewing
 capability of the OMNeT++ IDE to view the results.
 
-The picture below shows the content retrieval delays of a single simulation run.
+The picture below shows the content download delays of a single node during a 48-hour 
+period.
+
+
+<p align="center">
+  <img src="res/images/download-delay-graph.png" width="300"/>
+</p>
 
 
 

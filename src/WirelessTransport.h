@@ -14,15 +14,15 @@
 #include "inbaver.h"
 #include "InternalMessages_m.h"
 #include "TransportMessages_m.h"
-#include "Deus.h"
 #include "Numen.h"
 
 #include "inet/mobility/contract/IMobility.h"
+#include "Demiurge.h"
 
 using namespace omnetpp;
 using namespace std;
 
-class Deus;
+class Demiurge;
 class Numen;
 class WirelessTransportInfo;
 
@@ -52,7 +52,7 @@ class WirelessTransport : public cSimpleModule
         long nodeID;
 
         // model info
-        Deus *deusModel;
+        Demiurge *demiurgeModel;
         Numen *numenModel;
         cModule *nodeModel;
         inet::IMobility *mobilityModel;
@@ -61,9 +61,9 @@ class WirelessTransport : public cSimpleModule
         WirelessTransportInfo *lastConnectedAP;
 
         void buildMACLikeAddress();
-        void getDeusModel();
+        void getDemiurgeModel();
         void getAllOtherModels();
-        void registerWirelessTransportWithDeus();
+        void registerWirelessTransportWithDemiurge();
         bool inWirelessRange(inet::IMobility *neighbourMobilityModel, inet::IMobility *ownMobilityModel, double radius);
         void processOutgoingMessage(cMessage *msg);
         void processOutgoingOnAPNode(cMessage *msg);

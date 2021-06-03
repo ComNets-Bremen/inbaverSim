@@ -24,20 +24,20 @@ void ContentHostApp::initialize(int stage)
 
     } else if (stage == 1) {
 
-        // get Deus
-        deusModel = NULL;
+        // get Demiurge
+        demiurgeModel = NULL;
         for (int id = 0; id <= getSimulation()->getLastComponentId(); id++) {
             cModule *unknownModel = getSimulation()->getModule(id);
             if (unknownModel == NULL) {
                 continue;
             }
-            if (dynamic_cast<Deus*>(unknownModel) != NULL) {
-                deusModel = dynamic_cast<Deus*>(unknownModel);
+            if (dynamic_cast<Demiurge*>(unknownModel) != NULL) {
+                demiurgeModel = dynamic_cast<Demiurge*>(unknownModel);
                 break;
             }
         }
-        if (deusModel == NULL) {
-            EV_FATAL << "The single Deus model instance not found. Please define one at the network level.\n";
+        if (demiurgeModel == NULL) {
+            EV_FATAL << "The single Demiurge model instance not found. Please define one at the network level.\n";
             throw cRuntimeError("Check log for details");
         }
 

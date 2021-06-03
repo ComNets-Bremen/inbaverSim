@@ -15,15 +15,15 @@
 #include "inbaver.h"
 #include "InternalMessages_m.h"
 #include "TransportMessages_m.h"
-#include "Deus.h"
 #include "Numen.h"
 
 #include "inet/mobility/contract/IMobility.h"
+#include "Demiurge.h"
 
 using namespace omnetpp;
 using namespace std;
 
-class Deus;
+class Demiurge;
 class Numen;
 
 class WiredTransport : public cSimpleModule
@@ -48,7 +48,7 @@ class WiredTransport : public cSimpleModule
       long nodeID;
 
       // model info
-      Deus *deusModel;
+      Demiurge *demiurgeModel;
       Numen *numenModel;
       cModule *nodeModel;
       inet::IMobility *mobilityModel;
@@ -58,9 +58,9 @@ class WiredTransport : public cSimpleModule
       cMessage *msgSendCompletedEvent;
 
       void buildMACLikeAddress();
-      void getDeusModel();
+      void getDemiurgeModel();
       void getAllOtherModels();
-      void registerWiredTransportWithDeus();
+      void registerWiredTransportWithDemiurge();
       void processOutgoingMessage(cMessage *msg);
       void processIncomingMessage(cMessage *msg);
       void sendOutgoingMessage(cMessage *msg);

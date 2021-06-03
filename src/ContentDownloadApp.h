@@ -11,16 +11,17 @@
 #define __INBAVERSIM_CONTENTDOWNLOADAPP_H_
 
 #include <omnetpp.h>
+
+#include "Demiurge.h"
 #include "inbaver.h"
 #include "RFC8609Messages_m.h"
 #include "InternalMessages_m.h"
-#include "Deus.h"
 #include "Numen.h"
 
 using namespace omnetpp;
 using namespace std;
 
-class Deus;
+class Demiurge;
 class Numen;
 
 class ContentDownloadApp : public cSimpleModule
@@ -39,7 +40,7 @@ class ContentDownloadApp : public cSimpleModule
     int maxHopsAllowed;
     double interestRetransmitTimeout;
 
-    Deus *deusModel;
+    Demiurge *demiurgeModel;
     Numen *numenModel;
 
     vector <string> requestedPrefixList;

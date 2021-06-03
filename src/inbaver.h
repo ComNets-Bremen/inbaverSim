@@ -6,9 +6,9 @@
 
 #include "inet/mobility/contract/IMobility.h"
 
+#include "Demiurge.h"
 #include "WirelessTransport.h"
 #include "WiredTransport.h"
-#include "Deus.h"
 #include "Numen.h"
 
 using namespace std;

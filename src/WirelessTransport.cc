@@ -37,11 +37,11 @@ void WirelessTransport::initialize(int stage)
         lastConnectedAP = NULL;
 
         // get references to models
-        getDeusModel();
+        getDemiurgeModel();
         getAllOtherModels();
 
-        // register the transport with Deus
-        registerWirelessTransportWithDeus();
+        // register the transport with Demiurge
+        registerWirelessTransportWithDemiurge();
 
     } else if (stage == 2) {
 
@@ -195,8 +195,8 @@ void WirelessTransport::processOutgoingOnAPNode(cMessage *msg)
     // connected to the AP
     bool found = false;
     SameWirelessGroup *sameWirelessGroup = NULL;
-    list<SameWirelessGroup*>::iterator iteratorSameWirelessGroup = deusModel->sameWirelessGroupList.begin();
-    while (iteratorSameWirelessGroup != deusModel->sameWirelessGroupList.end()) {
+    list<SameWirelessGroup*>::iterator iteratorSameWirelessGroup = demiurgeModel->sameWirelessGroupList.begin();
+    while (iteratorSameWirelessGroup != demiurgeModel->sameWirelessGroupList.end()) {
         sameWirelessGroup = *iteratorSameWirelessGroup;
 
         if (strcmp(sameWirelessGroup->wirelessTechnology.c_str(), wirelessTechnology.c_str()) == 0
@@ -368,8 +368,8 @@ void WirelessTransport::processOutgoingOnClientNode(cMessage *msg)
     // connected
     bool found = false;
     SameWirelessGroup *sameWirelessGroup = NULL;
-    list<SameWirelessGroup*>::iterator iteratorSameWirelessGroup = deusModel->sameWirelessGroupList.begin();
-    while (iteratorSameWirelessGroup != deusModel->sameWirelessGroupList.end()) {
+    list<SameWirelessGroup*>::iterator iteratorSameWirelessGroup = demiurgeModel->sameWirelessGroupList.begin();
+    while (iteratorSameWirelessGroup != demiurgeModel->sameWirelessGroupList.end()) {
         sameWirelessGroup = *iteratorSameWirelessGroup;
 
         if (strcmp(sameWirelessGroup->wirelessTechnology.c_str(), wirelessTechnology.c_str()) == 0
@@ -496,8 +496,8 @@ void WirelessTransport::processOutgoingOnDirectNode(cMessage *msg)
     // to communicate with
     bool found = false;
     SameWirelessGroup *sameWirelessGroup = NULL;
-    list<SameWirelessGroup*>::iterator iteratorSameWirelessGroup = deusModel->sameWirelessGroupList.begin();
-    while (iteratorSameWirelessGroup != deusModel->sameWirelessGroupList.end()) {
+    list<SameWirelessGroup*>::iterator iteratorSameWirelessGroup = demiurgeModel->sameWirelessGroupList.begin();
+    while (iteratorSameWirelessGroup != demiurgeModel->sameWirelessGroupList.end()) {
         sameWirelessGroup = *iteratorSameWirelessGroup;
 
         if (strcmp(sameWirelessGroup->wirelessTechnology.c_str(), wirelessTechnology.c_str()) == 0
@@ -664,8 +664,8 @@ void WirelessTransport::processSendingNeighbourList()
     // nodes
     bool found = false;
     SameWirelessGroup *sameWirelessGroup = NULL;
-    list<SameWirelessGroup*>::iterator iteratorSameWirelessGroup = deusModel->sameWirelessGroupList.begin();
-    while (iteratorSameWirelessGroup != deusModel->sameWirelessGroupList.end()) {
+    list<SameWirelessGroup*>::iterator iteratorSameWirelessGroup = demiurgeModel->sameWirelessGroupList.begin();
+    while (iteratorSameWirelessGroup != demiurgeModel->sameWirelessGroupList.end()) {
         sameWirelessGroup = *iteratorSameWirelessGroup;
 
         if (strcmp(sameWirelessGroup->wirelessTechnology.c_str(), wirelessTechnology.c_str()) == 0
@@ -746,22 +746,22 @@ void WirelessTransport::buildMACLikeAddress()
     macAddress = str;
 }
 
-void WirelessTransport::getDeusModel()
+void WirelessTransport::getDemiurgeModel()
 {
-    // get Deus
-    deusModel = NULL;
+    // get Demiurge
+    demiurgeModel = NULL;
     for (int id = 0; id <= getSimulation()->getLastComponentId(); id++) {
         cModule *unknownModel = getSimulation()->getModule(id);
         if (unknownModel == NULL) {
             continue;
         }
-        if (dynamic_cast<Deus*>(unknownModel) != NULL) {
-            deusModel = dynamic_cast<Deus*>(unknownModel);
+        if (dynamic_cast<Demiurge*>(unknownModel) != NULL) {
+            demiurgeModel = dynamic_cast<Demiurge*>(unknownModel);
             break;
         }
     }
-    if (deusModel == NULL) {
-        EV_FATAL << simTime() << "The single Deus model instance not found. Please define one at the network level." << "\n";
+    if (demiurgeModel == NULL) {
+        EV_FATAL << simTime() << "The single Demiurge model instance not found. Please define one at the network level." << "\n";
         throw cRuntimeError("Check log for details");
     }
 }
@@ -791,7 +791,7 @@ void WirelessTransport::getAllOtherModels()
     }
 }
 
-void WirelessTransport::registerWirelessTransportWithDeus()
+void WirelessTransport::registerWirelessTransportWithDemiurge()
 {
 
     nodeID = nodeModel->getId();
@@ -799,8 +799,8 @@ void WirelessTransport::registerWirelessTransportWithDeus()
     // check if node is already registered
     bool found = false;
     NodeInfo *nodeInfo;
-    list<NodeInfo*>::iterator iteratorAllNodesList = deusModel->allNodesList.begin();
-    while (iteratorAllNodesList != deusModel->allNodesList.end()) {
+    list<NodeInfo*>::iterator iteratorAllNodesList = demiurgeModel->allNodesList.begin();
+    while (iteratorAllNodesList != demiurgeModel->allNodesList.end()) {
         nodeInfo = *iteratorAllNodesList;
         if (nodeInfo->nodeID == nodeID) {
             found = true;
@@ -816,7 +816,7 @@ void WirelessTransport::registerWirelessTransportWithDeus()
         nodeInfo->nodeModel = nodeModel;
         nodeInfo->mobilityModel = mobilityModel;
         nodeInfo->numenModel = numenModel;
-        deusModel->allNodesList.push_back(nodeInfo);
+        demiurgeModel->allNodesList.push_back(nodeInfo);
     }
 
     WirelessTransportInfo *wirelessTransportInfo = new WirelessTransportInfo;
@@ -833,8 +833,8 @@ void WirelessTransport::registerWirelessTransportWithDeus()
      // check and update transport belonging to the same wireless group
     found = false;
     SameWirelessGroup *sameWirelessGroup;
-    list<SameWirelessGroup*>::iterator iteratorSameWirelessGroupList = deusModel->sameWirelessGroupList.begin();
-    while (iteratorSameWirelessGroupList != deusModel->sameWirelessGroupList.end()) {
+    list<SameWirelessGroup*>::iterator iteratorSameWirelessGroupList = demiurgeModel->sameWirelessGroupList.begin();
+    while (iteratorSameWirelessGroupList != demiurgeModel->sameWirelessGroupList.end()) {
         sameWirelessGroup = *iteratorSameWirelessGroupList;
         if (sameWirelessGroup->wirelessTechnology ==  wirelessTechnology
                 && sameWirelessGroup->operationMode == operationMode
@@ -851,7 +851,7 @@ void WirelessTransport::registerWirelessTransportWithDeus()
         sameWirelessGroup->wirelessTechnology = wirelessTechnology;
         sameWirelessGroup->operationMode = operationMode;
         sameWirelessGroup->connectString = connectString;
-        deusModel->sameWirelessGroupList.push_back(sameWirelessGroup);
+        demiurgeModel->sameWirelessGroupList.push_back(sameWirelessGroup);
     }
 
     sameWirelessGroup->wirelessTransportInfoList.push_back(wirelessTransportInfo);

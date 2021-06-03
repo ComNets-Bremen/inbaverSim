@@ -20,15 +20,15 @@ void RFC8569Forwarder::initialize(int stage)
 
     } else if (stage == 1) {
 
-        // get Deus model instance
-        deusModel = NULL;
+        // get Demiurge model instance
+        demiurgeModel = NULL;
         for (int id = 0; id <= getSimulation()->getLastComponentId(); id++) {
             cModule *unknownModel = getSimulation()->getModule(id);
             if (unknownModel == NULL) {
                 continue;
             }
-            if (dynamic_cast<Deus*>(unknownModel) != NULL) {
-                deusModel = dynamic_cast<Deus*>(unknownModel);
+            if (dynamic_cast<Demiurge*>(unknownModel) != NULL) {
+                demiurgeModel = dynamic_cast<Demiurge*>(unknownModel);
                 break;
             }
         }
@@ -46,9 +46,9 @@ void RFC8569Forwarder::initialize(int stage)
             }
         }
 
-        // when Deus or Numen not found, terminate
-        if (deusModel == NULL || numenModel == NULL) {
-            EV_FATAL << simTime() << "The global Deus instance and/or node specific Numen instance not found.\n";
+        // when Demiurge or Numen not found, terminate
+        if (demiurgeModel == NULL || numenModel == NULL) {
+            EV_FATAL << simTime() << "The global Demiurge instance and/or node specific Numen instance not found.\n";
             throw cRuntimeError("Check log for details");
         }
 

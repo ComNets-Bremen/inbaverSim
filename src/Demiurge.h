@@ -7,8 +7,8 @@
 //
 //
 
-#ifndef __INBAVERSIM_DEUS_H_
-#define __INBAVERSIM_DEUS_H_
+#ifndef __INBAVERSIM_DEMIURGE_H_
+#define __INBAVERSIM_DEMIURGE_H_
 
 #include <omnetpp.h>
 #include "inbaver.h"
@@ -19,7 +19,7 @@ using namespace std;
 class NodeInfo;
 class SameWirelessGroup;
 
-class Deus : public cSimpleModule
+class Demiurge : public cSimpleModule
 {
     protected:
         virtual void initialize();

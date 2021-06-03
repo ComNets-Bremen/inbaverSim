@@ -16,15 +16,15 @@
 #include <queue>
 #include <iostream>
 
+#include "Demiurge.h"
 #include "inbaver.h"
 #include "RFC8609Messages_m.h"
 #include "InternalMessages_m.h"
-#include "Deus.h"
 
 using namespace omnetpp;
 using namespace std;
 
-class Deus;
+class Demiurge;
 
 class ContentHostApp : public cSimpleModule
 {
@@ -42,7 +42,7 @@ class ContentHostApp : public cSimpleModule
     int numSegmentsPerFile;
     double cacheTime;
 
-    Deus *deusModel;
+    Demiurge *demiurgeModel;
 
     // list of prefixes hosted
     vector <string> hostedPrefixList;
