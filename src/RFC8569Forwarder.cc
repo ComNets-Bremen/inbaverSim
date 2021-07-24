@@ -53,6 +53,8 @@ void RFC8569Forwarder::initialize(int stage)
         }
 
         currentCSSize = 0;
+        hitCount = 0;
+        missCount = 0;
 
     } else if (stage == 2) {
 
@@ -68,6 +70,10 @@ void RFC8569Forwarder::initialize(int stage)
         cacheRemovalsBytesSignal = registerSignal("fwdCacheRemovalsBytes");
         fibEntryCountSignal = registerSignal("fwdFIBEntryCount");
         pitEntryCountSignal = registerSignal("fwdPITEntryCount");
+        cacheHitRatioSignal = registerSignal("fwdCacheHitRatio");
+        cacheMissRatioSignal = registerSignal("fwdCacheMissRatio");
+        networkCacheHitRatioSignal = registerSignal("fwdNetworkCacheHitRatio");
+        networkCacheMissRatioSignal = registerSignal("fwdNetworkCacheMissRatio");
 
     } else {
         EV_FATAL << simTime() << "Something is radically wrong\n";
@@ -246,6 +252,14 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     // when Content Obj is in CS, send it to the Interest sender
     if (csEntry != NULL) {
 
+        // generate hit stats
+        hitCount++;
+        emit(cacheHitRatioSignal, (double) hitCount / (hitCount + missCount));
+        emit(cacheMissRatioSignal, (double) missCount / (hitCount + missCount));
+        demiurgeModel->updateNodeHitRatio((double) hitCount / (hitCount + missCount));
+        emit(networkCacheHitRatioSignal, demiurgeModel->getNetworkHitRatio());
+        emit(networkCacheMissRatioSignal, demiurgeModel->getNetworkMissRatio());
+
         // make content obj msg from cache entry
         ContentObjMsg *contentObjMsg = new ContentObjMsg("ContentObj");
         contentObjMsg->setPrefixName(csEntry->prefixName.c_str());
@@ -287,6 +301,17 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         // remove Interest
         delete interestMsg;
         return;
+
+    } else {
+
+        // generate miss stat
+        missCount++;
+        emit(cacheHitRatioSignal, (double) hitCount / (hitCount + missCount));
+        emit(cacheMissRatioSignal, (double) missCount / (hitCount + missCount));
+        demiurgeModel->updateNodeMissRatio((double) missCount / (hitCount + missCount));
+        emit(networkCacheHitRatioSignal, demiurgeModel->getNetworkHitRatio());
+        emit(networkCacheMissRatioSignal, demiurgeModel->getNetworkMissRatio());
+
     }
 
     // is there a PIT entry already for previous Interests received

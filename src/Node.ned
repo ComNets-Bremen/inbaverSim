@@ -45,6 +45,8 @@ module Node
         @statistic[fwdCacheRemovalsBytes](source=fwdCacheRemovalsBytes; record=count,mean,sum,vector);
         @statistic[fwdFIBEntryCount](source=fwdFIBEntryCount; record=min,max,count,mean,timeavg,last,vector);
         @statistic[fwdPITEntryCount](source=fwdPITEntryCount; record=min,max,count,mean,timeavg,last,vector);
+        @statistic[fwdCacheHitRatio](source=fwdCacheHitRatio; record=min,max,count,last,vector);
+        @statistic[fwdCacheMissRatio](source=fwdCacheMissRatio; record=min,max,count,last,vector);
 
         @statistic[transportTotalWiredBytesReceived](source=transportTotalWiredBytesReceived; record=count,mean,sum,vector);
         @statistic[transportTotalWiredBytesSent](source=transportTotalWiredBytesSent; record=count,mean,sum,vector);

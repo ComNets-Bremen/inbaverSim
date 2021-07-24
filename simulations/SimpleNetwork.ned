@@ -20,7 +20,14 @@ import ned.DatarateChannel;
 
 network SimpleNetwork
 {
-    @display("bgb=410,372");
+    parameters:
+
+		// statistics
+        @statistic[fwdNetworkCacheHitRatio](source=fwdNetworkCacheHitRatio; record=min,max,count,last,vector);
+        @statistic[fwdNetworkCacheMissRatio](source=fwdNetworkCacheMissRatio; record=min,max,count,last,vector);
+        
+        @display("bgb=410,372");
+    
     submodules:
         accessRouter: AccessRouter {
             @display("p=90,217");

@@ -47,6 +47,9 @@ class RFC8569Forwarder : public cSimpleModule
     list <CSEntry *> cs;
     long currentCSSize;
 
+    long hitCount;
+    long missCount;
+
     void processApplicationRegistration(AppRegistrationMsg *appRegMsg);
     void processTransportRegistration(TransportRegistrationMsg *transportRegMsg);
     void processInterest(InterestMsg *interestMsg);
@@ -75,6 +78,10 @@ class RFC8569Forwarder : public cSimpleModule
     simsignal_t cacheRemovalsBytesSignal;
     simsignal_t fibEntryCountSignal;
     simsignal_t pitEntryCountSignal;
+    simsignal_t cacheHitRatioSignal;
+    simsignal_t cacheMissRatioSignal;
+    simsignal_t networkCacheHitRatioSignal;
+    simsignal_t networkCacheMissRatioSignal;
 
 };
 

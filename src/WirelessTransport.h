@@ -32,6 +32,7 @@ class WirelessTransport : public cSimpleModule
         virtual void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
         virtual int numInitStages() const {return 3;}
+        void refreshDisplay() const;
         virtual void finish();
 
     private:
@@ -44,6 +45,8 @@ class WirelessTransport : public cSimpleModule
         double packetErrorRate;
         double scanInterval;
         int headerSize;
+        bool wirelessRangeRadiusShow;
+        string wirelessRangeRadiusColor;
 
         // globally unique MAC-like address
         string macAddress;

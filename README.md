@@ -120,14 +120,21 @@ Every simulation creates statistics during the simulation run. These statistics
 are collected in the `simulations/results` folder. Use the results viewing
 capability of the OMNeT++ IDE to view the results.
 
-The picture below shows the content download delays of a single node during a 48-hour 
+The graph below shows the content download delays of a single node during a 48-hour 
 period.
 
 
 <p align="center">
-  <img src="res/images/download-delay-graph.png" width="300"/>
+  <img src="res/images/download-delay-graph.png" width="500"/>
 </p>
 
+The graph below shows the network-wide cache hit ratio during a 48-hour 
+period.
+
+
+<p align="center">
+  <img src="res/images/cache-hit-ratio-graph.png" width="500"/>
+</p>
 
 
 ## Questions and Comments

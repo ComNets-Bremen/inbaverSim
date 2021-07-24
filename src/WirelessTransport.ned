@@ -36,6 +36,10 @@ simple WirelessTransport like ITransport
 
         // header size
         int headerSize @unit(byte) = default(32byte);
+        
+        // whether to show and the color of the circle drawn for the wireless range
+        bool wirelessRangeRadiusShow = default(false);
+        string wirelessRangeRadiusColor = default("black");
 
         // statistic signals
         @signal[transportTotalWirelessBytesReceived](type=long);

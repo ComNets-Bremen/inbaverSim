@@ -51,6 +51,7 @@ module WirelessAccessRouter extends Node
         wireless[0].packetErrorRate = wlanPacketErrorRate;
         wireless[0].scanInterval = 1s;
         wireless[0].headerSize = 32byte;
+        wireless[0].wirelessRangeRadiusShow = true;
 
         // set second interface (Wired)
         wired[0].typename = "WiredTransport";

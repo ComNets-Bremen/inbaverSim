@@ -23,6 +23,8 @@ void WirelessTransport::initialize(int stage)
         packetErrorRate = par("packetErrorRate");
         scanInterval = par("scanInterval");
         headerSize = par("headerSize");
+        wirelessRangeRadiusShow = par("wirelessRangeRadiusShow");
+        wirelessRangeRadiusColor = par("wirelessRangeRadiusColor").stringValue();
 
         // validate parameters
         if (!(operationMode == "ap" || operationMode == "client" || operationMode == "direct")) {
@@ -873,6 +875,23 @@ bool WirelessTransport::inWirelessRange(inet::IMobility *neighbourMobilityModel,
     }
 
     return false;
+}
+
+void WirelessTransport::refreshDisplay() const
+{
+    char buf[80];
+
+    if (wirelessRangeRadiusShow) {
+
+        // set the range to draw circle around
+        sprintf(buf, "%.0f", wirelessRange);
+        getParentModule()->getDisplayString().setTagArg("r", 0, buf);
+
+        // set the color of the line
+        sprintf(buf, "%s", wirelessRangeRadiusColor.c_str());
+        getParentModule()->getDisplayString().setTagArg("r", 2, buf);
+
+    }
 }
 
 void WirelessTransport::finish()
