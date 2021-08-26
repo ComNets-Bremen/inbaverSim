@@ -22,10 +22,8 @@ class SameWirelessGroup;
 class Demiurge : public cSimpleModule
 {
     private:
-        double networkHitRatio;
-        bool networkHitRatioFirstTime;
-        double networkMissRatio;
-        bool networkMissRatioFirstTime;
+        long networkCacheHitCount;
+        long networkCacheMissCount;
 
     protected:
         virtual void initialize();
@@ -35,10 +33,10 @@ class Demiurge : public cSimpleModule
         list<NodeInfo*> allNodesList;
         list<SameWirelessGroup*> sameWirelessGroupList;
 
-        void updateNodeHitRatio(double nodeHitRatio);
-        double getNetworkHitRatio();
-        void updateNodeMissRatio(double nodeMissRatio);
-        double getNetworkMissRatio();
+        void incrementNetworkCacheHitCount();
+        double getNetworkCacheHitRatio();
+        void incrementNetworkCacheMissCount();
+        double getNetworkCacheMissRatio();
 
 };
 

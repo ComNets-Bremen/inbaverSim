@@ -10,7 +10,7 @@ package inbaversim;
 moduleinterface IForwarder
 {
     parameters:
-        @display("i=block/fork");
+        @display("i=block/fork;t=Forwarding,l");
 
     gates:
         inout appInOut[];

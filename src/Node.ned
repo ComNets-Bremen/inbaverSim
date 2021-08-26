@@ -61,7 +61,7 @@ module Node
 
     submodules:
         numen: Numen {
-            @display("p=198,22");
+            @display("p=198,22;t=Numen,l");
         }
         app[numApps]: <> like IApplication {
             @display("p=198,89");
@@ -70,13 +70,13 @@ module Node
             @display("p=198,169");
         }
         wired[numWiredTransports]: <> like ITransport {
-            @display("p=96,246");
+            @display("p=96,246,t=WiredTransport");
         }
         wireless[numWirelessTransports]: <> like ITransport {
             @display("p=309,246");
         }
         mob: <> like IMobility {
-            @display("p=299,169");
+            @display("p=299,169;t=Mobility,l");
         }
 
     connections allowunconnected:

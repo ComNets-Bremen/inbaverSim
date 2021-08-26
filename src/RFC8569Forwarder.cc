@@ -256,9 +256,9 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         hitCount++;
         emit(cacheHitRatioSignal, (double) hitCount / (hitCount + missCount));
         emit(cacheMissRatioSignal, (double) missCount / (hitCount + missCount));
-        demiurgeModel->updateNodeHitRatio((double) hitCount / (hitCount + missCount));
-        emit(networkCacheHitRatioSignal, demiurgeModel->getNetworkHitRatio());
-        emit(networkCacheMissRatioSignal, demiurgeModel->getNetworkMissRatio());
+        demiurgeModel->incrementNetworkCacheHitCount();
+        emit(networkCacheHitRatioSignal, demiurgeModel->getNetworkCacheHitRatio());
+        emit(networkCacheMissRatioSignal, demiurgeModel->getNetworkCacheMissRatio());
 
         // make content obj msg from cache entry
         ContentObjMsg *contentObjMsg = new ContentObjMsg("ContentObj");
@@ -308,9 +308,9 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         missCount++;
         emit(cacheHitRatioSignal, (double) hitCount / (hitCount + missCount));
         emit(cacheMissRatioSignal, (double) missCount / (hitCount + missCount));
-        demiurgeModel->updateNodeMissRatio((double) missCount / (hitCount + missCount));
-        emit(networkCacheHitRatioSignal, demiurgeModel->getNetworkHitRatio());
-        emit(networkCacheMissRatioSignal, demiurgeModel->getNetworkMissRatio());
+        demiurgeModel->incrementNetworkCacheMissCount();
+        emit(networkCacheHitRatioSignal, demiurgeModel->getNetworkCacheHitRatio());
+        emit(networkCacheMissRatioSignal, demiurgeModel->getNetworkCacheMissRatio());
 
     }
 

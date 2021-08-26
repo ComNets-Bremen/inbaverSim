@@ -13,10 +13,8 @@ Define_Module(Demiurge);
 
 void Demiurge::initialize()
 {
-    networkHitRatio = 0.0;
-    networkMissRatio = 0.0;
-    networkHitRatioFirstTime = true;
-    networkMissRatioFirstTime = true;
+    networkCacheHitCount = 0;
+    networkCacheMissCount = 0;
 
 }
 
@@ -25,33 +23,22 @@ void Demiurge::handleMessage(cMessage *msg)
 
 }
 
-void Demiurge::updateNodeHitRatio(double nodeHitRatio)
+void Demiurge::incrementNetworkCacheHitCount()
 {
-    if (!networkHitRatioFirstTime) {
-        networkHitRatio = (networkHitRatio + nodeHitRatio) / 2;
-    } else {
-        networkHitRatio = nodeHitRatio;
-        networkHitRatioFirstTime = false;
-    }
+    networkCacheHitCount++;
 }
 
-double Demiurge::getNetworkHitRatio()
+double Demiurge::getNetworkCacheHitRatio()
 {
-    return networkHitRatio;
+    return (double) networkCacheHitCount / (networkCacheHitCount + networkCacheMissCount);
 }
 
-void Demiurge::updateNodeMissRatio(double nodeMissRatio)
+void Demiurge::incrementNetworkCacheMissCount()
 {
-    if (!networkMissRatioFirstTime) {
-        networkMissRatio = (networkMissRatio + nodeMissRatio) / 2;
-    } else {
-        networkMissRatio = nodeMissRatio;
-        networkMissRatioFirstTime = false;
-    }
-
+    networkCacheMissCount++;
 }
 
-double Demiurge::getNetworkMissRatio()
+double Demiurge::getNetworkCacheMissRatio()
 {
-    return networkMissRatio;
+    return (double) networkCacheMissCount / (networkCacheHitCount + networkCacheMissCount);
 }

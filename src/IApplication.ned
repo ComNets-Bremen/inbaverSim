@@ -11,7 +11,7 @@ package inbaversim;
 moduleinterface IApplication
 {
     parameters:
-        @display("i=block/app");
+        @display("i=block/app;t=Application,l");
 
     gates:
         inout forwarderInOut;

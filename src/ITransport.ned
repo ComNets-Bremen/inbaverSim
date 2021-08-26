@@ -11,7 +11,7 @@ package inbaversim;
 moduleinterface ITransport
 {
     parameters:
-        @display("i=block/transport");
+        @display("i=block/transport;t=Transport,l");
 
     gates:
         inout forwarderInOut;
