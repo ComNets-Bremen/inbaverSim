@@ -38,7 +38,9 @@ simple ContentDownloadApp like IApplication
         @signal[appRetransmissionInterestsBytesSent](type=long);        
         @signal[appTotalContentObjsBytesReceived](type=long);
         @signal[appTotalDataBytesReceived](type=long);
-
+        @signal[appNetworkInterestRetransmissionCount](type=long);
+        @signal[appNetworkInterestInjectedCount](type=long);
+        
         // display icon
         @display("i=block/app");
 

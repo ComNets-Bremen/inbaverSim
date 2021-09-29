@@ -24,6 +24,8 @@ class Demiurge : public cSimpleModule
     private:
         long networkCacheHitCount;
         long networkCacheMissCount;
+        long networkInterstInjectedCount;
+        long networkInterstRetransmissionCount;
 
     protected:
         virtual void initialize();
@@ -37,6 +39,10 @@ class Demiurge : public cSimpleModule
         double getNetworkCacheHitRatio();
         void incrementNetworkCacheMissCount();
         double getNetworkCacheMissRatio();
+        void incrementNetworkInterestRetransmissionCount();
+        long getNetworkInterestRetransmissionCount();
+        void incrementNetworkInterestInjectedCount();
+        long getNetworkInterestInjectedCount();
 
 };
 

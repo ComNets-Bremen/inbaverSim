@@ -65,7 +65,6 @@ void ContentDownloadApp::initialize(int stage)
             requestedPrefixList.push_back(ccnPrefix);
         }
 
-
     } else if (stage == 2) {
 
         // reminder to generate content host app registration event
@@ -90,6 +89,8 @@ void ContentDownloadApp::initialize(int stage)
         retransmissionInterestsBytesSentSignal = registerSignal("appRetransmissionInterestsBytesSent");
         totalContentObjsBytesReceivedSignal = registerSignal("appTotalContentObjsBytesReceived");
         totalDataBytesReceivedSignal = registerSignal("appTotalDataBytesReceived");
+        networkInterestRetransmissionCountSignal = registerSignal("appNetworkInterestRetransmissionCount");
+        networkInterestInjectedCountSignal = registerSignal("appNetworkInterestInjectedCount");
 
     } else {
         EV_FATAL << "Something is radically wrong\n";
@@ -153,8 +154,12 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
         // remember last interest sent time for statistic
         lastInterestSentTime = simTime();
 
+        // update stats
+        demiurgeModel->incrementNetworkInterestInjectedCount();
+
         // write stats
         emit(totalInterestsBytesSentSignal, (long) interestMsg->getByteLength());
+        emit(networkInterestInjectedCountSignal, demiurgeModel->getNetworkInterestInjectedCount());
 
         // set interest re-send timer
         if (interestRetransmitEvent->isScheduled()) {
@@ -165,7 +170,7 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
     // interest retransmit timeout
     } else if (msg->isSelfMessage() && msg->getKind() == CONTENTDOWNLOADAPP_INTEREST_RETRANSMIT_EVENT_CODE) {
 
-        // generate next interest
+        // generate retransmit interest
         InterestMsg* interestMsg = new InterestMsg("Interest");
         interestMsg->setHopLimit(maxHopsAllowed);
         interestMsg->setLifetime(simTime() + interestRetransmitTimeout);
@@ -185,9 +190,15 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
         // send msg to forwarding layer
         send(interestMsg, "forwarderInOut$o");
 
+        // update stats
+        demiurgeModel->incrementNetworkInterestRetransmissionCount();
+        demiurgeModel->incrementNetworkInterestInjectedCount();
+
         // write stats
         emit(totalInterestsBytesSentSignal, (long) interestMsg->getByteLength());
         emit(retransmissionInterestsBytesSentSignal, (long) interestMsg->getByteLength());
+        emit(networkInterestRetransmissionCountSignal, demiurgeModel->getNetworkInterestRetransmissionCount());
+        emit(networkInterestInjectedCountSignal, demiurgeModel->getNetworkInterestInjectedCount());
 
         // set interest re-send timer
         scheduleAt(simTime() + interestRetransmitTimeout, interestRetransmitEvent);
@@ -271,8 +282,12 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
                     // remember last interest sent time for statistic
                     lastInterestSentTime = simTime();
 
+                    // update stats
+                    demiurgeModel->incrementNetworkInterestInjectedCount();
+
                     // write stats
                     emit(totalInterestsBytesSentSignal, (long) interestMsg->getByteLength());
+                    emit(networkInterestInjectedCountSignal, demiurgeModel->getNetworkInterestInjectedCount());
 
                     // set interest re-send timer
                     if (interestRetransmitEvent->isScheduled()) {

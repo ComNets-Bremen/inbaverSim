@@ -67,6 +67,8 @@ class ContentDownloadApp : public cSimpleModule
     simsignal_t retransmissionInterestsBytesSentSignal;
     simsignal_t totalContentObjsBytesReceivedSignal;
     simsignal_t totalDataBytesReceivedSignal;
+    simsignal_t networkInterestRetransmissionCountSignal;
+    simsignal_t networkInterestInjectedCountSignal;
 };
 
 #define CONTENTDOWNLOADAPP_APP_REG_REM_EVENT_CODE              116

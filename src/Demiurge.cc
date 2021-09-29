@@ -15,6 +15,7 @@ void Demiurge::initialize()
 {
     networkCacheHitCount = 0;
     networkCacheMissCount = 0;
+    networkInterstRetransmissionCount = 0;
 
 }
 
@@ -41,4 +42,24 @@ void Demiurge::incrementNetworkCacheMissCount()
 double Demiurge::getNetworkCacheMissRatio()
 {
     return (double) networkCacheMissCount / (networkCacheHitCount + networkCacheMissCount);
+}
+
+void Demiurge::incrementNetworkInterestRetransmissionCount()
+{
+    networkInterstRetransmissionCount++;
+}
+
+long Demiurge::getNetworkInterestRetransmissionCount()
+{
+    return networkInterstRetransmissionCount;
+}
+
+void Demiurge::incrementNetworkInterestInjectedCount()
+{
+    networkInterstInjectedCount++;
+}
+
+long Demiurge::getNetworkInterestInjectedCount()
+{
+    return networkInterstInjectedCount;
 }

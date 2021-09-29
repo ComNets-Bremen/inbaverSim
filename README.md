@@ -136,6 +136,8 @@ period.
   <img src="res/images/cache-hit-ratio-graph.png" width="500"/>
 </p>
 
+Details about each statistic is listed in [STATS file](./res/info/STATS.md).
+
 
 ## Questions and Comments
 

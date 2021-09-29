@@ -9,6 +9,9 @@
 
 package inbaversim;
 
+//import inet.mobility.static.StationaryMobility;
+//import inet.mobility.base.MobilityBase;
+
 module WirelessNode extends Node
 {
     parameters:
@@ -42,7 +45,7 @@ module WirelessNode extends Node
         // set transports
         numWiredTransports = wirelessNodeNumWiredTransports;
         numWirelessTransports = wirelessNodeNumWirelessTransports;
-        
+
         // set first interface (WLAN)
         wireless[0].typename = "WirelessTransport";
         wireless[0].wirelessTechnology = "WLAN";
