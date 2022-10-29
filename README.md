@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="res/images/inbaverSim.png" width="250"/>
+  <img src="./res/images/inbaverSim.png" width="250"/>
 </p>
 
 Network use has evolved over time to be dominated by content distribution and retrieval, while 
@@ -42,7 +42,7 @@ from the picture below, it can model the following types of nodes.
 - **Content Servers** - Servers that host content
 
 <p align="center">
-  <img src="res/images/net-topology.png" width="500"/>
+  <img src="./res/images/net-topology.png" width="500"/>
 </p>
 
 
@@ -65,7 +65,7 @@ Currently, two transports are supported - wired and wireless transports
 The picture below shows the **inbaverSim** node model architecture in OMNeT++.
 
 <p align="center">
-  <img src="res/images/ccn-node-model.png" width="300"/>
+  <img src="./res/images/ccn-node-model.png" width="300"/>
 </p>
 
 
@@ -111,7 +111,7 @@ a simulation is given below.
 The picture below shows a network created to simulate a CCN network.
 
 <p align="center">
-  <img src="res/images/simple-ccn-network.png" width="300"/>
+  <img src="./res/images/simple-ccn-network.png" width="300"/>
 </p>
 
 
@@ -127,7 +127,7 @@ period.
 
 
 <p align="center">
-  <img src="res/images/download-delay-graph.png" width="500"/>
+  <img src="./res/images/download-delay-graph.png" width="500"/>
 </p>
 
 The graph below shows the network-wide cache hit ratio during a 48-hour 
@@ -135,7 +135,7 @@ period.
 
 
 <p align="center">
-  <img src="res/images/cache-hit-ratio-graph.png" width="500"/>
+  <img src="./res/images/cache-hit-ratio-graph.png" width="500"/>
 </p>
 
 Details about each statistic is listed in [STATS](./res/info/STATS.md).

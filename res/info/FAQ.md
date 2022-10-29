@@ -10,12 +10,12 @@ some known problems and solutions to them.
 
 The following error appears terminating the buildiung process.
 
-`
+```
 In file included from ./Demiurge.h:14:
 ./inbaver.h:7:10: fatal error: 'inet/mobility/contract/IMobility.h' file not found
 #include "inet/mobility/contract/IMobility.h"
          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-`
+```
 
 The error says that the file `inet/mobility/contract/IMobility.h` cannot be found. 
 
@@ -34,7 +34,7 @@ part of the project.
 window.
 
 <p align="center">
-  <img src="res/images/project-references.png" width="300"/>
+  <img src="./res/images/project-references.png" width="300"/>
 </p>
 
 
@@ -43,6 +43,6 @@ set properly. This must be done for the `C++` and `C` listed in `language` part.
 is `inet`, then the path must be `/inet/src`
 
 <p align="center">
-  <img src="res/images/inet-path-example.png" width="300"/>
+  <img src="./res/images/inet-path-example.png" width="300"/>
 </p>
 
