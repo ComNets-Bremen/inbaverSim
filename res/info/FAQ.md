@@ -34,7 +34,7 @@ part of the project.
 window.
 
 <p align="center">
-  <img src="./res/images/project-references.png" width="300"/>
+  <img src="../images/project-references.png" width="300"/>
 </p>
 
 
@@ -43,6 +43,6 @@ set properly. This must be done for the `C++` and `C` listed in `language` part.
 is `inet`, then the path must be `/inet/src`
 
 <p align="center">
-  <img src="./res/images/inet-path-example.png" width="300"/>
+  <img src="../images/inet-path-example.png" width="300"/>
 </p>
 
