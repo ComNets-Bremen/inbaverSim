@@ -24,7 +24,6 @@ using namespace std;
 
 class Demiurge;
 class Numen;
-class WirelessTransportInfo;
 
 class WirelessTransport : public cSimpleModule
 {

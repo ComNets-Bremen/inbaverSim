@@ -6,15 +6,13 @@
 
 #include "inet/mobility/contract/IMobility.h"
 
-#include "Demiurge.h"
-#include "WirelessTransport.h"
-#include "WiredTransport.h"
-#include "Numen.h"
-
 using namespace std;
+using namespace omnetpp;
 
 class WirelessTransport;
 class WiredTransport;
+class Demiurge;
+class Numen;
 
 typedef struct WirelessTransportInfo {
     string macAddress;
@@ -164,7 +162,7 @@ class ExchangedTransportInfo : public omnetpp::cObject
     char *name;
     string transportAddress;
     ExchangedTransportInfo(const char *n):cObject() {name = (char *) malloc(strlen(n) + 1); strcpy(name, n);};
-    const char *getName() {return name;}
+//    const char *getName() {return name;}
     virtual ExchangedTransportInfo *dup() const {ExchangedTransportInfo *t = new ExchangedTransportInfo("ExchangedTransportInfo"); t->transportAddress = transportAddress; return t;};
     ~ExchangedTransportInfo() {free(name);}
 

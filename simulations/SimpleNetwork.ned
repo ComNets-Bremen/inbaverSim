@@ -22,7 +22,7 @@ network SimpleNetwork
 {
     parameters:
 
-		// statistics
+        // statistics
         @statistic[appNetworkInterestRetransmissionCount](source=appNetworkInterestRetransmissionCount; record=last,vector);
 
         @statistic[fwdNetworkCacheHitRatio](source=fwdNetworkCacheHitRatio; record=min,max,count,last,vector);

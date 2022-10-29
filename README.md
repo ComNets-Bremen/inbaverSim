@@ -11,17 +11,20 @@ and access - to retrieve content by name.
 
 **inbaverSim** is an OMNeT++ based model framework to simulate CCN based networks. The functionality and 
 the message formats follow the description provided in [RFC 8569](https://tools.ietf.org/html/rfc8569) 
-and [RFC 8609](https://tools.ietf.org/html/rfc8609). 
+and [RFC 8609](https://tools.ietf.org/html/rfc8609). An overview to the model framework is provided
+in the publication
+[inbaverSim: An OMNeT++ Model Framework for Content Centric Networking](https://summit.omnetpp.org/2021/assets/pdf/OMNeT_2021_paper_12.pdf)
 
 The sections that follow provide details of **inbaverSim** such as installing, node architecture, etc. 
 The text immediately below is a TL;DR summary of how to install and run simulations with **inbaverSim**.
 
 1. Install the latest version of [OMNeT++](https://omnetpp.org/documentation/)
 2. Run the OMNeT++ IDE and install the INET model framework
-3. Build the INET model framework in `release` mode
+3. Build the INET model framework in mode
 4. Import **inbaverSim** repository (this respository) by cloning from [GitHub inbaverSim](https://github.com/ComNets-Bremen/inbaverSim.git)
 5. Build **inbaverSim** project
 6. Run simulations using the `omnetpp-simple-network.ini`
+
 
 
 
@@ -70,12 +73,11 @@ The picture below shows the **inbaverSim** node model architecture in OMNeT++.
 ## Installing
 
 **inbaverSim** is written for OMNeT++ and additionally uses the INET model framework of 
-OMNeT++. Therefore, they have to be installed first to use **inbaverSim**. The detailed
+OMNeT++. Therefore, they have to be installed first to use **inbaverSim**. The 
 installation procedure is as follows.
 
 1. Install OMNeT++ - OMNeT provides an [Install Guilde](https://doc.omnetpp.org/omnetpp/InstallGuide.pdf) 
-to install OMNeT++ in different operating systems. **inbaverSim** has been 
-developed using the version 5.6.1 of OMNeT++.
+to install OMNeT++ in different operating systems.
 
 2. Install INET Model Framework - Installing is done through the OMNeT++ IDE. The steps are as follows.
   - Run the OMNeT++ IDE
@@ -87,7 +89,7 @@ developed using the version 5.6.1 of OMNeT++.
   - Import the code from the [GitHub](https://github.com/ComNets-Bremen/inbaverSim.git) repositorty
   - Build **inbaverSim**
 
-
+If there are problems when building the model, check [FAQ](./res/info/FAQ.md)
 
 
 ## Running Simulations
@@ -136,7 +138,7 @@ period.
   <img src="res/images/cache-hit-ratio-graph.png" width="500"/>
 </p>
 
-Details about each statistic is listed in [STATS file](./res/info/STATS.md).
+Details about each statistic is listed in [STATS](./res/info/STATS.md).
 
 
 ## Questions and Comments

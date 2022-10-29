@@ -30,13 +30,13 @@ packet AppRegistrationMsg {
 // Format of transport registration msg (sent by any transport to forwarder).
 //
 packet TransportRegistrationMsg {
-    
+
     // ID that uniquely identifies the registering transport
     long transportID;
-        
+
     // a description
     string transportDescription;
-    
+
     // transport address (MAC like address)
     string transportAddress;
 
@@ -50,8 +50,8 @@ packet NeighbourListMsg {
     
     // ID that uniquely identifies the transport
     long transportID;
-        
-	string neighbourAddressList[];
+
+    string neighbourAddressList[];
 }
 
 

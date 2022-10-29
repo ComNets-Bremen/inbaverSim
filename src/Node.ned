@@ -22,8 +22,8 @@ module Node
         int numWiredTransports = default(0);
         int numWirelessTransports = default(0);
 
-		// statistics
-		@statistic[appContentDownloadDuration](source=appContentDownloadDuration; record=min,max,count,mean,vector);
+        // statistics
+        @statistic[appContentDownloadDuration](source=appContentDownloadDuration; record=min,max,count,mean,vector);
         @statistic[appSegmentDownloadDuration](source=appSegmentDownloadDuration; record=min,max,count,mean,vector);
         @statistic[appTotalInterestsBytesSent](source=appTotalInterestsBytesSent; record=count,mean,sum,vector);
         @statistic[appRetransmissionInterestsBytesSent](source=appRetransmissionInterestsBytesSent; record=count,mean,sum,vector);

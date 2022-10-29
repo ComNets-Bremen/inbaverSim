@@ -22,10 +22,10 @@ network WirelessNetwork
 {
     parameters:
 
-		// statistics
+        // statistics
         @statistic[appNetworkInterestRetransmissionCount](source=appNetworkInterestRetransmissionCount; record=last,vector);
         @statistic[appNetworkInterestInjectedCount](source=appNetworkInterestInjectedCount; record=last,vector);
-        
+
         @statistic[fwdNetworkCacheHitRatio](source=fwdNetworkCacheHitRatio; record=min,max,count,last,vector);
         @statistic[fwdNetworkCacheMissRatio](source=fwdNetworkCacheMissRatio; record=min,max,count,last,vector);
 

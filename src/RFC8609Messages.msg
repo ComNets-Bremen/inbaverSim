@@ -13,15 +13,15 @@
 packet InterestMsg
 {
 
-	//====== Interest Header (IntHdr)
-	
-	// number of hops left to travel
-	int hopLimit;
-	
-	// lifetime of interest
-	simtime_t lifetime;
-	
-	//====== Body Name (BodyName)
+    //====== Interest Header (IntHdr)
+
+    // number of hops left to travel
+    int hopLimit;
+
+    // lifetime of interest
+    simtime_t lifetime;
+
+    //====== Body Name (BodyName)
 
     // CCNx name segments
     string prefixName;
@@ -29,13 +29,12 @@ packet InterestMsg
     string versionName;
     int segmentNum;
 
-	
-	//====== Validation (Validation)
-	
-	// no security aspects incorporated yet
-	
-	
-	//====== Others fields used only by simulator 
+    //====== Validation (Validation)
+
+    // no security aspects incorporated yet
+
+
+    //====== Others fields used only by simulator 
 
     // msg sizes in bytes
     int headerSize;
@@ -52,14 +51,13 @@ packet InterestMsg
 //
 packet ContentObjMsg
 {
-    
+
     //====== ContentObj Header (ConObjHdr)
-    
-	// cache time of content
-	simtime_t cachetime;
 
+    // cache time of content
+    simtime_t cachetime;
 
-	//====== Body Opt Name (BodyOptName)
+    //====== Body Opt Name (BodyOptName)
 
     // CCNx name segments
     string prefixName;
@@ -67,15 +65,15 @@ packet ContentObjMsg
     string versionName;
     int segmentNum;
 
-	// expiry time of con obj
-	simtime_t expirytime;
+    // expiry time of con obj
+    simtime_t expirytime;
 
-	//====== Validation (Validation)
-	
-	// no security aspects incorporated yet
+    //====== Validation (Validation)
+
+    // no security aspects incorporated yet
 
 
-	//====== Others fields used only by simulator 
+    //====== Others fields used only by simulator 
 
     // msg sizes in bytes
     int headerSize;
@@ -83,11 +81,11 @@ packet ContentObjMsg
 
     // total segments in the requested data (identified by prefixName + dataName)
     int totalNumSegments;
-    
+
     // any payload
     string payloadAsString;
-    
-    // 
+
+    //
 
 }
 
@@ -111,24 +109,24 @@ packet InterestRtnMsg
 {
 
     //====== Return Code 
-    
+
     // return reason
     int returnCode @enum(ReturnCodeTypes);
 
-	//====== Interest
-	
-	// will be encapsulated
-	
+    //====== Interest
+
+    // will be encapsulated
+
     // CCNx name segments
     string prefixName;
     string dataName;
     string versionName;
     int segmentNum;
 
- 	//====== Others fields used only by simulator 
- 
+    //====== Others fields used only by simulator 
+
     // msg sizes in bytes
     int headerSize;
     int payloadSize;
-    
+
 }

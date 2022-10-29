@@ -3,7 +3,7 @@
 	<name>inbaverSim</name>
 	<comment></comment>
 	<projects>
-		<project>inet</project>
+		<project>inet4.4</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

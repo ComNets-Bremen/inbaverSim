@@ -16,9 +16,6 @@
 using namespace omnetpp;
 using namespace std;
 
-class NodeInfo;
-class SameWirelessGroup;
-
 class Demiurge : public cSimpleModule
 {
     private:
