@@ -51,12 +51,14 @@ class RFC8569Forwarder : public cSimpleModule
     long missCount;
 
     void processApplicationRegistration(AppRegistrationMsg *appRegMsg);
+    void processPrefixRegistration(PrefixRegistrationMsg *prefixRegMsg);
     void processTransportRegistration(TransportRegistrationMsg *transportRegMsg);
     void processInterest(InterestMsg *interestMsg);
     void processContentObj(ContentObjMsg *contentObjMsg);
     void processInterestRtn(InterestRtnMsg *interestRtnMsg);
 
     FaceEntry *getFaceEntryFromInputGateName(string inputGateName, int gateIndex);
+    FaceEntry *getFaceEntryFromFaceID(long faceID);
     CSEntry *getCSEntry(string prefixName, string dataName, string versionName, int segmentNum);
     PITEntry *getPITEntry(string prefixName, string dataName, string versionName, int segmentNum);
     FIBEntry *updateFIB(string prefixName, FaceEntry *faceEntry);

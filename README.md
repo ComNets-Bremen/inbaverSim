@@ -30,8 +30,8 @@ The text immediately below is a TL;DR summary of how to install and run simulati
 
 ## Node Models
 
-**inbaverSim** is able to model the operation of different types of CCN nodes. As seen
-from the picture below, it can model the following types of nodes.
+**inbaverSim** is able to model the operation of different types of CCN nodes and networks. A list of
+node types are given below. 
 
 - **Wireless Nodes** - Nodes that are able to connect to infrastructure based wireless networks (e.g., WLAN, LTE)
 - **Wireless Access Routers** - Routers that are access points/base stations for wireless nodes
@@ -40,6 +40,11 @@ from the picture below, it can model the following types of nodes.
 - **Access Routers** - Routers for wired network nodes
 - **Core Routers** - Central CCN routers that connect other networks
 - **Content Servers** - Servers that host content
+- **Wireless Sensor Nodes** - Wireless sensor nodes deployed with sensors (temperature, humidity, etc.)
+- **IOT Gateways** - Gateways connecting wireless sensor networks and the Internet
+- **Internet** - Node simulating a CCN based Internet where the behaviour of many nodes and applications are deployed
+
+The picture below shows the topology of a CCN network with all the above nodes.
 
 <p align="center">
   <img src="./res/images/net-topology.png" width="500"/>
@@ -58,9 +63,9 @@ stack as seen from the following picture.
 
 - **Application**: All CCN based applications are deployed at this layer
 - **Forwarding**: The fowarding mechanism described in [RFC 8569](https://tools.ietf.org/html/rfc8569) or 
-any other custom CCN forwarding mechanism is implemented at this layer
+ other custom CCN forwarding mechanism is implemented at this layer (e.g., DTN, IoT)
 - **Transport**: This layer implements different transports that connect nodes to deliver CCN packets. 
-Currently, two transports are supported - wired and wireless transports 
+Currently, two transports are supported - conceptual wired and wireless transports 
 
 The picture below shows the **inbaverSim** node model architecture in OMNeT++.
 
@@ -87,6 +92,7 @@ to install OMNeT++ in different operating systems.
 
 3. Install **inbaverSim** and build as follows.
   - Import the code from the [GitHub](https://github.com/ComNets-Bremen/inbaverSim.git) repositorty
+  - Adjust project properties (`Project References` and `C/C++ General->Paths and Symbols`)
   - Build **inbaverSim**
 
 If there are problems when building the model, check [FAQ](./res/info/FAQ.md)
@@ -108,10 +114,19 @@ a simulation is given below.
   - Select the `Config name` in the new window that will pop up
   - Select the `Run` button to run the simulation
 
-The picture below shows a network created to simulate a CCN network.
+The pictures below shows two different CCN networks created to simulate.The first 
+picture shows a simple CCN network that includes wireless and wired nodes
+connected to a network with CCN infrastructure (routers and content servers)
 
 <p align="center">
   <img src="./res/images/simple-ccn-network.png" width="300"/>
+</p>
+
+The second network is similar to the first one but with connections to CN based 
+sensor networks.
+
+<p align="center">
+  <img src="./res/images/simple-ccn-iot-network.png" width="300"/>
 </p>
 
 

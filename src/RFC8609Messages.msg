@@ -43,6 +43,9 @@ packet InterestMsg
     // hops
     int hopsTravelled;
     
+    // arrival face ID and type at the forwarding (CCN) layer
+    long arrivalFaceID;
+    int arrivalFaceType;
 }
 
 
@@ -84,8 +87,6 @@ packet ContentObjMsg
 
     // any payload
     string payloadAsString;
-
-    //
 
 }
 

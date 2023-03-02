@@ -122,7 +122,7 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
         rndNum = intuniform(0, (requestedPrefixList.size() - 1));
         requestingPrefixName = requestedPrefixList[rndNum];
         rndNum = par("nextFileSuffix");
-        sprintf(tempString, "%s%04d", dataNamePrefix.c_str(), rndNum);
+        snprintf(tempString, sizeof(tempString), "%s%04d", dataNamePrefix.c_str(), rndNum);
         requestingDataName = string(tempString);
         requestedSegNum = 0;
         totalSegments = -1;

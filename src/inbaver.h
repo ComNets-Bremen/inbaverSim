@@ -168,4 +168,55 @@ class ExchangedTransportInfo : public omnetpp::cObject
 
 };
 
+typedef struct SensorEntry {
+
+    // sensor name (the OMNeT name given)
+    string sensorName;
+
+    // last reading
+    string lastSensorReading;
+
+    // lifetime of a single reading (also referred to as the cache time)
+    double dataLifetime;
+
+    // size of the a single sensor data reading
+    int dataSize;
+
+    // most recent sensor readings
+    vector <string> lastSensorReadingsList;
+
+    // prefix of the sensor and the transport face ID
+    // through witch the sensor is reachable at the
+    // forwarding layer
+    string sensorPrefixName;
+    long faceID;
+    int faceType;
+    bool prefixRegistered;
+
+} SensorEntry;
+
+
+typedef struct SensorDataEntry {
+
+    // sensor data name
+    string sensorDataName;
+
+    // last reading
+    string lastDataReading;
+
+    // last reading time
+    double lastDataReadingTime;
+
+    // lifetime of a single reading (cache time)
+    double dataLifetime;
+
+    // most recent sensor data readings
+    vector <string> lastDataReadingsList;
+
+    // most recent sensor data reading times
+    vector <double> lastDataReadingTimesList;
+
+} SensorDataEntry;
+
+
 #endif /* INBAVER_H_ */

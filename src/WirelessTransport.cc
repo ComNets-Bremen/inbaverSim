@@ -742,7 +742,7 @@ void WirelessTransport::buildMACLikeAddress()
         ifcID = ifcID >> 8;
         len--;
     }
-    sprintf(str, "%02x:%02x:%02x:%02x:%02x:%02x", numList[0], numList[1],
+    snprintf(str, sizeof(str), "%02x:%02x:%02x:%02x:%02x:%02x", numList[0], numList[1],
                                                numList[2],numList[3],
                                                numList[4], numList[5]);
     macAddress = str;
@@ -884,11 +884,11 @@ void WirelessTransport::refreshDisplay() const
     if (wirelessRangeRadiusShow) {
 
         // set the range to draw circle around
-        sprintf(buf, "%.0f", wirelessRange);
+        snprintf(buf, sizeof(buf), "%.0f", wirelessRange);
         getParentModule()->getDisplayString().setTagArg("r", 0, buf);
 
         // set the color of the line
-        sprintf(buf, "%s", wirelessRangeRadiusColor.c_str());
+        snprintf(buf, sizeof(buf), "%s", wirelessRangeRadiusColor.c_str());
         getParentModule()->getDisplayString().setTagArg("r", 2, buf);
 
     }

@@ -242,7 +242,7 @@ void WiredTransport::buildMACLikeAddress()
         ifcID = ifcID >> 8;
         len--;
     }
-    sprintf(str, "%02x:%02x:%02x:%02x:%02x:%02x", numList[0], numList[1],
+    snprintf(str, sizeof(str), "%02x:%02x:%02x:%02x:%02x:%02x", numList[0], numList[1],
                                                numList[2],numList[3],
                                                numList[4], numList[5]);
     macAddress = str;

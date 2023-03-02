@@ -43,6 +43,20 @@ packet TransportRegistrationMsg {
 }
 
 //
+// Format of a prefix registration message used in registering
+// additional FIB entries at the forwarding layer
+//
+packet PrefixRegistrationMsg {
+
+    // prefix to register
+    string prefixName;
+    
+    // face ID of the face to use as the outgoing face
+    long faceID;
+}
+
+
+//
 // Format of neighbour list message sent regularly by direct type
 // transports to the forwrder.
 //

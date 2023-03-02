@@ -87,6 +87,7 @@ void RFC8569Forwarder::handleMessage(cMessage *msg)
     cGate *arrivalGate;
     char gateName[32];
     AppRegistrationMsg *appRegMsg = NULL;
+    PrefixRegistrationMsg *prefixRegMsg = NULL;
     TransportRegistrationMsg *transportRegMsg = NULL;
     InterestMsg *interestMsg = NULL;
     ContentObjMsg *contentObjMsg = NULL;
@@ -107,6 +108,11 @@ void RFC8569Forwarder::handleMessage(cMessage *msg)
         if (strstr(gateName, "appInOut") != NULL && (appRegMsg = dynamic_cast<AppRegistrationMsg*>(msg)) != NULL) {
 
             processApplicationRegistration(appRegMsg);
+
+        // register a new prefix requested by an application
+        } else if (strstr(gateName, "appInOut") != NULL && (prefixRegMsg = dynamic_cast<PrefixRegistrationMsg*>(msg)) != NULL) {
+
+                processPrefixRegistration(prefixRegMsg);
 
         // handle transport registration msg from network interface (wireless or wired)
         } else if (strstr(gateName, "transportInOut") != NULL && (transportRegMsg = dynamic_cast<TransportRegistrationMsg*>(msg)) != NULL) {
@@ -159,7 +165,7 @@ void RFC8569Forwarder::processApplicationRegistration(AppRegistrationMsg *appReg
     faceEntry->faceDescription = appRegMsg->getAppDescription();
     faceEntry->inputGateName = string(arrivalGate->getName());
     faceEntry->baseGateName = string(arrivalGate->getBaseName());
-    sprintf(gateName, "%s$o", arrivalGate->getBaseName());
+    snprintf(gateName, sizeof(gateName), "%s$o", arrivalGate->getBaseName());
     faceEntry->outputGateName = string(gateName);
     if (arrivalGate->isVector()) {
         faceEntry->gateIndex = arrivalGate->getIndex();
@@ -184,6 +190,15 @@ void RFC8569Forwarder::processApplicationRegistration(AppRegistrationMsg *appReg
     delete appRegMsg;
 }
 
+void RFC8569Forwarder::processPrefixRegistration(PrefixRegistrationMsg *prefixRegMsg)
+{
+    FaceEntry *faceEntry = getFaceEntryFromFaceID(prefixRegMsg->getFaceID());
+
+    updateFIB(prefixRegMsg->getPrefixName(), faceEntry);
+
+    delete prefixRegMsg;
+}
+
 void RFC8569Forwarder::processTransportRegistration(TransportRegistrationMsg *transportRegMsg)
 {
     cGate *arrivalGate = transportRegMsg->getArrivalGate();
@@ -197,7 +212,7 @@ void RFC8569Forwarder::processTransportRegistration(TransportRegistrationMsg *tr
     faceEntry->transportAddress = transportRegMsg->getTransportAddress();
     faceEntry->inputGateName = string(arrivalGate->getName());
     faceEntry->baseGateName = string(arrivalGate->getBaseName());
-    sprintf(gateName, "%s$o", arrivalGate->getBaseName());
+    snprintf(gateName, sizeof(gateName), "%s$o", arrivalGate->getBaseName());
     faceEntry->outputGateName = string(gateName);
     if (arrivalGate->isVector()) {
         faceEntry->gateIndex = arrivalGate->getIndex();
@@ -218,6 +233,12 @@ void RFC8569Forwarder::processTransportRegistration(TransportRegistrationMsg *tr
 
 void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
 {
+
+//    cout << simTime() << " " << getFullPath()
+//            << " interest received: "
+//            << interestMsg->getPrefixName() << " "
+//            << interestMsg->getDataName() << endl;
+
     // get arrival gate details
     cGate *arrivalGate = interestMsg->getArrivalGate();
     int arrivalGateIndex =  (arrivalGate->isVector() ? arrivalGate->getIndex() : (-1));
@@ -244,6 +265,7 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         arrivalTransportInfo = check_and_cast<ExchangedTransportInfo*>(interestMsg->getObject("ExchangedTransportInfo"));
         interestMsg->removeObject("ExchangedTransportInfo");
     }
+
 
     // lookup in CS for the requested Content Obj
     CSEntry *csEntry = getCSEntry(interestMsg->getPrefixName(), interestMsg->getDataName(),
@@ -314,12 +336,15 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
 
     }
 
+
     // is there a PIT entry already for previous Interests received
     // for same content?
     PITEntry *pitEntry = getPITEntry(interestMsg->getPrefixName(), interestMsg->getDataName(),
                                     interestMsg->getVersionName(), interestMsg->getSegmentNum());
 
     dumpPIT();
+
+
 
     // when there is already a PIT entry, means previous Interests were
     // received, so add the current Interest to the PIT entry
@@ -372,16 +397,20 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     }
 
     // discard interest if it has reached the maximum hop count
-    if ((interestMsg->getHopLimit() - 1) == 0) {
+    // only if they arrive from transport type faces (not applications)
+    if (arrivalFaceEntry->faceType == TransportTypeFace && (interestMsg->getHopLimit() - 1) <= 0) {
 
         EV_INFO << simTime() << "Hop limit exceeded. Discarding Interest: "
-                << pitEntry->hopLimit
-                << " " << pitEntry->hopsTravelled
+                << interestMsg->getHopLimit()
+                << " " << interestMsg->getHopsTravelled()
+                << " " << arrivalFaceEntry->faceDescription
                 << endl;
 
         delete interestMsg;
         return;
     }
+
+
 
     // save Interest in PIT - create new PIT entry
     pitEntry = new PITEntry;
@@ -417,6 +446,7 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     // gen stats
     emit(pitEntryCountSignal, (long) pit.size());
 
+
     // find which FIB entry to use to forward the Interest
     FIBEntry *fibEntry = longestPrefixMatchingInFIB(interestMsg->getPrefixName());
 
@@ -444,6 +474,16 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
             newInterestMsg->setHopsTravelled(interestMsg->getHopsTravelled() + 1);
             newInterestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE + 0);
 
+            // set the arrival face, if the interest is sent to an application face
+            if (arrivalFaceEntry->faceType == TransportTypeFace
+                    && faceEntry->faceType == ApplicationTypeFace) {
+                newInterestMsg->setArrivalFaceID(arrivalFaceEntry->faceID);
+                newInterestMsg->setArrivalFaceType(TransportTypeFace);
+            } else {
+                newInterestMsg->setArrivalFaceID(-1);
+                newInterestMsg->setArrivalFaceType(-1);
+            }
+
             cGate *sendingGate = gate(faceEntry->outputGateName.c_str(), faceEntry->gateIndex);
 
             EV_INFO << simTime() << "Sending Interest to Face: "
@@ -464,6 +504,7 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
         iteratorFaceEntry++;
     }
 
+
     // discard Interest
     delete interestMsg;
     return;
@@ -471,6 +512,11 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
 
 void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
 {
+//    cout << simTime() << " " << getFullPath()
+//            << " content obj received: "
+//            << contentObjMsg->getPrefixName() << " "
+//            << contentObjMsg->getDataName() << endl;
+
     // get arrival gate details
     cGate *arrivalGate = contentObjMsg->getArrivalGate();
     int arrivalGateIndex =  (arrivalGate->isVector() ? arrivalGate->getIndex() : (-1));
@@ -743,9 +789,28 @@ FaceEntry *RFC8569Forwarder::getFaceEntryFromInputGateName(string inputGateName,
         iteratorFaceEntry++;
     }
 
-    EV_FATAL << simTime() << "Something is radically wrong - face entry not found - gate name: "
+    EV_FATAL << simTime() << " Something is radically wrong - face entry not found - gate name: "
             << inputGateName
             << ", index: " << gateIndex
+            << endl;
+    throw cRuntimeError("Check log for details");
+}
+
+FaceEntry *RFC8569Forwarder::getFaceEntryFromFaceID(long faceID)
+{
+    FaceEntry *faceEntry = NULL;
+
+    list<FaceEntry*>::iterator iteratorFaceEntry = registeredFaces.begin();
+    while (iteratorFaceEntry != registeredFaces.end()) {
+        faceEntry = *iteratorFaceEntry;
+        if (faceEntry->faceID == faceID) {
+            return faceEntry;
+        }
+        iteratorFaceEntry++;
+    }
+
+    EV_FATAL << simTime() << " Something is radically wrong - face entry not found - face ID: "
+            << faceID
             << endl;
     throw cRuntimeError("Check log for details");
 }
