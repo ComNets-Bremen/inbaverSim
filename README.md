@@ -47,7 +47,7 @@ node types are given below.
 The picture below shows the topology of a CCN network with all the above nodes.
 
 <p align="center">
-  <img src="./res/images/net-topology.png" width="500"/>
+  <img src="./res/images/net-topology.png" width="600"/>
 </p>
 
 
@@ -58,7 +58,7 @@ The node architecture of an **inbaverSim** node of any type consist of a 3-layer
 stack as seen from the following picture.
 
 <p align="center">
-  <img src="res/images/proto-stack.png" width="500"/>
+  <img src="res/images/proto-stack.png" width="400"/>
 </p>
 
 - **Application**: All CCN based applications are deployed at this layer
@@ -126,7 +126,7 @@ The second network is similar to the first one but with connections to CN based
 sensor networks.
 
 <p align="center">
-  <img src="./res/images/simple-ccn-iot-network.png" width="300"/>
+  <img src="./res/images/simple-ccn-iot-network.png" width="500"/>
 </p>
 
 
