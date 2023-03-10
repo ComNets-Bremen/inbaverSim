@@ -221,7 +221,7 @@ void IoTGatewayApp::handleMessage(cMessage *msg)
                 send(interestMsgNew, "forwarderInOut$o");
 
             //  request for stored sensor data at gateway from outside (e.g. Internet)
-            } else if (string(interestMsg->getPrefixName()).find(hostedPrefixNameForSensorNet) != string::npos) {
+            } else if (string(interestMsg->getPrefixName()).find(hostedPrefixName) != string::npos) {
 
                 // find the sensor entry
                 int index = -1;
@@ -284,6 +284,11 @@ void IoTGatewayApp::handleMessage(cMessage *msg)
                     throw cRuntimeError("Check log for details");
 
                 }
+            } else {
+                EV_INFO << " Ignoring Interest message - "
+                        << interestMsg->getPrefixName()
+                        << endl;
+
             }
 
 

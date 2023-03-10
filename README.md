@@ -122,7 +122,7 @@ connected to a network with CCN infrastructure (routers and content servers)
   <img src="./res/images/simple-ccn-network.png" width="300"/>
 </p>
 
-The second network is similar to the first one but with connections to CN based 
+The second network is similar to the first one but with connections to CCN based 
 sensor networks.
 
 <p align="center">
