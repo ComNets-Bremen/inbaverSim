@@ -27,8 +27,8 @@ simple ThingsApp like IApplication
         volatile double interestLifetime @unit(s) = default(10s);
         
         // names of the types of sensor data retrieved and random variable to select on each time
-        string sensorDataNames = default("temperature;humidity;vwc;salinity");
-        volatile int nextIndexOfSensorDataToRetrieve = default(intuniform(0, 4));
+        string sensorDataNames = default("temperature;humidity;vwc;salinity;water;electricity");
+        volatile int nextIndexOfSensorDataToRetrieve = default(intuniform(0, 6));
 
         // maximum historical sensor data reading to hold
         int maxSensorDataReadingsToKeep = default(50);

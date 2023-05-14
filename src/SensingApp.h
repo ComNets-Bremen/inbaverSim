@@ -56,6 +56,10 @@ class SensingApp : public cSimpleModule
     // last sensor reading to send
     string lastSensorReading;
 
+    // since water and electricity has a current meter reading
+    double waterCurrent;
+    double electricCurrent;
+
     // stat signals
     simsignal_t totalInterestsBytesReceivedSignal;
     simsignal_t totalContentObjsBytesSentSignal;

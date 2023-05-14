@@ -53,8 +53,11 @@ void SensingApp::initialize(int stage)
         if (sensedDataTypesList.size() <= 0) {
             EV_FATAL << "Sensed data type(s) not defined.\n";
             throw cRuntimeError("Check log for details");
-
         }
+
+        // since water and electricity has a current meter reading
+        waterCurrent = par("waterStart");
+        electricCurrent = par("electricStart");
 
     } else if (stage == 2) {
 
@@ -296,6 +299,18 @@ string SensingApp::getSensorValues()
             valint = par("salinity");
             snprintf(buffer, sizeof(buffer), "%d", valint);
             sensorValuesStr = sensorValuesStr + string("salinity:") + string(buffer) + string(":uS/cm");
+
+        } else if (sensedDataTypesList[i] == "water") {
+            valdouble = par("waterIncrease");
+            waterCurrent += valdouble;
+            snprintf(buffer, sizeof(buffer), "%.3f", waterCurrent);
+            sensorValuesStr = sensorValuesStr + string("water:") + string(buffer) + string(":liters");
+
+        } else if (sensedDataTypesList[i] == "electricity") {
+            valdouble = par("electricIncrease");
+            electricCurrent += valdouble;
+            snprintf(buffer, sizeof(buffer), "%.4f", electricCurrent);
+            sensorValuesStr = sensorValuesStr + string("electricity:") + string(buffer) + string(":kWh");
 
         }
     }
