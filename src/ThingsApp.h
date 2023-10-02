@@ -37,10 +37,24 @@ class ThingsApp : public cSimpleModule
   private:
 
     double sensorDataRetrievalStartTime;
+    double subscriptionStartTime;
+    bool subscriptionON;
     string requestedSensorNetworkPrefixName;
     string sensorDataNames;
     int maxSensorDataReadingsToKeep;
     int maxHopsAllowed;
+    double interestLifetime;
+    double subscriptionDuration;
+    int segmentSize;
+    int numSegmentsPerFile;
+    double cacheTime;
+
+    //Details needed for next Query/Response Request
+    int nextdataReadingID;
+    string nextSensorData;
+
+    //Store RNP Details
+    string reflexiveNamePrefix;
 
     Demiurge *demiurgeModel;
     Numen *numenModel;
@@ -54,9 +68,12 @@ class ThingsApp : public cSimpleModule
     simsignal_t totalDataBytesReceivedSignal;
     simsignal_t networkInterestRetransmissionCountSignal;
     simsignal_t networkInterestInjectedCountSignal;
+    simsignal_t contentFreshnessSignal;
+    simsignal_t subContentObjectReceivedCount;
 };
 
 #define THINGSAPP_APP_REG_REM_EVENT_CODE              116
 #define THINGSAPP_NEXT_DATA_DOWNLOAD_EVENT_CODE       117
+#define THINGSAPP_SUBSCRIPTION_REMINDER_CODE      118
 
 #endif

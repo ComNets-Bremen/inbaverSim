@@ -22,6 +22,22 @@ simple IoTGatewayApp like IApplication
 
         // Prefix served by the sensor expecting the gw to request for data - the sensor name is appended to the end
         string sensorPrefixName = default("ccnx://uni-bremen.de/ee/sensor/");
+        
+       // Prefix served by the other Gateway in the Network - used to demonstGateway to Gateway Communication
+        string otherGatewayAvailable = default("ccnx://uni-bremen.de/cs/iot/");
+        
+        // start time of sensor data retrieval (from other Gateway)
+        double sensorDataRetrievalStartTime @unit(s) = default(10s);
+        
+        // names of the types of sensor data retrieved and random variable to select on each time
+        string othersensorDataName = default("temperature");
+        volatile int nextIndexOfSensorDataToRetrieve = default(intuniform(0, 4));
+        
+        // maximum hops allowed for Interest to travel
+        int maxHopsAllowed = default(16);
+
+        // time between sensor data retrievals(from other Gateway)
+        volatile double interDataDownloadInterval @unit(s) = default(uniform(200s,500s));
 
         // lifetime of a interest sent to the sensor network
         double interestLifetime @unit(s) = default(2s);
@@ -33,6 +49,7 @@ simple IoTGatewayApp like IApplication
         @signal[appTotalInterestsBytesReceived](type=long);
         @signal[appTotalContentObjsBytesSent](type=long);
         @signal[appTotalDataBytesSent](type=long);
+        @signal[appSubContentObjectsSentToUserCount](type=long);
 
 
         @display("i=block/app");

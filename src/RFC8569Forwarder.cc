@@ -1,9 +1,12 @@
 //
-// A CCN forwarder implementing the RFC 8569 using the
+// A CCN forwarder implementing the RFC 8569 and Reflexive Forwarding using the
 // IForwarder interface.
 //
 // @author : Asanga Udugama (adu@comnets.uni-bremen.de)
 // @date   : 31-mar-2021
+//
+// @author : Sneha Kulkarni (snku@uni-bremen.de)
+// @date   : 31-may-2023
 //
 //
 
@@ -55,6 +58,10 @@ void RFC8569Forwarder::initialize(int stage)
         currentCSSize = 0;
         hitCount = 0;
         missCount = 0;
+        interestCount = 0;
+        contentObjectCount = 0;
+      //  totalBytesReceivedAndSent = 0;
+
 
     } else if (stage == 2) {
 
@@ -74,6 +81,10 @@ void RFC8569Forwarder::initialize(int stage)
         cacheMissRatioSignal = registerSignal("fwdCacheMissRatio");
         networkCacheHitRatioSignal = registerSignal("fwdNetworkCacheHitRatio");
         networkCacheMissRatioSignal = registerSignal("fwdNetworkCacheMissRatio");
+        interesttoContentRatioSignal = registerSignal("fwdInterestToContentRatio");
+        totalTrafficSignal = registerSignal("fwdTotalTraffic");
+        totalTrafficBytesSignal = registerSignal("fwdTotalTrafficBytes");
+
 
     } else {
         EV_FATAL << simTime() << "Something is radically wrong\n";
@@ -234,11 +245,6 @@ void RFC8569Forwarder::processTransportRegistration(TransportRegistrationMsg *tr
 void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
 {
 
-//    cout << simTime() << " " << getFullPath()
-//            << " interest received: "
-//            << interestMsg->getPrefixName() << " "
-//            << interestMsg->getDataName() << endl;
-
     // get arrival gate details
     cGate *arrivalGate = interestMsg->getArrivalGate();
     int arrivalGateIndex =  (arrivalGate->isVector() ? arrivalGate->getIndex() : (-1));
@@ -250,16 +256,38 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
             << " " << interestMsg->getDataName()
             << " " << interestMsg->getVersionName()
             << " " << interestMsg->getSegmentNum()
+            << " RNP:" << interestMsg->getReflexiveNamePrefix()
+            << " FPT:" << interestMsg->getForwardPendingToken()
+            << " RPT:" << interestMsg->getReversePendingToken()
             << endl;
 
+    //Display available interfaces
     dumpFaces();
 
+    //Update PIT and CS
+    updatePITEntry();
+    updateCSEntry();
+
+    //Track total segments Received or Sent
+    demiurgeModel->incrementTrafficCount();
+    emit(totalTrafficSignal, demiurgeModel->getTotalTrafficCount());
+    demiurgeModel->totalTrafficBytes = demiurgeModel->totalTrafficBytes + (long) interestMsg->getByteLength();
+    emit(totalTrafficBytesSignal, demiurgeModel->getTotalTrafficBytesCount());
+
     // generate stats
-    if (arrivalFaceEntry->faceType == TransportTypeFace) {
+    if (arrivalFaceEntry->faceType == TransportTypeFace ) {
         emit(totalInterestsBytesReceivedSignal, (long) interestMsg->getByteLength());
     }
 
-    // check and get Face and transport address info of sender of Interest,
+    //Count of Interest Messages for Subscription between Sensors and Gateway (for stats)
+    if ((string(interestMsg->getDataName()).find("Registration") != string::npos) || (string(interestMsg->getDataName()).find("SensorData") != string::npos)) {
+
+            interestCount ++;
+            emit(interesttoContentRatioSignal, (double) interestCount / contentObjectCount);
+
+    }
+
+    // check and get Face and transport address info of sender of Interest
     ExchangedTransportInfo *arrivalTransportInfo = NULL;
     if (interestMsg->hasObject("ExchangedTransportInfo")) {
         arrivalTransportInfo = check_and_cast<ExchangedTransportInfo*>(interestMsg->getObject("ExchangedTransportInfo"));
@@ -336,133 +364,236 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
 
     }
 
+    // Check if the interest expects a reflexive Interest
+    if (strcmp(interestMsg->getReflexiveNamePrefix(), "0") != 0 && strcmp(interestMsg->getReflexiveNamePrefix(), " ") != 0){
 
-    // is there a PIT entry already for previous Interests received
-    // for same content?
-    PITEntry *pitEntry = getPITEntry(interestMsg->getPrefixName(), interestMsg->getDataName(),
-                                    interestMsg->getVersionName(), interestMsg->getSegmentNum());
+        // save Interest in PIT - create new PIT entry
+        PITEntry *pitEntry = new PITEntry;
+        pitEntry->prefixName = interestMsg->getPrefixName();
+        pitEntry->dataName = interestMsg->getDataName();
+        pitEntry->versionName = interestMsg->getVersionName();
+        pitEntry->segmentNum = interestMsg->getSegmentNum();
+        pitEntry->hopLimit = interestMsg->getHopLimit() - 1;
+        pitEntry->hopsTravelled = interestMsg->getHopsTravelled() + 1;
+        pitEntry->reflexiveNamePrefix = interestMsg->getReflexiveNamePrefix();
+        pitEntry->expirytime = interestMsg->getLifetime(); //simTime()+ interestMsg->getLifetime();
+        pitEntry->forwardPendingToken_new = 0;
+        pitEntry->forwardPendingToken_old = 0;
+        pitEntry->reversePendingToken_new = 0;
+        pitEntry->reversePendingToken_old = 0;
 
-    dumpPIT();
+        ArrivalInfo *arrivalInfo = new ArrivalInfo();
+        arrivalInfo->receivedFace = arrivalFaceEntry;
+        if (arrivalTransportInfo != NULL) {
+            arrivalInfo->transportAddress = arrivalTransportInfo->transportAddress;
+        } else {
+            arrivalInfo->transportAddress = "";
+        }
+        pitEntry->arrivalInfoList.push_back(arrivalInfo);
 
+        //If the Interest has no FPT or RPT, generate an FPT and send the interest
+        if(interestMsg->getForwardPendingToken()== 0 && interestMsg->getReversePendingToken()== 0) {
 
+            EV_INFO << simTime() << "Interest contains no FPT or RPT" << endl;
 
-    // when there is already a PIT entry, means previous Interests were
-    // received, so add the current Interest to the PIT entry
-    if (pitEntry != NULL) {
+            // Generate new FPT
+            interestMsg->setForwardPendingToken(intuniform(1, 2147483647));
+            pitEntry->forwardPendingToken_new = interestMsg->getForwardPendingToken();
 
-        // Check if the same Interest was received through the same Face and transport address
-        bool found = false;
-        for (int i = 0; i < pitEntry->arrivalInfoList.size(); i++) {
-            if (pitEntry->arrivalInfoList[i]->receivedFace->faceID == arrivalFaceEntry->faceID) {
-                if (arrivalTransportInfo != NULL) {
-                    if (arrivalTransportInfo->transportAddress == pitEntry->arrivalInfoList[i]->receivedFace->transportAddress) {
-                        found = true;
-                        break;
+            EV_INFO << simTime() << "Adding PIT entry: "
+                     << pitEntry->prefixName
+                     << " " << pitEntry->dataName
+                     << " " << pitEntry->versionName
+                     << " " << pitEntry->segmentNum
+                     << " " << pitEntry->hopLimit
+                     << " RNP:" << pitEntry->reflexiveNamePrefix
+                     << " FPT_old:" << pitEntry->forwardPendingToken_old
+                     << " FPT_new:" << pitEntry->forwardPendingToken_new
+                     << " RPT_old:" << pitEntry->reversePendingToken_old
+                     << " RPT_new:" << pitEntry->reversePendingToken_new
+                     << " " << pitEntry->hopsTravelled
+                     << " " << arrivalFaceEntry->faceID
+                     << " " << arrivalInfo->transportAddress
+                     << " Expiry Time: " << pitEntry->expirytime
+                     << endl;
+
+             pit.push_back(pitEntry);
+
+             // find which FIB entry to use to forward the Interest
+            FIBEntry *fibEntry = longestPrefixMatchingInFIB(interestMsg->getPrefixName());
+
+            EV_INFO << simTime() << "Longest Prefix Matching and found: " << fibEntry->prefixName << " " << fibEntry->forwardedFaces.size() << endl;
+
+            // forward interest to all the faces listed in the FIB entry
+            FaceEntry *faceEntry = NULL;
+            list<FaceEntry*>::iterator iteratorFaceEntry = fibEntry->forwardedFaces.begin();
+            while (iteratorFaceEntry != fibEntry->forwardedFaces.end()) {
+                faceEntry = *iteratorFaceEntry;
+
+                // select face if it is not the arrival face
+                if (faceEntry->faceID != arrivalFaceEntry->faceID) {
+
+                    InterestMsg *newInterestMsg = new InterestMsg("Interest");
+                    newInterestMsg->setHopLimit(interestMsg->getHopLimit() - 1);
+                    newInterestMsg->setLifetime(interestMsg->getLifetime());
+                    newInterestMsg->setPrefixName(interestMsg->getPrefixName());
+                    newInterestMsg->setDataName(interestMsg->getDataName());
+                    newInterestMsg->setVersionName(interestMsg->getVersionName());
+                    newInterestMsg->setSegmentNum(interestMsg->getSegmentNum());
+                    newInterestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
+                    newInterestMsg->setPayloadSize(interestMsg->getPayloadSize());
+                    newInterestMsg->setHopsTravelled(interestMsg->getHopsTravelled() + 1);
+                    newInterestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE + 0);
+                    newInterestMsg->setReflexiveNamePrefix(interestMsg->getReflexiveNamePrefix());
+                    newInterestMsg->setForwardPendingToken(interestMsg->getForwardPendingToken());
+                    newInterestMsg->setReversePendingToken(interestMsg->getReversePendingToken());
+
+                    // set the arrival face, if the interest is sent to an application face
+                    if (arrivalFaceEntry->faceType == TransportTypeFace
+                            && faceEntry->faceType == ApplicationTypeFace) {
+                        newInterestMsg->setArrivalFaceID(arrivalFaceEntry->faceID);
+                        newInterestMsg->setArrivalFaceType(TransportTypeFace);
+                    } else {
+                        newInterestMsg->setArrivalFaceID(-1);
+                        newInterestMsg->setArrivalFaceType(-1);
                     }
-                } else {
-                    found = true;
-                    break;
+
+                    cGate *sendingGate = gate(faceEntry->outputGateName.c_str(), faceEntry->gateIndex);
+
+                    EV_INFO << simTime() << "Sending Interest to Face: "
+                            << interestMsg->getPrefixName()
+                            << " " << interestMsg->getDataName()
+                            << " " << interestMsg->getVersionName()
+                            << " " << interestMsg->getSegmentNum()
+                            << " RNP:" << interestMsg->getReflexiveNamePrefix()
+                            << " FPT:" << interestMsg->getForwardPendingToken()
+                            << " RPT:" << interestMsg->getReversePendingToken()
+                            << " " << faceEntry->faceID << endl;
+
+                    send(newInterestMsg, sendingGate);
+
+                    // generate stats
+                    if (faceEntry->faceType == TransportTypeFace) {
+                        emit(totalInterestsBytesSentSignal, (long) newInterestMsg->getByteLength());
+                    }
                 }
-            }
-        }
 
-        // when same Interest was not received from same Face and same transport address
-        // then add it to PIT entry
-        if (!found) {
-            ArrivalInfo *arrivalInfo = new ArrivalInfo();
-            arrivalInfo->receivedFace = arrivalFaceEntry;
-            if (arrivalTransportInfo != NULL) {
-                arrivalInfo->transportAddress = arrivalTransportInfo->transportAddress;
-            } else {
-                arrivalInfo->transportAddress = "";
+                iteratorFaceEntry++;
             }
 
-            EV_INFO << simTime() << "PIT entry exists. Adding new arrival Face: "
-                    << pitEntry->prefixName
-                    << " " << pitEntry->dataName
-                    << " " << pitEntry->versionName
-                    << " " << pitEntry->segmentNum
-                    << " " << pitEntry->hopLimit
-                    << " " << pitEntry->hopsTravelled
-                    << " " << arrivalFaceEntry->faceID
-                    << " " << arrivalInfo->transportAddress
-                    << endl;
+        }//If it has only FPT and no RPT
+        else if(interestMsg->getForwardPendingToken()!= 0 && interestMsg->getReversePendingToken()== 0) {
+            EV_INFO << simTime() << "Interest contains only FPT" << endl;
 
-            pitEntry->arrivalInfoList.push_back(arrivalInfo);
-        }
+             InterestMsg *newInterestMsg = new InterestMsg("Reflexive Interest");
+             newInterestMsg->setHopLimit(interestMsg->getHopLimit() - 1);
+             newInterestMsg->setLifetime(interestMsg->getLifetime());
+             newInterestMsg->setPrefixName(interestMsg->getPrefixName());
+             newInterestMsg->setDataName(interestMsg->getDataName());
+             newInterestMsg->setVersionName(interestMsg->getVersionName());
+             newInterestMsg->setSegmentNum(interestMsg->getSegmentNum());
+             newInterestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
+             newInterestMsg->setPayloadSize(interestMsg->getPayloadSize());
+             newInterestMsg->setHopsTravelled(interestMsg->getHopsTravelled() + 1);
+             newInterestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE + 0);
+             newInterestMsg->setReflexiveNamePrefix(interestMsg->getReflexiveNamePrefix());
+             newInterestMsg->setForwardPendingToken(interestMsg->getForwardPendingToken());
+             newInterestMsg->setReversePendingToken(interestMsg->getReversePendingToken());
 
-        // discard Interest
-        delete interestMsg;
-        return;
-    }
+             //Save received FPT as FPT_old in PIT
+             pitEntry->forwardPendingToken_old = interestMsg->getForwardPendingToken();
+             // Generate new FPT
+             interestMsg->setForwardPendingToken(intuniform(1, 2147483647));
+             //Save newly generated FPT as FPT_new in PIT
+             pitEntry->forwardPendingToken_new = interestMsg->getForwardPendingToken();
 
-    // discard interest if it has reached the maximum hop count
-    // only if they arrive from transport type faces (not applications)
-    if (arrivalFaceEntry->faceType == TransportTypeFace && (interestMsg->getHopLimit() - 1) <= 0) {
+             EV_INFO << simTime() << "Adding PIT entry: "
+                     << pitEntry->prefixName
+                     << " " << pitEntry->dataName
+                     << " " << pitEntry->versionName
+                     << " " << pitEntry->segmentNum
+                     << " " << pitEntry->hopLimit
+                     << " RNP:" << pitEntry->reflexiveNamePrefix
+                     << " FPT_old:" << pitEntry->forwardPendingToken_old
+                     << " FPT_new:" << pitEntry->forwardPendingToken_new
+                     << " RPT_old:" << pitEntry->reversePendingToken_old
+                     << " RPT_new:" << pitEntry->reversePendingToken_new
+                     << " " << pitEntry->hopsTravelled
+                     << " " << arrivalFaceEntry->faceID
+                     << " " << arrivalInfo->transportAddress
+                     << " Expiry Time: " << pitEntry->expirytime
+                     << endl;
 
-        EV_INFO << simTime() << "Hop limit exceeded. Discarding Interest: "
-                << interestMsg->getHopLimit()
-                << " " << interestMsg->getHopsTravelled()
-                << " " << arrivalFaceEntry->faceDescription
-                << endl;
+             pit.push_back(pitEntry);
 
-        delete interestMsg;
-        return;
-    }
+             // find which FIB entry to use to forward the Interest
+            FIBEntry *fibEntry = longestPrefixMatchingInFIB(interestMsg->getPrefixName());
 
+            EV_INFO << simTime() << "Longest Prefix Matching and found: " << fibEntry->prefixName << " " << fibEntry->forwardedFaces.size() << endl;
 
+            // forward interest to all the faces listed in the FIB entry
+            FaceEntry *faceEntry = NULL;
+            list<FaceEntry*>::iterator iteratorFaceEntry = fibEntry->forwardedFaces.begin();
+            while (iteratorFaceEntry != fibEntry->forwardedFaces.end()) {
+                faceEntry = *iteratorFaceEntry;
 
-    // save Interest in PIT - create new PIT entry
-    pitEntry = new PITEntry;
-    pitEntry->prefixName = interestMsg->getPrefixName();
-    pitEntry->dataName = interestMsg->getDataName();
-    pitEntry->versionName = interestMsg->getVersionName();
-    pitEntry->segmentNum = interestMsg->getSegmentNum();
-    pitEntry->hopLimit = interestMsg->getHopLimit() - 1;
-    pitEntry->hopsTravelled = interestMsg->getHopsTravelled() + 1;
+                EV_INFO << simTime() << "Retrieved Faces: " << faceEntry->faceID <<endl;
 
-    ArrivalInfo *arrivalInfo = new ArrivalInfo();
-    arrivalInfo->receivedFace = arrivalFaceEntry;
-    if (arrivalTransportInfo != NULL) {
-        arrivalInfo->transportAddress = arrivalTransportInfo->transportAddress;
-    } else {
-        arrivalInfo->transportAddress = "";
-    }
-    pitEntry->arrivalInfoList.push_back(arrivalInfo);
+                // select face if it is not the arrival face
+                if (faceEntry->faceID != arrivalFaceEntry->faceID) {
 
-    EV_INFO << simTime() << "Adding PIT entry: "
-            << pitEntry->prefixName
-            << " " << pitEntry->dataName
-            << " " << pitEntry->versionName
-            << " " << pitEntry->segmentNum
-            << " " << pitEntry->hopLimit
-            << " " << pitEntry->hopsTravelled
-            << " " << arrivalFaceEntry->faceID
-            << " " << arrivalInfo->transportAddress
-            << endl;
+                    InterestMsg *newInterestMsg = new InterestMsg("Interest");
+                    newInterestMsg->setHopLimit(interestMsg->getHopLimit() - 1);
+                    newInterestMsg->setLifetime(interestMsg->getLifetime());
+                    newInterestMsg->setPrefixName(interestMsg->getPrefixName());
+                    newInterestMsg->setDataName(interestMsg->getDataName());
+                    newInterestMsg->setVersionName(interestMsg->getVersionName());
+                    newInterestMsg->setSegmentNum(interestMsg->getSegmentNum());
+                    newInterestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
+                    newInterestMsg->setPayloadSize(interestMsg->getPayloadSize());
+                    newInterestMsg->setHopsTravelled(interestMsg->getHopsTravelled() + 1);
+                    newInterestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE + 0);
+                    newInterestMsg->setReflexiveNamePrefix(interestMsg->getReflexiveNamePrefix());
+                    newInterestMsg->setForwardPendingToken(interestMsg->getForwardPendingToken());
+                    newInterestMsg->setReversePendingToken(interestMsg->getReversePendingToken());
 
-    pit.push_back(pitEntry);
+                    // set the arrival face, if the interest is sent to an application face
+                    if (arrivalFaceEntry->faceType == TransportTypeFace
+                            && faceEntry->faceType == ApplicationTypeFace) {
+                        newInterestMsg->setArrivalFaceID(arrivalFaceEntry->faceID);
+                        newInterestMsg->setArrivalFaceType(TransportTypeFace);
+                    } else {
+                        newInterestMsg->setArrivalFaceID(-1);
+                        newInterestMsg->setArrivalFaceType(-1);
+                    }
 
-    // gen stats
-    emit(pitEntryCountSignal, (long) pit.size());
+                    cGate *sendingGate = gate(faceEntry->outputGateName.c_str(), faceEntry->gateIndex);
 
+                    EV_INFO << simTime() << "Sending Interest to Face: "
+                            << interestMsg->getPrefixName()
+                            << " " << interestMsg->getDataName()
+                            << " " << interestMsg->getVersionName()
+                            << " " << interestMsg->getSegmentNum()
+                            << " RNP:" << interestMsg->getReflexiveNamePrefix()
+                            << " FPT:" << interestMsg->getForwardPendingToken()
+                            << " RPT:" << interestMsg->getReversePendingToken()
+                            << " " << faceEntry->faceID << endl;
 
-    // find which FIB entry to use to forward the Interest
-    FIBEntry *fibEntry = longestPrefixMatchingInFIB(interestMsg->getPrefixName());
+                    send(newInterestMsg, sendingGate);
 
-    EV_INFO << simTime() << "Longest Prefix Matching and found: "
-            << fibEntry->prefixName << " " << fibEntry->forwardedFaces.size() << endl;
+                    // generate stats
+                    if (faceEntry->faceType == TransportTypeFace) {
+                        emit(totalInterestsBytesSentSignal, (long) newInterestMsg->getByteLength());
+                    }
+                }
 
-    // forward interest to all the faces listed in the FIB entry
-    FaceEntry *faceEntry = NULL;
-    list<FaceEntry*>::iterator iteratorFaceEntry = fibEntry->forwardedFaces.begin();
-    while (iteratorFaceEntry != fibEntry->forwardedFaces.end()) {
-        faceEntry = *iteratorFaceEntry;
+                iteratorFaceEntry++;
+            }
 
-        // select face if it is not the arrival face
-        if (faceEntry->faceID != arrivalFaceEntry->faceID) {
+        }//If it has only RPT and no FPT
+        else if(interestMsg->getForwardPendingToken()== 0 && interestMsg->getReversePendingToken()!= 0){
 
-            InterestMsg *newInterestMsg = new InterestMsg("Interest");
+            InterestMsg *newInterestMsg = new InterestMsg("Reflexive Interest");
             newInterestMsg->setHopLimit(interestMsg->getHopLimit() - 1);
             newInterestMsg->setLifetime(interestMsg->getLifetime());
             newInterestMsg->setPrefixName(interestMsg->getPrefixName());
@@ -473,24 +604,71 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
             newInterestMsg->setPayloadSize(interestMsg->getPayloadSize());
             newInterestMsg->setHopsTravelled(interestMsg->getHopsTravelled() + 1);
             newInterestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE + 0);
+            newInterestMsg->setReflexiveNamePrefix(interestMsg->getReflexiveNamePrefix());
+            newInterestMsg->setForwardPendingToken(interestMsg->getForwardPendingToken());
+            newInterestMsg->setReversePendingToken(interestMsg->getReversePendingToken());
 
-            // set the arrival face, if the interest is sent to an application face
-            if (arrivalFaceEntry->faceType == TransportTypeFace
-                    && faceEntry->faceType == ApplicationTypeFace) {
-                newInterestMsg->setArrivalFaceID(arrivalFaceEntry->faceID);
-                newInterestMsg->setArrivalFaceType(TransportTypeFace);
-            } else {
-                newInterestMsg->setArrivalFaceID(-1);
-                newInterestMsg->setArrivalFaceType(-1);
+            //Retrieve PIT entry that has the received reversePendingToken as it's forwardPendingToken_new
+            PITEntry *pitEntryNew = getPITEntryUsingRPT(interestMsg->getReversePendingToken());
+
+            if (pitEntryNew == NULL) {
+
+                EV_INFO << simTime() << "PIT entry not found: "
+                            << " " << newInterestMsg->getPrefixName()
+                            << " " << newInterestMsg->getDataName()
+                            << " " << newInterestMsg->getVersionName()
+                            << " " << newInterestMsg->getSegmentNum()
+                            << " RPT:" << newInterestMsg->getReversePendingToken()
+                            << endl;
+
+                delete newInterestMsg;
+                return;
             }
+
+            pitEntryNew->expirytime = SIMTIME_MAX;
+
+            //Save retrieved FPT_new as RPT_old
+            pitEntry->reversePendingToken_old = pitEntryNew->forwardPendingToken_new;
+
+            // retrieved FPT_old will be saved as RPT_new and used in Interest message
+            newInterestMsg->setReversePendingToken(pitEntryNew->forwardPendingToken_old);
+            pitEntry->reversePendingToken_new = newInterestMsg->getReversePendingToken();
+
+            //Generate new FPT_new and use in Interest message
+            newInterestMsg->setForwardPendingToken(intuniform(1, 2147483647));
+            pitEntry->forwardPendingToken_new = newInterestMsg->getForwardPendingToken();
+
+            EV_INFO << simTime() << "Adding PIT entry: "
+                    << pitEntry->prefixName
+                    << " " << pitEntry->dataName
+                    << " " << pitEntry->versionName
+                    << " " << pitEntry->segmentNum
+                    << " " << pitEntry->hopLimit
+                    << " RNP:" << pitEntry->reflexiveNamePrefix
+                    << " FPT_old:" << pitEntry->forwardPendingToken_old
+                    << " FPT_new:" << pitEntry->forwardPendingToken_new
+                    << " RPT_old:" << pitEntry->reversePendingToken_old
+                    << " RPT_new:" << pitEntry->reversePendingToken_new
+                    << " " << pitEntry->hopsTravelled
+                    << " " << arrivalFaceEntry->faceID
+                    << " " << arrivalInfo->transportAddress
+                    << endl;
+
+            pit.push_back(pitEntry);
+
+            //Forward the Reflexive Interest to the face present in the derived PIT entry
+            FaceEntry* faceEntry = pitEntryNew->arrivalInfoList[0]->receivedFace;
 
             cGate *sendingGate = gate(faceEntry->outputGateName.c_str(), faceEntry->gateIndex);
 
             EV_INFO << simTime() << "Sending Interest to Face: "
-                    << interestMsg->getPrefixName()
-                    << " " << interestMsg->getDataName()
-                    << " " << interestMsg->getVersionName()
-                    << " " << interestMsg->getSegmentNum()
+                    << newInterestMsg->getPrefixName()
+                    << " " << newInterestMsg->getDataName()
+                    << " " << newInterestMsg->getVersionName()
+                    << " " << newInterestMsg->getSegmentNum()
+                    << " RNP:" << newInterestMsg->getReflexiveNamePrefix()
+                    << " FPT:" << newInterestMsg->getForwardPendingToken()
+                    << " RPT:" << newInterestMsg->getReversePendingToken()
                     << " " << faceEntry->faceID << endl;
 
             send(newInterestMsg, sendingGate);
@@ -499,28 +677,299 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
             if (faceEntry->faceType == TransportTypeFace) {
                 emit(totalInterestsBytesSentSignal, (long) newInterestMsg->getByteLength());
             }
+
+        }//If Interest has both RPT and FPT
+        else if(interestMsg->getForwardPendingToken()!= 0 && interestMsg->getReversePendingToken()!= 0){
+
+            EV_INFO << simTime() << "Interest has both FPT and RPT " <<endl;
+
+            InterestMsg *newInterestMsg = new InterestMsg("Reflexive Interest");
+            newInterestMsg->setHopLimit(interestMsg->getHopLimit() - 1);
+            newInterestMsg->setLifetime(interestMsg->getLifetime());
+            newInterestMsg->setPrefixName(interestMsg->getPrefixName());
+            newInterestMsg->setDataName(interestMsg->getDataName());
+            newInterestMsg->setVersionName(interestMsg->getVersionName());
+            newInterestMsg->setSegmentNum(interestMsg->getSegmentNum());
+            newInterestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
+            newInterestMsg->setPayloadSize(interestMsg->getPayloadSize());
+            newInterestMsg->setHopsTravelled(interestMsg->getHopsTravelled() + 1);
+            newInterestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE + 0);
+            newInterestMsg->setReflexiveNamePrefix(interestMsg->getReflexiveNamePrefix());
+            newInterestMsg->setForwardPendingToken(interestMsg->getForwardPendingToken());
+            newInterestMsg->setReversePendingToken(interestMsg->getReversePendingToken());
+
+            //Retrieve PIT entry that has the received RPT as it's FPT_new
+           PITEntry *pitEntryNew = getPITEntryUsingRPT(interestMsg->getReversePendingToken());
+
+           if (pitEntryNew == NULL) {
+
+               EV_INFO << simTime() << "PIT entry not found: "
+                           << " " << newInterestMsg->getPrefixName()
+                           << " " << newInterestMsg->getDataName()
+                           << " " << newInterestMsg->getVersionName()
+                           << " " << newInterestMsg->getSegmentNum()
+                           << " RPT:" << newInterestMsg->getReversePendingToken()
+                           << endl;
+
+               delete newInterestMsg;
+               return;
+           }
+
+            pitEntryNew->expirytime = SIMTIME_MAX;
+
+            //Save retrieved records's FPT_new as RPT_old in PIT
+            pitEntry->reversePendingToken_old = pitEntryNew->forwardPendingToken_new;
+
+            //RPT_new is what was saved as FPT_old of retrieved entry. Save it in PIT and use in Interest message.
+            newInterestMsg->setReversePendingToken(pitEntryNew->forwardPendingToken_old);
+            pitEntry->reversePendingToken_new = newInterestMsg->getReversePendingToken();
+
+            //Received FPT is saved as FPT_old
+            pitEntry->forwardPendingToken_old = newInterestMsg->getForwardPendingToken();
+
+            //Generate FPT_new and use in interest message
+            newInterestMsg->setForwardPendingToken(intuniform(1, 2147483647));
+            pitEntry->forwardPendingToken_new = newInterestMsg->getForwardPendingToken();
+
+            EV_INFO << simTime() << "Adding PIT entry: "
+                    << pitEntry->prefixName
+                    << " " << pitEntry->dataName
+                    << " " << pitEntry->versionName
+                    << " " << pitEntry->segmentNum
+                    << " " << pitEntry->hopLimit
+                    << " RNP:" << pitEntry->reflexiveNamePrefix
+                    << " FPT_old:" << pitEntry->forwardPendingToken_old
+                    << " FPT_new:" << pitEntry->forwardPendingToken_new
+                    << " RPT_old:" << pitEntry->reversePendingToken_old
+                    << " RPT_new:" << pitEntry->reversePendingToken_new
+                    << " " << pitEntry->hopsTravelled
+                    << " " << arrivalFaceEntry->faceID
+                    << " " << arrivalInfo->transportAddress
+                    << endl;
+
+            pit.push_back(pitEntry);
+
+           //Forward the Reflexive Interest to the face present in the derived PIT entry
+            FaceEntry* faceEntry = pitEntryNew->arrivalInfoList[0]->receivedFace;
+
+            cGate *sendingGate = gate(faceEntry->outputGateName.c_str(), faceEntry->gateIndex);
+
+            EV_INFO << simTime() << "Sending Interest to Face: "
+                    << newInterestMsg->getPrefixName()
+                    << " " << newInterestMsg->getDataName()
+                    << " " << newInterestMsg->getVersionName()
+                    << " " << newInterestMsg->getSegmentNum()
+                    << " RNP:" << newInterestMsg->getReflexiveNamePrefix()
+                    << " FPT:" << newInterestMsg->getForwardPendingToken()
+                    << " RPT:" << newInterestMsg->getReversePendingToken()
+                    << " " << faceEntry->faceID << endl;
+
+            send(newInterestMsg, sendingGate);
+
+            // generate stats
+            if (faceEntry->faceType == TransportTypeFace) {
+                emit(totalInterestsBytesSentSignal, (long) newInterestMsg->getByteLength());
+            }
+
+        }
+        else{
+                EV_INFO << simTime() << "Something is wrong, check the Interest again" << endl;
+            }
+
+    }
+    else{
+        // is there a PIT entry already for previous Interests received
+        // for same content?
+        PITEntry *pitEntry = getPITEntry(interestMsg->getPrefixName(), interestMsg->getDataName(),
+                                        interestMsg->getVersionName(), interestMsg->getSegmentNum());
+
+       // Display PIT
+       //dumpPIT();
+
+
+
+        // when there is already a PIT entry, means previous Interests were
+        // received, so add the current Interest to the PIT entry
+        if (pitEntry != NULL) {
+
+            // Check if the same Interest was received through the same Face and transport address
+            bool found = false;
+            for (int i = 0; i < pitEntry->arrivalInfoList.size(); i++) {
+                if (pitEntry->arrivalInfoList[i]->receivedFace->faceID == arrivalFaceEntry->faceID) {
+                    if (arrivalTransportInfo != NULL) {
+                        if (arrivalTransportInfo->transportAddress == pitEntry->arrivalInfoList[i]->receivedFace->transportAddress) {
+                            found = true;
+                            break;
+                        }
+                    } else {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            // when same Interest was not received from same Face and same transport address
+            // then add it to PIT entry
+            if (!found) {
+                ArrivalInfo *arrivalInfo = new ArrivalInfo();
+                arrivalInfo->receivedFace = arrivalFaceEntry;
+                if (arrivalTransportInfo != NULL) {
+                    arrivalInfo->transportAddress = arrivalTransportInfo->transportAddress;
+                } else {
+                    arrivalInfo->transportAddress = "";
+                }
+
+                EV_INFO << simTime() << "PIT entry exists. Adding new arrival Face: "
+                        << pitEntry->prefixName
+                        << " " << pitEntry->dataName
+                        << " " << pitEntry->versionName
+                        << " " << pitEntry->segmentNum
+                        << " " << pitEntry->hopLimit
+                        << " " << pitEntry->hopsTravelled
+                        << " " << arrivalFaceEntry->faceID
+                        << " " << arrivalInfo->transportAddress
+                        << endl;
+
+                pitEntry->arrivalInfoList.push_back(arrivalInfo);
+            }
+
+            // discard Interest
+            delete interestMsg;
+            return;
         }
 
-        iteratorFaceEntry++;
-    }
+        // discard interest if it has reached the maximum hop count
+        // only if they arrive from transport type faces (not applications)
+        if (arrivalFaceEntry->faceType == TransportTypeFace && (interestMsg->getHopLimit() - 1) <= 0) {
+
+            EV_INFO << simTime() << "Hop limit exceeded. Discarding Interest: "
+                    << interestMsg->getHopLimit()
+                    << " " << interestMsg->getHopsTravelled()
+                    << " " << arrivalFaceEntry->faceDescription
+                    << endl;
+
+            delete interestMsg;
+            return;
+        }
 
 
-    // discard Interest
+        // save Interest in PIT - create new PIT entry
+        pitEntry = new PITEntry;
+        pitEntry->prefixName = interestMsg->getPrefixName();
+        pitEntry->dataName = interestMsg->getDataName();
+        pitEntry->versionName = interestMsg->getVersionName();
+        pitEntry->segmentNum = interestMsg->getSegmentNum();
+        pitEntry->expirytime = interestMsg->getLifetime(); //simTime()+ interestMsg->getLifetime();
+        pitEntry->hopLimit = interestMsg->getHopLimit() - 1;
+        pitEntry->hopsTravelled = interestMsg->getHopsTravelled() + 1;
+
+        ArrivalInfo *arrivalInfo = new ArrivalInfo();
+        arrivalInfo->receivedFace = arrivalFaceEntry;
+        if (arrivalTransportInfo != NULL) {
+            arrivalInfo->transportAddress = arrivalTransportInfo->transportAddress;
+        } else {
+            arrivalInfo->transportAddress = "";
+        }
+        pitEntry->arrivalInfoList.push_back(arrivalInfo);
+
+        EV_INFO << simTime() << "Adding PIT entry: "
+                << pitEntry->prefixName
+                << " " << pitEntry->dataName
+                << " " << pitEntry->versionName
+                << " " << pitEntry->segmentNum
+                << " " << pitEntry->hopLimit
+                << " " << pitEntry->hopsTravelled
+                << " " << arrivalFaceEntry->faceID
+                << " " << arrivalInfo->transportAddress
+                << endl;
+
+        pit.push_back(pitEntry);
+
+        // gen stats
+        emit(pitEntryCountSignal, (long) pit.size());
+
+
+       // find which FIB entry to use to forward the Interest
+       FIBEntry *fibEntry = longestPrefixMatchingInFIB(interestMsg->getPrefixName());
+
+       EV_INFO << simTime() << "Longest Prefix Matching and found: "
+                            << fibEntry->prefixName << " " << fibEntry->forwardedFaces.size() << endl;
+
+       // forward interest to all the faces listed in the FIB entry
+       FaceEntry *faceEntry = NULL;
+       list<FaceEntry*>::iterator iteratorFaceEntry = fibEntry->forwardedFaces.begin();
+       while (iteratorFaceEntry != fibEntry->forwardedFaces.end()) {
+           faceEntry = *iteratorFaceEntry;
+           EV_INFO << simTime() << "Retreived Faces: " << faceEntry->faceID <<endl;
+
+           // select face if it is not the arrival face
+           if (faceEntry->faceID != arrivalFaceEntry->faceID) {
+
+               InterestMsg *newInterestMsg = new InterestMsg("Interest");
+               newInterestMsg->setHopLimit(interestMsg->getHopLimit() - 1);
+               newInterestMsg->setLifetime(interestMsg->getLifetime());
+               newInterestMsg->setPrefixName(interestMsg->getPrefixName());
+               newInterestMsg->setDataName(interestMsg->getDataName());
+               newInterestMsg->setVersionName(interestMsg->getVersionName());
+               newInterestMsg->setSegmentNum(interestMsg->getSegmentNum());
+               newInterestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
+               newInterestMsg->setPayloadSize(interestMsg->getPayloadSize());
+               newInterestMsg->setHopsTravelled(interestMsg->getHopsTravelled() + 1);
+               newInterestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE + 0);
+               newInterestMsg->setReflexiveNamePrefix(interestMsg->getReflexiveNamePrefix());
+               newInterestMsg->setForwardPendingToken(interestMsg->getForwardPendingToken());
+               newInterestMsg->setReversePendingToken(interestMsg->getReversePendingToken());
+
+               // set the arrival face, if the interest is sent to an application face
+               if (arrivalFaceEntry->faceType == TransportTypeFace
+                       && faceEntry->faceType == ApplicationTypeFace) {
+                       newInterestMsg->setArrivalFaceID(arrivalFaceEntry->faceID);
+                       newInterestMsg->setArrivalFaceType(TransportTypeFace);
+               } else {
+                       newInterestMsg->setArrivalFaceID(-1);
+                       newInterestMsg->setArrivalFaceType(-1);
+               }
+
+               cGate *sendingGate = gate(faceEntry->outputGateName.c_str(), faceEntry->gateIndex);
+
+               EV_INFO << simTime() << "Sending Interest to Face: "
+                                    << interestMsg->getPrefixName()
+                                    << " " << interestMsg->getDataName()
+                                    << " " << interestMsg->getVersionName()
+                                    << " " << interestMsg->getSegmentNum()
+                                    << " RNP:" << interestMsg->getReflexiveNamePrefix()
+                                    << " FPT:" << interestMsg->getForwardPendingToken()
+                                    << " RPT:" << interestMsg->getReversePendingToken()
+                                    << " " << faceEntry->faceID << endl;
+
+               send(newInterestMsg, sendingGate);
+
+               // generate stats
+               if (faceEntry->faceType == TransportTypeFace) {
+                   emit(totalInterestsBytesSentSignal, (long) newInterestMsg->getByteLength());
+               }
+          }
+
+             iteratorFaceEntry++;
+     }
+
+   }
+
+  //  dumpPIT();
+  //  dumpCS();
+  // discard Interest;
     delete interestMsg;
     return;
-}
+ }
 
 void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
 {
-//    cout << simTime() << " " << getFullPath()
-//            << " content obj received: "
-//            << contentObjMsg->getPrefixName() << " "
-//            << contentObjMsg->getDataName() << endl;
 
     // get arrival gate details
     cGate *arrivalGate = contentObjMsg->getArrivalGate();
     int arrivalGateIndex =  (arrivalGate->isVector() ? arrivalGate->getIndex() : (-1));
     FaceEntry *arrivalFaceEntry = getFaceEntryFromInputGateName(arrivalGate->getName(), arrivalGateIndex);
+
 
     EV_INFO << simTime() << "Received ContentObj: "
             << arrivalFaceEntry->faceID
@@ -528,11 +977,34 @@ void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
             << " " << contentObjMsg->getDataName()
             << " " << contentObjMsg->getVersionName()
             << " " << contentObjMsg->getSegmentNum()
+            << " RPT:" << contentObjMsg->getReversePendingToken()
             << endl;
+
+    // Update PIT
+    updatePITEntry();
+
+   //Display CS
+   // dumpCS();
+
+    //Track total Traffic Received or Sent
+    demiurgeModel->incrementTrafficCount();
+    emit(totalTrafficSignal, demiurgeModel->getTotalTrafficCount());
+    demiurgeModel->totalTrafficBytes = demiurgeModel->totalTrafficBytes + (long) contentObjMsg->getByteLength();
+    emit(totalTrafficBytesSignal, demiurgeModel->getTotalTrafficBytesCount());
+
 
     // generate stats
     if (arrivalFaceEntry->faceType == TransportTypeFace) {
         emit(totalContentObjsBytesReceivedSignal, (long) contentObjMsg->getByteLength());
+
+    }
+
+    //Count of Content Messages for Subscription between Sensors and Gateway
+    if ((string(contentObjMsg->getDataName()).find("Registration") != string::npos) || (string(contentObjMsg->getDataName()).find("SensorData") != string::npos)) {
+
+            contentObjectCount ++;
+            emit(interesttoContentRatioSignal, (double) interestCount / contentObjectCount);
+
     }
 
     // check if the content obj is already in CS
@@ -610,79 +1082,161 @@ void RFC8569Forwarder::processContentObj(ContentObjMsg *contentObjMsg)
     emit(cacheAdditionsBytesSignal, csEntry->payloadSize);
     emit(cacheSizeBytesSignal, currentCSSize);
 
-    // find the PIT entry, if there is one saved
-    PITEntry *pitEntry = getPITEntry(contentObjMsg->getPrefixName(), contentObjMsg->getDataName(),
-                            contentObjMsg->getVersionName(), contentObjMsg->getSegmentNum());
+    //Check if it is a Content Object of a Reflexive Interest
+    if(contentObjMsg->getReversePendingToken()!= 0){
 
-    // when there is no PIT entry, simply drop the Content Obj
-    // because nobody to forward it to
-    if (pitEntry == NULL) {
+        // find the PIT entry, if there is one saved
+        PITEntry *pitEntry = getPITEntryUsingRPT(contentObjMsg->getReversePendingToken());
 
-        EV_INFO << simTime() << "PIT entry not found: "
-                    << " " << contentObjMsg->getPrefixName()
-                    << " " << contentObjMsg->getDataName()
-                    << " " << contentObjMsg->getVersionName()
-                    << " " << contentObjMsg->getSegmentNum()
+        // when there is no PIT entry, simply drop the Content Obj
+        // because nobody to forward it to
+        if (pitEntry == NULL) {
+
+            EV_INFO << simTime() << "PIT entry not found: "
+                        << " " << contentObjMsg->getPrefixName()
+                        << " " << contentObjMsg->getDataName()
+                        << " " << contentObjMsg->getVersionName()
+                        << " " << contentObjMsg->getSegmentNum()
+                        << " RPT:" << contentObjMsg->getReversePendingToken()
+                        << endl;
+
+            delete contentObjMsg;
+            return;
+        }
+
+        // when the PIT entry exists, send Content Obj to all Interests that were
+        // recoded in the PIT (i.e., Faces and transport addresses)
+        for (int i = 0; i < pitEntry->arrivalInfoList.size(); i++) {
+            ArrivalInfo *arrivalInfo = pitEntry->arrivalInfoList[i];
+
+            ContentObjMsg *newContentObjMsg = new ContentObjMsg("ContentObj");
+            newContentObjMsg->setPrefixName(contentObjMsg->getPrefixName());
+            newContentObjMsg->setDataName(contentObjMsg->getDataName());
+            newContentObjMsg->setVersionName(contentObjMsg->getVersionName());
+            newContentObjMsg->setSegmentNum(contentObjMsg->getSegmentNum());
+            newContentObjMsg->setCachetime(contentObjMsg->getCachetime());
+            newContentObjMsg->setExpirytime(contentObjMsg->getExpirytime());
+            newContentObjMsg->setHeaderSize(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE);
+            newContentObjMsg->setPayloadSize(contentObjMsg->getPayloadSize());
+            newContentObjMsg->setTotalNumSegments(contentObjMsg->getTotalNumSegments());
+            newContentObjMsg->setPayloadAsString(contentObjMsg->getPayloadAsString());
+            newContentObjMsg->setByteLength(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE + contentObjMsg->getPayloadSize());
+            newContentObjMsg->setReversePendingToken(pitEntry->forwardPendingToken_old);
+
+            // add the transport address if it exists
+            if (arrivalInfo->transportAddress.size() > 0) {
+                ExchangedTransportInfo *arrivalTransportInfo = new ExchangedTransportInfo("ExchangedTransportInfo");
+                arrivalTransportInfo->transportAddress = arrivalInfo->transportAddress;
+                newContentObjMsg->addObject(arrivalTransportInfo);
+            }
+
+            EV_INFO << simTime() << "Sending ContentObj to Face: "
+                    << newContentObjMsg->getPrefixName()
+                    << " " << newContentObjMsg->getDataName()
+                    << " " << newContentObjMsg->getVersionName()
+                    << " " << newContentObjMsg->getSegmentNum()
+                    << " RPT:" << newContentObjMsg->getReversePendingToken()
+                    << " " << arrivalInfo->receivedFace->faceID
                     << endl;
 
-        delete contentObjMsg;
-        return;
-    }
+            // send content obj
+            cGate *sendingGate = gate(arrivalInfo->receivedFace->outputGateName.c_str(), arrivalInfo->receivedFace->gateIndex);
+            send(newContentObjMsg, sendingGate);
 
-    // when the PIT entry exists, send Content Obj to all Interests that were
-    // recoded in the PIT (i.e., Faces and transport addresses)
-    for (int i = 0; i < pitEntry->arrivalInfoList.size(); i++) {
-        ArrivalInfo *arrivalInfo = pitEntry->arrivalInfoList[i];
-
-        ContentObjMsg *newContentObjMsg = new ContentObjMsg("ContentObj");
-        newContentObjMsg->setPrefixName(contentObjMsg->getPrefixName());
-        newContentObjMsg->setDataName(contentObjMsg->getDataName());
-        newContentObjMsg->setVersionName(contentObjMsg->getVersionName());
-        newContentObjMsg->setSegmentNum(contentObjMsg->getSegmentNum());
-        newContentObjMsg->setCachetime(contentObjMsg->getCachetime());
-        newContentObjMsg->setExpirytime(contentObjMsg->getExpirytime());
-        newContentObjMsg->setHeaderSize(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE);
-        newContentObjMsg->setPayloadSize(contentObjMsg->getPayloadSize());
-        newContentObjMsg->setTotalNumSegments(contentObjMsg->getTotalNumSegments());
-        newContentObjMsg->setPayloadAsString(contentObjMsg->getPayloadAsString());
-        newContentObjMsg->setByteLength(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE + contentObjMsg->getPayloadSize());
-
-        // add the transport address if it exists
-        if (arrivalInfo->transportAddress.size() > 0) {
-            ExchangedTransportInfo *arrivalTransportInfo = new ExchangedTransportInfo("ExchangedTransportInfo");
-            arrivalTransportInfo->transportAddress = arrivalInfo->transportAddress;
-            newContentObjMsg->addObject(arrivalTransportInfo);
+            // generate stats
+            if (arrivalInfo->receivedFace->faceType == TransportTypeFace) {
+                emit(totalContentObjsBytesSentSignal, (long) newContentObjMsg->getByteLength());
+            }
         }
 
-        EV_INFO << simTime() << "Sending ContentObj to Face: "
-                << newContentObjMsg->getPrefixName()
-                << " " << newContentObjMsg->getDataName()
-                << " " << newContentObjMsg->getVersionName()
-                << " " << newContentObjMsg->getSegmentNum()
-                << " " << arrivalInfo->receivedFace->faceID
-                << endl;
+        // remove the PIT entry as it was served
+        pitEntry->arrivalInfoList.clear();
+        pit.remove(pitEntry);
+        delete pitEntry;
 
-        // send content obj
-        cGate *sendingGate = gate(arrivalInfo->receivedFace->outputGateName.c_str(), arrivalInfo->receivedFace->gateIndex);
-        send(newContentObjMsg, sendingGate);
 
-        // generate stats
-        if (arrivalInfo->receivedFace->faceType == TransportTypeFace) {
-            emit(totalContentObjsBytesSentSignal, (long) newContentObjMsg->getByteLength());
-        }
+
     }
+    else{
 
-    // remove the PIT entry as it was served
-    pitEntry->arrivalInfoList.clear();
-    pit.remove(pitEntry);
-    delete pitEntry;
+        // find the PIT entry, if there is one saved
+        PITEntry *pitEntry = getPITEntry(contentObjMsg->getPrefixName(), contentObjMsg->getDataName(),
+                                contentObjMsg->getVersionName(), contentObjMsg->getSegmentNum());
+
+        // when there is no PIT entry, simply drop the Content Obj
+        // because nobody to forward it to
+        if (pitEntry == NULL) {
+
+            EV_INFO << simTime() << "PIT entry not found: "
+                        << " " << contentObjMsg->getPrefixName()
+                        << " " << contentObjMsg->getDataName()
+                        << " " << contentObjMsg->getVersionName()
+                        << " " << contentObjMsg->getSegmentNum()
+                        << endl;
+
+            delete contentObjMsg;
+            return;
+        }
+
+        // when the PIT entry exists, send Content Obj to all Interests that were
+        // recoded in the PIT (i.e., Faces and transport addresses)
+        for (int i = 0; i < pitEntry->arrivalInfoList.size(); i++) {
+            ArrivalInfo *arrivalInfo = pitEntry->arrivalInfoList[i];
+
+            ContentObjMsg *newContentObjMsg = new ContentObjMsg("ContentObj");
+            newContentObjMsg->setPrefixName(contentObjMsg->getPrefixName());
+            newContentObjMsg->setDataName(contentObjMsg->getDataName());
+            newContentObjMsg->setVersionName(contentObjMsg->getVersionName());
+            newContentObjMsg->setSegmentNum(contentObjMsg->getSegmentNum());
+            newContentObjMsg->setCachetime(contentObjMsg->getCachetime());
+            newContentObjMsg->setExpirytime(contentObjMsg->getExpirytime());
+            newContentObjMsg->setHeaderSize(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE);
+            newContentObjMsg->setPayloadSize(contentObjMsg->getPayloadSize());
+            newContentObjMsg->setTotalNumSegments(contentObjMsg->getTotalNumSegments());
+            newContentObjMsg->setPayloadAsString(contentObjMsg->getPayloadAsString());
+            newContentObjMsg->setByteLength(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE + contentObjMsg->getPayloadSize());
+
+            // add the transport address if it exists
+            if (arrivalInfo->transportAddress.size() > 0) {
+                ExchangedTransportInfo *arrivalTransportInfo = new ExchangedTransportInfo("ExchangedTransportInfo");
+                arrivalTransportInfo->transportAddress = arrivalInfo->transportAddress;
+                newContentObjMsg->addObject(arrivalTransportInfo);
+            }
+
+            EV_INFO << simTime() << "Sending ContentObj to Face: "
+                    << newContentObjMsg->getPrefixName()
+                    << " " << newContentObjMsg->getDataName()
+                    << " " << newContentObjMsg->getVersionName()
+                    << " " << newContentObjMsg->getSegmentNum()
+                    << " " << arrivalInfo->receivedFace->faceID
+                    << endl;
+
+            // send content obj
+            cGate *sendingGate = gate(arrivalInfo->receivedFace->outputGateName.c_str(), arrivalInfo->receivedFace->gateIndex);
+            send(newContentObjMsg, sendingGate);
+
+            // generate stats
+            if (arrivalInfo->receivedFace->faceType == TransportTypeFace) {
+                emit(totalContentObjsBytesSentSignal, (long) newContentObjMsg->getByteLength());
+            }
+        }
+
+        // remove the PIT entry as it was served
+        pitEntry->arrivalInfoList.clear();
+        pit.remove(pitEntry);
+        delete pitEntry;
+
+    }
 
     // gen stats
     emit(pitEntryCountSignal, (long) pit.size());
 
-    // remove the Content Obj as it was saved and also sent to
-    // the Interest senders
-    delete contentObjMsg;
+  //  dumpCS();
+  // dumpPIT();
+
+  // remove the Content Obj as it was saved and also sent to
+  // the Interest senders
+  delete contentObjMsg;
 }
 
 void RFC8569Forwarder::processInterestRtn(InterestRtnMsg *interestRtnMsg)
@@ -847,6 +1401,64 @@ PITEntry *RFC8569Forwarder::getPITEntry(string prefixName, string dataName, stri
     return NULL;
 }
 
+PITEntry *RFC8569Forwarder::getPITEntryUsingRPT(int rpt)
+{
+    list<PITEntry*>::iterator iteratorPITEntry = pit.begin();
+    while (iteratorPITEntry != pit.end()) {
+        PITEntry *pitEntry = *iteratorPITEntry;
+        if (rpt == pitEntry->forwardPendingToken_new) {
+            return pitEntry;
+
+        }
+        iteratorPITEntry++;
+    }
+
+    return NULL;
+}
+
+void RFC8569Forwarder::updateCSEntry()
+{
+    //Content Store before update
+   // dumpCS();
+
+    //check if CS has any records
+    if(cs.empty()== false){
+
+           list<CSEntry*>::iterator iteratorCSEntry = cs.begin();
+
+           while (iteratorCSEntry != cs.end()) {
+                  CSEntry *csEntry = *iteratorCSEntry;
+
+                  if (simTime() >= csEntry->expirytime) {
+                      EV_INFO << simTime() << " Expired content details are: "
+                              << csEntry->prefixName
+                              << " " << csEntry->dataName
+                              << " " << csEntry->versionName
+                              << " " << csEntry->segmentNum
+                              << " " << csEntry->expirytime
+                              << " " << simTime()
+                              << " " << csEntry->payloadSize
+                              << " " << csEntry->totalNumSegments
+                              << endl;
+
+                  // Delete the Expired Entry
+                  iteratorCSEntry = cs.erase(iteratorCSEntry);
+                  currentCSSize -= csEntry->payloadSize;
+
+                  EV_INFO << simTime() << "Deleted Old CS Entry"<< endl;
+
+                  //CS after update
+                //  dumpCS();
+
+                  }
+                  else
+                  {
+                      ++iteratorCSEntry;
+                  }
+             }
+     }
+}
+
 FIBEntry *RFC8569Forwarder::updateFIB(string prefixName, FaceEntry *faceEntry)
 {
     // NOTE: default FIB entry has the prefix - ccnx://
@@ -902,9 +1514,54 @@ FIBEntry *RFC8569Forwarder::updateFIB(string prefixName, FaceEntry *faceEntry)
     // generate stats
     emit(fibEntryCountSignal, (long) fib.size());
 
-    dumpFIB();
+   // dumpFIB();
 
     return fibEntry;
+}
+
+void RFC8569Forwarder::updatePITEntry()
+{
+    //PIT before update
+  //  dumpPIT();
+
+    //check if CS has any records
+    if(pit.empty()== false){
+
+           list<PITEntry*>::iterator iteratorPITEntry = pit.begin();
+
+           while (iteratorPITEntry != pit.end()) {
+               PITEntry *pitEntry = *iteratorPITEntry;
+
+                  if (simTime() >= pitEntry->expirytime) {
+                   //   if((string(pitEntry->dataName).find("SubscriptionRequest") == string::npos)){
+
+                      EV_INFO << simTime() << " Expired PIT details are: "
+                              << pitEntry->prefixName
+                              << " " << pitEntry->dataName
+                              << " " << pitEntry->versionName
+                              << " " << pitEntry->segmentNum
+                              << " " << pitEntry->expirytime
+                              << " " << simTime()
+                              << " " << pitEntry->hopLimit
+                              << " " << pitEntry->hopsTravelled
+                              << " " << pitEntry->expirytime
+                              << endl;
+
+                      // Delete the Expired Entry
+                      iteratorPITEntry = pit.erase(iteratorPITEntry);
+
+                      EV_INFO << simTime() << "Deleted Old PIT Entry"<< endl;
+
+                  //PIT after update
+                //  dumpPIT();
+                   //   }
+                  }
+                  else
+                  {
+                      ++iteratorPITEntry;
+                  }
+             }
+     }
 }
 
 FIBEntry *RFC8569Forwarder::longestPrefixMatchingInFIB(string prefixName)
@@ -1018,16 +1675,17 @@ void RFC8569Forwarder::dumpCS()
     EV_INFO << simTime() << "==CS===\n";
     EV_INFO << simTime() << " cached entries: " << cs.size() << "\n";
 
-//    list<CSEntry*>::iterator iteratorCSEntry = cs.begin();
-//    while (iteratorCSEntry != cs.end()) {
-//        CSEntry *csEntry = *iteratorCSEntry;
-//        EV_INFO << simTime() << " "
-//                << csEntry->prefixName << " "
-//                << csEntry->dataName << " "
-//                << csEntry->versionName << " "
-//                << csEntry->segmentNum << "\n";
-//        iteratorCSEntry++;
-//    }
+    list<CSEntry*>::iterator iteratorCSEntry = cs.begin();
+    while (iteratorCSEntry != cs.end()) {
+       CSEntry *csEntry = *iteratorCSEntry;
+       EV_INFO << simTime() << " "
+                << csEntry->prefixName << " "
+                << csEntry->dataName << " "
+                << csEntry->versionName << " "
+                << csEntry->segmentNum << " "
+                << csEntry->payloadAsString << "\n";
+        iteratorCSEntry++;
+    }
 
     EV_INFO << simTime() << "=====\n";
 }
@@ -1042,6 +1700,7 @@ void RFC8569Forwarder::dumpPIT()
                 << pitEntry->prefixName << " "
                 << pitEntry->dataName << " "
                 << pitEntry->versionName << " "
+                << pitEntry->expirytime << " "
                 << pitEntry->segmentNum << "\n";
         for (int i = 0; i < pitEntry->arrivalInfoList.size(); i++) {
             EV_INFO << simTime() << "   arrival face: "

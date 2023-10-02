@@ -1,9 +1,12 @@
 //
 // A file hosting (content server) application that
-// implements the IApplication interface.
+// implements the IApplication interface with Reflexive Forwarding.
 //
 // @author : Asanga Udugama (adu@comnets.uni-bremen.de)
 // @date   : 31-mar-2021
+//
+// @author : Sneha Kulkarni (snku@uni-bremen.de)
+// @date   : 31-may-2023
 //
 //
 
@@ -53,6 +56,7 @@ void SensingApp::initialize(int stage)
         if (sensedDataTypesList.size() <= 0) {
             EV_FATAL << "Sensed data type(s) not defined.\n";
             throw cRuntimeError("Check log for details");
+
         }
 
         // since water and electricity has a current meter reading
@@ -65,6 +69,11 @@ void SensingApp::initialize(int stage)
         cMessage *appRegReminderEvent = new cMessage("App Registration Reminder Event");
         appRegReminderEvent->setKind(SENSINGAPP_APP_REG_REMINDER_CODE);
         scheduleAt(simTime(), appRegReminderEvent);
+
+        // reminder to generate Sensor registration event
+        cMessage *sensorRegReminderEvent = new cMessage("Sensor Registration Reminder Event");
+        sensorRegReminderEvent->setKind(SENSOR_REG_REMINDER_CODE);
+        scheduleAt(simTime()+1 , sensorRegReminderEvent);
 
         // reminder to wake up to sense data and send
         cMessage *wakeupReminderEvent = new cMessage("Wake Up Reminder Event");
@@ -98,7 +107,7 @@ void SensingApp::handleMessage(cMessage *msg)
         EV_INFO << simTime() << " Registering application with ID: " << getId() << endl;
 
         // create prefix
-        string servedPrefix = sensorPrefixName + string(getParentModule()->getName());
+        string servedPrefix = string(getParentModule()->getName());
 
         // create message
         AppRegistrationMsg *appRegMsg = new AppRegistrationMsg();
@@ -112,20 +121,68 @@ void SensingApp::handleMessage(cMessage *msg)
 
         delete msg;
 
-    // generate interest to inform gateway of this sensors presence and saying that
-    // new sensor values are ready to sent
+    }
+    else if (msg->isSelfMessage() && msg->getKind() == SENSOR_REG_REMINDER_CODE) {
+
+           char completeDataName[64];
+           strcpy(completeDataName,"RegistrationRequest:");
+           strcat(completeDataName,getParentModule()->getName());
+
+           //Registration Interest to be sent to the Gateway
+           InterestMsg* interestMsg = new InterestMsg("Registration Interest");
+           interestMsg->setHopLimit(10);
+           interestMsg->setLifetime(simTime() + interestLifetime);
+           interestMsg->setPrefixName(gwPrefixName.c_str());
+           interestMsg->setDataName(completeDataName);
+           interestMsg->setVersionName("v01");
+           interestMsg->setSegmentNum(0);
+           interestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
+           interestMsg->setPayloadSize(0);
+           interestMsg->setHopsTravelled(0);
+           interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
+
+           //Generate RNP
+           string s = to_string(intuniform(1, 16777217));
+           char const *random_cstring = s.c_str();
+
+           //Assign RNP
+           interestMsg->setReflexiveNamePrefix(random_cstring);
+
+           //Store the RNP details
+           reflexiveNamePrefix = interestMsg->getReflexiveNamePrefix();
+
+           EV_INFO << simTime() << " Sending Registration Interest to the gateway: " << interestMsg->getPrefixName()
+                           << " " << interestMsg->getDataName()
+                           << " " << interestMsg->getVersionName()
+                           << " " << interestMsg->getSegmentNum()
+                           << " RNP:" << interestMsg->getReflexiveNamePrefix()
+                           << " FPT:" << interestMsg->getForwardPendingToken()
+                           << " RPT:" << interestMsg->getReversePendingToken()
+                           << endl;
+
+           // send msg to forwarding layer
+           send(interestMsg, "forwarderInOut$o");
+
+           delete msg;
+
+    // When new sensor values are generated, "Phone home" asking to fetch the values
     } else if (msg->isSelfMessage() && msg->getKind() == SENSINGAPP_WAKEUP_REMINDER_CODE) {
 
         // read sensor values
         lastSensorReading = getSensorValues();
 
-        // generate interest to indicate the presence of the sensor and asking
-        // the gateway to request for sensor data
-        InterestMsg* interestMsg = new InterestMsg("Interest");
+        //Form DataName by appending Registration ID of the Sensor
+        char completeDataName[64];
+        strcpy(completeDataName,getParentModule()->getName());
+        strcat(completeDataName,"/RegistrationID:");
+        strcat(completeDataName,myRegistrationID.c_str());
+
+        // "Phone home" Interest asking to fetch the sensor readings
+        InterestMsg* interestMsg = new InterestMsg("Phone Home Interest");
         interestMsg->setHopLimit(10);
         interestMsg->setLifetime(simTime() + interestLifetime);
         interestMsg->setPrefixName(gwPrefixName.c_str());
-        interestMsg->setDataName(getParentModule()->getName());
+        interestMsg->setDataName(completeDataName);
         interestMsg->setVersionName("v01");
         interestMsg->setSegmentNum(0);
         interestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
@@ -133,16 +190,24 @@ void SensingApp::handleMessage(cMessage *msg)
         interestMsg->setHopsTravelled(0);
         interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
 
-//        cout << simTime() << " ==== " << getFullPath()
-//                << " SensingApp: sending interest "
-//                << interestMsg->getPrefixName()
-//                << " " << interestMsg->getDataName()
-//                << endl;
+        //Generate RNP
+        string s = to_string(intuniform(1, 16777217));
+        char const *random_cstring = s.c_str();
 
-        EV_INFO << simTime() << " Sending Interest: " << interestMsg->getPrefixName()
-                << " " << interestMsg->getDataName()
-                << " " << interestMsg->getVersionName()
-                << " " << interestMsg->getSegmentNum() << endl;
+        //Assign RNP
+        interestMsg->setReflexiveNamePrefix(random_cstring);
+
+        //Store the RNP details
+        reflexiveNamePrefix = interestMsg->getReflexiveNamePrefix();
+
+        EV_INFO << simTime() << " Sending Phone Home Interest to the gateway: " << interestMsg->getPrefixName()
+                        << " " << interestMsg->getDataName()
+                        << " " << interestMsg->getVersionName()
+                        << " " << interestMsg->getSegmentNum()
+                        << " RNP:" << interestMsg->getReflexiveNamePrefix()
+                        << " FPT:" << interestMsg->getForwardPendingToken()
+                        << " RPT:" << interestMsg->getReversePendingToken()
+                        << endl;
 
         // send msg to forwarding layer
         send(interestMsg, "forwarderInOut$o");
@@ -160,19 +225,12 @@ void SensingApp::handleMessage(cMessage *msg)
         arrivalGate = msg->getArrivalGate();
         strcpy(gateName, arrivalGate->getName());
 
-        // cast the message to the valid message type
+        // cast  messages to valid message types
         InterestMsg* interestMsg = dynamic_cast<InterestMsg*>(msg);
         ContentObjMsg* contentObjMsg = dynamic_cast<ContentObjMsg*>(msg);
 
+        //If an Interest is received
         if (interestMsg != NULL) {
-
-//            cout << simTime() << " ==== " << getFullPath()
-//                    << " SensingApp: received interest "
-//                    << interestMsg->getPrefixName()
-//                    << " " << interestMsg->getDataName()
-//                    << endl;
-
-
 
             EV_INFO << simTime() << " Received Interest: "
                     << interestMsg->getPrefixName()
@@ -180,67 +238,138 @@ void SensingApp::handleMessage(cMessage *msg)
                     << " " << interestMsg->getVersionName()
                     << " " << interestMsg->getSegmentNum() << endl;
 
+            //Check if Prefix name of Reflexive Interest matches the RNP sent
+            if(interestMsg->getPrefixName()== reflexiveNamePrefix){
+
+                EV_INFO << simTime() << " RNP and received Interest's Prefix name match!: " << reflexiveNamePrefix <<endl;
+
+                //If it is a Reflexive Interest requesting Sensor details
+                if (string(interestMsg->getDataName()).find("RegistrationDetails") != string::npos){
+
+                    segmentSize = par("segmentSize");
+                    cacheTime = par("cacheTime");
+
+                    //Wake up interval details
+                    char wakeUpInterval[16];
+                    sprintf(wakeUpInterval, "%.2f", wakeupInterval);
+
+                    ContentObjMsg* contentObjMsg = new ContentObjMsg("Registartion Details");
+                    contentObjMsg->setPrefixName(interestMsg->getPrefixName());
+                    contentObjMsg->setDataName(interestMsg->getDataName());
+                    contentObjMsg->setVersionName(interestMsg->getVersionName());
+                    contentObjMsg->setSegmentNum(interestMsg->getSegmentNum());
+                    contentObjMsg->setCachetime(cacheTime);
+                    contentObjMsg->setExpirytime(simTime() + cacheTime);
+                    contentObjMsg->setHeaderSize(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE);
+                    contentObjMsg->setPayloadSize(segmentSize);
+                    contentObjMsg->setTotalNumSegments(1);
+                    contentObjMsg->setPayloadAsString(wakeUpInterval);
+                    contentObjMsg->setByteLength(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE + segmentSize);
+                    contentObjMsg->setReversePendingToken(interestMsg->getForwardPendingToken());
+
+                    EV_INFO << simTime() << " Sending ContentObj: "
+                                << contentObjMsg->getPrefixName()
+                                << " " << contentObjMsg->getDataName()
+                                << " " << contentObjMsg->getVersionName()
+                                << " " << contentObjMsg->getSegmentNum()
+                                << " " << contentObjMsg->getTotalNumSegments()
+                                << " " << contentObjMsg->getExpirytime()
+                                << " " << contentObjMsg->getPayloadSize()
+                                << " RPT: " << contentObjMsg->getReversePendingToken()
+                                << " Payload: " << contentObjMsg->getPayloadAsString()
+                                << endl;
+
+                    // send msg to forwarding layer
+                    send(contentObjMsg, "forwarderInOut$o");
+
+                }//If it is a Reflexive Interest requesting Sensor readings
+                if (string(interestMsg->getDataName()).find("SensorData") != string::npos){
+
+                    // read sensor values
+                    lastSensorReading = getSensorValues();
+
+                    segmentSize = par("segmentSize");
+                    cacheTime = par("cacheTime");
+
+                    //Sending sensor readings
+                    ContentObjMsg* contentObjMsg = new ContentObjMsg("Sensor Readings");
+                    contentObjMsg->setPrefixName(interestMsg->getPrefixName());
+                    contentObjMsg->setDataName(interestMsg->getDataName());
+                    contentObjMsg->setVersionName(interestMsg->getVersionName());
+                    contentObjMsg->setSegmentNum(interestMsg->getSegmentNum());
+                    contentObjMsg->setCachetime(cacheTime);
+                    contentObjMsg->setExpirytime(simTime() + cacheTime);
+                    contentObjMsg->setHeaderSize(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE);
+                    contentObjMsg->setPayloadSize(segmentSize);
+                    contentObjMsg->setTotalNumSegments(1);
+                    contentObjMsg->setPayloadAsString(lastSensorReading.c_str());
+                    contentObjMsg->setByteLength(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE + segmentSize);
+                    contentObjMsg->setReversePendingToken(interestMsg->getForwardPendingToken());
+
+                    EV_INFO << simTime() << " Sending ContentObj: "
+                                << contentObjMsg->getPrefixName()
+                                << " " << contentObjMsg->getDataName()
+                                << " " << contentObjMsg->getVersionName()
+                                << " " << contentObjMsg->getSegmentNum()
+                                << " " << contentObjMsg->getTotalNumSegments()
+                                << " " << contentObjMsg->getExpirytime()
+                                << " " << contentObjMsg->getPayloadSize()
+                                << " RPT: " << contentObjMsg->getReversePendingToken()
+                                << " Payload: " << contentObjMsg->getPayloadAsString()
+                                << endl;
+
+                   // send msg to forwarding layer
+                   send(contentObjMsg, "forwarderInOut$o");
+
+                }
+
+            } //If Prefix name of Reflexive Interest DOESN'T match the RNP sent, send Authentication failed
+            else{
+
+                segmentSize = par("segmentSize");
+                cacheTime = par("cacheTime");
+
+                //Sending "Authentication failed"
+                ContentObjMsg* contentObjMsg = new ContentObjMsg("Authentication failed");
+                contentObjMsg->setPrefixName(interestMsg->getPrefixName());
+                contentObjMsg->setDataName(interestMsg->getDataName());
+                contentObjMsg->setVersionName(interestMsg->getVersionName());
+                contentObjMsg->setSegmentNum(interestMsg->getSegmentNum());
+                contentObjMsg->setCachetime(cacheTime);
+                contentObjMsg->setExpirytime(simTime() + cacheTime);
+                contentObjMsg->setHeaderSize(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE);
+                contentObjMsg->setPayloadSize(segmentSize);
+                contentObjMsg->setTotalNumSegments(1);
+                contentObjMsg->setPayloadAsString("Authentication failed");
+                contentObjMsg->setByteLength(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE + segmentSize);
+                contentObjMsg->setReversePendingToken(interestMsg->getForwardPendingToken());
+
+                EV_INFO << simTime() << " Sending ContentObj: "
+                        << contentObjMsg->getPrefixName()
+                        << " " << contentObjMsg->getDataName()
+                        << " " << contentObjMsg->getVersionName()
+                        << " " << contentObjMsg->getSegmentNum()
+                        << " " << contentObjMsg->getTotalNumSegments()
+                        << " " << contentObjMsg->getExpirytime()
+                        << " " << contentObjMsg->getPayloadSize()
+                        << " RPT: " << contentObjMsg->getReversePendingToken()
+                        << " Payload: " << contentObjMsg->getPayloadAsString()
+                        << endl;
+
+                // send msg to forwarding layer
+                send(contentObjMsg, "forwarderInOut$o");
+            }
+
             // generate stat for received interest size
             emit(totalInterestsBytesReceivedSignal, (long) interestMsg->getByteLength());
 
-            // create new content obj with the last read sensor values and
-            // send to the gateway
-            segmentSize = par("segmentSize");
-            cacheTime = par("cacheTime");
-            ContentObjMsg* contentObjMsg = new ContentObjMsg("Content Object");
-            contentObjMsg->setPrefixName(interestMsg->getPrefixName());
-            contentObjMsg->setDataName(interestMsg->getDataName());
-            contentObjMsg->setVersionName(interestMsg->getVersionName());
-            contentObjMsg->setSegmentNum(interestMsg->getSegmentNum());
-            contentObjMsg->setCachetime(cacheTime);
-            contentObjMsg->setExpirytime(simTime() + cacheTime);
-            contentObjMsg->setHeaderSize(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE);
-            contentObjMsg->setPayloadSize(segmentSize);
-            contentObjMsg->setTotalNumSegments(1);
-            contentObjMsg->setPayloadAsString(lastSensorReading.c_str());
-            contentObjMsg->setByteLength(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE + segmentSize);
-
-//            cout << simTime() << " ==== " << getFullPath()
-//                    << " SendingApp: sending content obj "
-//                    << contentObjMsg->getPrefixName()
-//                    << " " << contentObjMsg->getDataName()
-//                    << " payload: " << contentObjMsg->getPayloadAsString()
-//                    << endl;
-
-
-
-            EV_INFO << simTime() << " Sending ContentObj: "
-                    << interestMsg->getPrefixName()
-                    << " " << interestMsg->getDataName()
-                    << " " << interestMsg->getVersionName()
-                    << " " << interestMsg->getSegmentNum()
-                    << " " << contentObjMsg->getTotalNumSegments()
-                    << " " << contentObjMsg->getExpirytime()
-                    << " " << contentObjMsg->getPayloadSize()
-                    << " " << contentObjMsg->getPayloadAsString()
-                    << endl;
-
-            // send msg to forwarding layer
-            send(contentObjMsg, "forwarderInOut$o");
-
-            // generate stat for sent content obj
-            emit(totalContentObjsBytesSentSignal, (long) contentObjMsg->getByteLength());
-            emit(totalDataBytesSentSignal, (long) contentObjMsg->getPayloadSize());
-
+        //If Content Object is received
         } else if (contentObjMsg != NULL) {
 
             // write stats
             emit(segmentDownloadDurationSignal, (simTime() - contentObjMsg->getSendingTime()));
             emit(totalContentObjsBytesReceivedSignal, (long) contentObjMsg->getByteLength());
             emit(totalDataBytesReceivedSignal, contentObjMsg->getPayloadSize());
-
-//            cout << simTime() << " ==== " << getFullPath()
-//                    << " SendingApp: received content obj "
-//                    << contentObjMsg->getPrefixName()
-//                    << " " << contentObjMsg->getDataName()
-//                    << " payload: " << contentObjMsg->getPayloadAsString()
-//                    << endl;
-
 
             EV_INFO << simTime() << " Received ContentObj: "
                     << contentObjMsg->getPrefixName()
@@ -254,7 +383,17 @@ void SensingApp::handleMessage(cMessage *msg)
                     << " " << contentObjMsg->getPayloadAsString()
                     << endl;
 
+            if(string(contentObjMsg->getDataName()).find("RegistrationRequest") != string::npos){
+
+                //Save the RegistrationID for further "Phone Home" Interests
+                myRegistrationID = contentObjMsg->getPayloadAsString();
+
+                EV_INFO << simTime() << "My Registration ID is: " << myRegistrationID << endl;
+
+            }
+
         } else {
+
             EV_INFO << " Ignoring message - " << msg->getName() << "\n";
 
         }
@@ -298,7 +437,7 @@ string SensingApp::getSensorValues()
         } else if (sensedDataTypesList[i] == "salinity") {
             valint = par("salinity");
             snprintf(buffer, sizeof(buffer), "%d", valint);
-            sensorValuesStr = sensorValuesStr + string("salinity:") + string(buffer) + string(":uS/cm");
+            sensorValuesStr = sensorValuesStr + string("salinity:") + string(buffer) + string(":uS per cm");
 
         } else if (sensedDataTypesList[i] == "water") {
             valdouble = par("waterIncrease");

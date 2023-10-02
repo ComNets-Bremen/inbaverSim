@@ -49,6 +49,9 @@ class RFC8569Forwarder : public cSimpleModule
 
     long hitCount;
     long missCount;
+    long interestCount;
+    long contentObjectCount;
+  //  long totalBytesReceivedAndSent;
 
     void processApplicationRegistration(AppRegistrationMsg *appRegMsg);
     void processPrefixRegistration(PrefixRegistrationMsg *prefixRegMsg);
@@ -63,11 +66,14 @@ class RFC8569Forwarder : public cSimpleModule
     PITEntry *getPITEntry(string prefixName, string dataName, string versionName, int segmentNum);
     FIBEntry *updateFIB(string prefixName, FaceEntry *faceEntry);
     FIBEntry *longestPrefixMatchingInFIB(string prefixName);
+    PITEntry *getPITEntryUsingRPT(int rpt);
 
     void dumpFIB();
     void dumpFaces();
     void dumpCS();
     void dumpPIT();
+    void updateCSEntry();
+    void updatePITEntry();
 
     simsignal_t totalInterestsBytesReceivedSignal;
     simsignal_t totalInterestRtnsBytesReceivedSignal;
@@ -84,6 +90,9 @@ class RFC8569Forwarder : public cSimpleModule
     simsignal_t cacheMissRatioSignal;
     simsignal_t networkCacheHitRatioSignal;
     simsignal_t networkCacheMissRatioSignal;
+    simsignal_t interesttoContentRatioSignal;
+    simsignal_t totalTrafficSignal;
+    simsignal_t totalTrafficBytesSignal;
 
 };
 

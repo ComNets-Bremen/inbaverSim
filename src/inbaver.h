@@ -125,6 +125,16 @@ typedef struct PITEntry {
     string versionName;
     int segmentNum;
 
+    //Expiry time
+    simtime_t expirytime;
+
+    //Reflexive Forwarding fields
+    int forwardPendingToken_old;
+    int forwardPendingToken_new;
+    int reversePendingToken_old;
+    int reversePendingToken_new;
+    string reflexiveNamePrefix;
+
     //hop info
     int hopLimit;
     int hopsTravelled;
@@ -176,6 +186,12 @@ typedef struct SensorEntry {
     // last reading
     string lastSensorReading;
 
+    // last reading ID
+    int lastSensorReadingID;
+
+    // last reading recorded time
+    simtime_t lastSensorReadingRecordedTime;
+
     // lifetime of a single reading (also referred to as the cache time)
     double dataLifetime;
 
@@ -185,16 +201,74 @@ typedef struct SensorEntry {
     // most recent sensor readings
     vector <string> lastSensorReadingsList;
 
+    // ids of sensor readings
+    vector <int> lastSensorReadingsListID;
+
     // prefix of the sensor and the transport face ID
     // through witch the sensor is reachable at the
     // forwarding layer
-    string sensorPrefixName;
+   // string sensorPrefixName;
     long faceID;
     int faceType;
     bool prefixRegistered;
 
+    //Registration Id
+    string registrationId;
+
+    //FPT
+    int initialFPT;
+
+    //Prefixname
+    string initialPrefixName;
+
+    //Dataname
+    string initialDataName;
+
 } SensorEntry;
 
+typedef struct SubscriptionData{
+
+    //Subscribed User
+    string subscribedUser;
+
+    //Subscribed Data
+    string subscribedData;
+
+    //Subscribed Duration
+    double subscribedDuration;
+
+    //Subscription Expire Time
+    double subscribedDurationExpiry;
+
+    //FPT of main Interest
+    int subscriptionFPT;
+
+    //Prefix
+    string reflexivePrefix;
+
+    //Prefix name and Data name
+    string subscriptionPrefixName;
+    string subscriptionDataName;
+
+
+}SubscriptionData;
+
+typedef struct SubscriptionExpiryData{
+
+    //Subscribed Prefix Name
+    string subscriptionExpPrefixName;
+
+    //Subscribed Data name
+    string subscriptionExpDataName;
+
+    //Subscription Expiry
+    double subscriptionExpiryTime;
+
+    //FPT of main Interest
+    int subscriptionExpFPT;
+
+
+}SubscriptionExpiryData;
 
 typedef struct SensorDataEntry {
 
@@ -203,6 +277,9 @@ typedef struct SensorDataEntry {
 
     // last reading
     string lastDataReading;
+
+    // last reading ID
+    int lastDataReadingID;
 
     // last reading time
     double lastDataReadingTime;
@@ -217,6 +294,5 @@ typedef struct SensorDataEntry {
     vector <double> lastDataReadingTimesList;
 
 } SensorDataEntry;
-
 
 #endif /* INBAVER_H_ */

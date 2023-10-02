@@ -156,6 +156,7 @@ void ContentHostApp::handleMessage(cMessage *msg)
                 interestRtnMsg->setHeaderSize(INBAVER_INTEREST_RTN_MSG_HEADER_SIZE);
                 interestRtnMsg->setPayloadSize(0);
                 interestRtnMsg->setByteLength(INBAVER_INTEREST_RTN_MSG_HEADER_SIZE);
+                interestRtnMsg->setReflexiveNamePrefix("0");
 
                 EV_INFO << simTime() << " Sending InterestRtn: "
                         << interestRtnMsg->getPrefixName()
@@ -204,6 +205,28 @@ void ContentHostApp::handleMessage(cMessage *msg)
             }
         } else {
             EV_INFO << " Ignoring message - " << msg->getName() << "\n";
+
+            //send interest return
+            InterestRtnMsg* interestRtnMsg = new InterestRtnMsg("Interest Return");
+            interestRtnMsg->setReturnCode(ReturnCodeTypeNoRoute);
+            interestRtnMsg->setPrefixName(interestMsg->getPrefixName());
+            interestRtnMsg->setDataName(interestMsg->getDataName());
+            interestRtnMsg->setVersionName(interestMsg->getVersionName());
+            interestRtnMsg->setSegmentNum(interestMsg->getSegmentNum());
+            interestRtnMsg->setHeaderSize(INBAVER_INTEREST_RTN_MSG_HEADER_SIZE);
+            interestRtnMsg->setPayloadSize(0);
+            interestRtnMsg->setByteLength(INBAVER_INTEREST_RTN_MSG_HEADER_SIZE);
+            interestRtnMsg->setReflexiveNamePrefix("0");
+
+            EV_INFO << simTime() << " Sending InterestRtn: "
+                    << interestRtnMsg->getPrefixName()
+                    << " " << interestRtnMsg->getDataName()
+                    << " " << interestRtnMsg->getVersionName()
+                    << " " << interestRtnMsg->getSegmentNum()
+                    << " " << interestRtnMsg->getReturnCode() << endl;
+
+            // send msg to forwarding layer
+            send(interestRtnMsg, "forwarderInOut$o");
 
         }
 

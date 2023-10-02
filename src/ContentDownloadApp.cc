@@ -143,6 +143,7 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
         interestMsg->setPayloadSize(0);
         interestMsg->setHopsTravelled(0);
         interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
+        interestMsg->setReflexiveNamePrefix("0");
 
         EV_INFO << simTime() << " Sending Interest: " << requestingPrefixName
                 << " " << requestingDataName << " v01 " << requestedSegNum
@@ -182,6 +183,7 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
         interestMsg->setPayloadSize(0);
         interestMsg->setHopsTravelled(0);
         interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
+        interestMsg->setReflexiveNamePrefix("0");
 
         EV_INFO << simTime() << " Re-transmitting Interest: " << requestingPrefixName
                 << " " << requestingDataName << " v01 " << requestedSegNum
@@ -213,90 +215,124 @@ void ContentDownloadApp::handleMessage(cMessage *msg)
         strcpy(gateName, gate->getName());
 
         ContentObjMsg* contentObjMsg = dynamic_cast<ContentObjMsg*>(msg);
+        InterestMsg *interestMsg = dynamic_cast<InterestMsg*>(msg);
 
-        if (strstr(gateName, "forwarderInOut$i") != NULL && contentObjMsg != NULL) {
+        //If content is received
+        if(contentObjMsg != NULL){
 
-            totalSegments = contentObjMsg->getTotalNumSegments();
+            if (strstr(gateName, "forwarderInOut$i") != NULL && contentObjMsg != NULL) {
 
-            // write stats
-            emit(segmentDownloadDurationSignal, (simTime() - lastInterestSentTime));
-            emit(totalContentObjsBytesReceivedSignal, (long) contentObjMsg->getByteLength());
-            emit(totalDataBytesReceivedSignal, contentObjMsg->getPayloadSize());
+                totalSegments = contentObjMsg->getTotalNumSegments();
 
-            EV_INFO << simTime() << " Received ContentObj: "
-                    << contentObjMsg->getPrefixName()
-                    << " " << contentObjMsg->getDataName()
-                    << " " << contentObjMsg->getVersionName()
-                    << " " << contentObjMsg->getSegmentNum()
-                    << " " << contentObjMsg->getTotalNumSegments()
-                    << " " << contentObjMsg->getExpirytime()
-                    << " " << contentObjMsg->getPayloadSize()
-                    << " " << totalSegments << endl;
+                // write stats
+                emit(segmentDownloadDurationSignal, (simTime() - lastInterestSentTime));
+                emit(totalContentObjsBytesReceivedSignal, (long) contentObjMsg->getByteLength());
+                emit(totalDataBytesReceivedSignal, contentObjMsg->getPayloadSize());
 
-            // requested segment received check
-            if (contentObjMsg->getSegmentNum() == requestedSegNum) {
+                EV_INFO << simTime() << " Received ContentObj: "
+                        << contentObjMsg->getPrefixName()
+                        << " " << contentObjMsg->getDataName()
+                        << " " << contentObjMsg->getVersionName()
+                        << " " << contentObjMsg->getSegmentNum()
+                        << " " << contentObjMsg->getTotalNumSegments()
+                        << " " << contentObjMsg->getExpirytime()
+                        << " " << contentObjMsg->getPayloadSize()
+                        << " Payload: " << contentObjMsg->getPayloadAsString()
+                        << " " << totalSegments << endl;
 
-                // was this the last segment?
-                if ((requestedSegNum + 1) >= totalSegments) {
+                // requested segment received check
+                if (contentObjMsg->getSegmentNum() == requestedSegNum) {
 
-                    EV_INFO << simTime() << " Content download complete: "
-                            << contentObjMsg->getPrefixName()
-                            << " " << contentObjMsg->getDataName()
-                            << " " << contentObjMsg->getVersionName() << endl;
+                    // was this the last segment?
+                    if ((requestedSegNum + 1) >= totalSegments) {
 
-                    // content downloaded, so generate duration stat
-                    emit(contentDownloadDurationSignal, (simTime() - contentDownloadStartTime));
+                        EV_INFO << simTime() << " Content download complete: "
+                                << contentObjMsg->getPrefixName()
+                                << " " << contentObjMsg->getDataName()
+                                << " " << contentObjMsg->getVersionName() << endl;
 
-                    // cancel timeout event and setup for next content download
-                    if (interestRetransmitEvent->isScheduled()) {
-                        cancelEvent(interestRetransmitEvent);
+                        // content downloaded, so generate duration stat
+                        emit(contentDownloadDurationSignal, (simTime() - contentDownloadStartTime));
+
+                        // cancel timeout event and setup for next content download
+                        if (interestRetransmitEvent->isScheduled()) {
+                            cancelEvent(interestRetransmitEvent);
+                        }
+                        interContentDownloadInterval = par("interContentDownloadInterval");
+                        scheduleAt(simTime() + interContentDownloadInterval, contentDownloadStartEvent);
+
+                    // generate interest for next segment
+                    } else {
+
+                        requestedSegNum++;
+
+                        // generate next interest
+                        InterestMsg* interestMsg = new InterestMsg("Interest");
+                        interestMsg->setHopLimit(maxHopsAllowed);
+                        interestMsg->setLifetime(simTime() + interestRetransmitTimeout);
+                        interestMsg->setPrefixName(requestingPrefixName.c_str());
+                        interestMsg->setDataName(requestingDataName.c_str());
+                        interestMsg->setVersionName("v01");
+                        interestMsg->setSegmentNum(requestedSegNum);
+                        interestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
+                        interestMsg->setPayloadSize(0);
+                        interestMsg->setHopsTravelled(0);
+                        interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
+                        interestMsg->setReflexiveNamePrefix("0");
+
+                        EV_INFO << simTime() << " Sending Interest: " << requestingPrefixName
+                                << " " << requestingDataName << " v01 " << requestedSegNum
+                                << " " << totalSegments << endl;
+
+                        // send msg to forwarding layer
+                        send(interestMsg, "forwarderInOut$o");
+
+                        // remember last interest sent time for statistic
+                        lastInterestSentTime = simTime();
+
+                        // update stats
+                        demiurgeModel->incrementNetworkInterestInjectedCount();
+
+                        // write stats
+                        emit(totalInterestsBytesSentSignal, (long) interestMsg->getByteLength());
+                        emit(networkInterestInjectedCountSignal, demiurgeModel->getNetworkInterestInjectedCount());
+
+                        // set interest re-send timer
+                        if (interestRetransmitEvent->isScheduled()) {
+                            cancelEvent(interestRetransmitEvent);
+                        }
+                        scheduleAt(simTime() + interestRetransmitTimeout, interestRetransmitEvent);
                     }
-                    interContentDownloadInterval = par("interContentDownloadInterval");
-                    scheduleAt(simTime() + interContentDownloadInterval, contentDownloadStartEvent);
-
-                // generate interest for next segment
-                } else {
-
-                    requestedSegNum++;
-
-                    // generate next interest
-                    InterestMsg* interestMsg = new InterestMsg("Interest");
-                    interestMsg->setHopLimit(maxHopsAllowed);
-                    interestMsg->setLifetime(simTime() + interestRetransmitTimeout);
-                    interestMsg->setPrefixName(requestingPrefixName.c_str());
-                    interestMsg->setDataName(requestingDataName.c_str());
-                    interestMsg->setVersionName("v01");
-                    interestMsg->setSegmentNum(requestedSegNum);
-                    interestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
-                    interestMsg->setPayloadSize(0);
-                    interestMsg->setHopsTravelled(0);
-                    interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
-
-                    EV_INFO << simTime() << " Sending Interest: " << requestingPrefixName
-                            << " " << requestingDataName << " v01 " << requestedSegNum
-                            << " " << totalSegments << endl;
-
-                    // send msg to forwarding layer
-                    send(interestMsg, "forwarderInOut$o");
-
-                    // remember last interest sent time for statistic
-                    lastInterestSentTime = simTime();
-
-                    // update stats
-                    demiurgeModel->incrementNetworkInterestInjectedCount();
-
-                    // write stats
-                    emit(totalInterestsBytesSentSignal, (long) interestMsg->getByteLength());
-                    emit(networkInterestInjectedCountSignal, demiurgeModel->getNetworkInterestInjectedCount());
-
-                    // set interest re-send timer
-                    if (interestRetransmitEvent->isScheduled()) {
-                        cancelEvent(interestRetransmitEvent);
-                    }
-                    scheduleAt(simTime() + interestRetransmitTimeout, interestRetransmitEvent);
                 }
             }
+
         }
+        //If interest is received, send interest return
+        if(interestMsg != NULL){
+
+            InterestRtnMsg* interestRtnMsg = new InterestRtnMsg("Interest Return");
+            interestRtnMsg->setReturnCode(ReturnCodeTypeNoRoute);
+            interestRtnMsg->setPrefixName(interestMsg->getPrefixName());
+            interestRtnMsg->setDataName(interestMsg->getDataName());
+            interestRtnMsg->setVersionName(interestMsg->getVersionName());
+            interestRtnMsg->setSegmentNum(interestMsg->getSegmentNum());
+            interestRtnMsg->setHeaderSize(INBAVER_INTEREST_RTN_MSG_HEADER_SIZE);
+            interestRtnMsg->setPayloadSize(0);
+            interestRtnMsg->setByteLength(INBAVER_INTEREST_RTN_MSG_HEADER_SIZE);
+            interestRtnMsg->setReflexiveNamePrefix("0");
+
+            EV_INFO << simTime() << " Sending InterestRtn: "
+                    << interestRtnMsg->getPrefixName()
+                    << " " << interestRtnMsg->getDataName()
+                    << " " << interestRtnMsg->getVersionName()
+                    << " " << interestRtnMsg->getSegmentNum()
+                    << " " << interestRtnMsg->getReturnCode() << endl;
+
+            // send msg to forwarding layer
+            send(interestRtnMsg, "forwarderInOut$o");
+
+        }
+
         delete msg;
     }
 }

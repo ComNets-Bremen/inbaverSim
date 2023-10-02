@@ -32,6 +32,11 @@ packet InterestMsg
     //====== Validation (Validation)
 
     // no security aspects incorporated yet
+    
+    //Fields for Reflexive Interest
+    string reflexiveNamePrefix;
+    int forwardPendingToken;
+    int reversePendingToken;
 
 
     //====== Others fields used only by simulator 
@@ -72,6 +77,9 @@ packet ContentObjMsg
     simtime_t expirytime;
 
     //====== Validation (Validation)
+    
+    //Fields for Reflexive Interest
+    int reversePendingToken;
 
     // no security aspects incorporated yet
 
@@ -123,11 +131,17 @@ packet InterestRtnMsg
     string dataName;
     string versionName;
     int segmentNum;
+    
+    //Fields for Reflexive Interest
+    string reflexiveNamePrefix;
+    int forwardPendingToken;
+    int reversePendingToken;
 
     //====== Others fields used only by simulator 
 
     // msg sizes in bytes
     int headerSize;
     int payloadSize;
+    
 
 }

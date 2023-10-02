@@ -18,11 +18,16 @@ using namespace std;
 
 class Demiurge : public cSimpleModule
 {
+
     private:
         long networkCacheHitCount;
         long networkCacheMissCount;
         long networkInterstInjectedCount;
         long networkInterstRetransmissionCount;
+        long totalTraffic;
+        long subContentObjectSentCount;
+        long subContentObjectReceivedCount;
+
 
     protected:
         virtual void initialize();
@@ -31,6 +36,8 @@ class Demiurge : public cSimpleModule
     public:
         list<NodeInfo*> allNodesList;
         list<SameWirelessGroup*> sameWirelessGroupList;
+        simtime_t contentFreshness;
+        long totalTrafficBytes;
 
         void incrementNetworkCacheHitCount();
         double getNetworkCacheHitRatio();
@@ -40,6 +47,14 @@ class Demiurge : public cSimpleModule
         long getNetworkInterestRetransmissionCount();
         void incrementNetworkInterestInjectedCount();
         long getNetworkInterestInjectedCount();
+        void incrementTrafficCount();
+        long getTotalTrafficCount();
+        long getTotalTrafficBytesCount();
+        simtime_t getContentFreshness();
+        void incrementSubContentobjectSentCount();
+        long getSubContentobjectSentCount();
+        void incrementSubContentobjectReceivedCount();
+        long getSubContentobjectReceivedCount();
 
 };
 

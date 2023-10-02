@@ -30,7 +30,7 @@ simple SensingApp like IApplication
         volatile double cacheTime @unit(s) = default(900s); // 0 means infinite
         
         // types of data sensed
-        string sensedDataTypes = default("temperature;humidity;vwc;salinity;water;electricity");
+        string sensedDataTypes = default("temperature;humidity;vwc;salinity");
 
         // parameters for temperature sensing
         volatile double temperature = default(uniform(5.0, 7.0)); // celsius
@@ -43,7 +43,7 @@ simple SensingApp like IApplication
 
         // parameters for salinity sensing
         volatile int salinity = default(intuniform(1000, 1200)); // range from 0-23000 uS/cm
-
+        
         // parameters for water meter sensing (waterIncrease must be based on wakeupInterval)
         double waterStart = default(uniform(10000, 20000)); // stating meter reading in liters
         volatile double waterIncrease = default(uniform(0.04, 0.06)); // meter increae amount in liters

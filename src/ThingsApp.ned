@@ -26,15 +26,27 @@ simple ThingsApp like IApplication
         // lifetime of a data request interest
         volatile double interestLifetime @unit(s) = default(10s);
         
+        // details of the segments
+        volatile int segmentSize @unit(byte) = default(24byte);
+        volatile int numSegmentsPerFile = default(1);
+        
+        // duration of validity of a data item
+        volatile double cacheTime @unit(s) = default(900s); // 0 means infinite
+        
         // names of the types of sensor data retrieved and random variable to select on each time
-        string sensorDataNames = default("temperature;humidity;vwc;salinity;water;electricity");
-        volatile int nextIndexOfSensorDataToRetrieve = default(intuniform(0, 6));
+        string sensorDataNames = default("temperature;humidity;vwc;salinity");
+        volatile int nextIndexOfSensorDataToRetrieve = default(intuniform(0, 4));
 
         // maximum historical sensor data reading to hold
         int maxSensorDataReadingsToKeep = default(50);
 
         // maximum hops allowed for Interest to travel
         int maxHopsAllowed = default(16);
+        
+        //Subscription details
+        double subscriptionStartTime @unit(s) = default(10s);
+        bool subscriptionON = default(true);
+        double subscriptionDuration @unit(s);
 
         // statistic signals
         @signal[appContentDownloadDuration](type=simtime_t);
@@ -45,7 +57,8 @@ simple ThingsApp like IApplication
         @signal[appTotalDataBytesReceived](type=long);
         @signal[appNetworkInterestRetransmissionCount](type=long);
         @signal[appNetworkInterestInjectedCount](type=long);
-        
+        @signal[appContentFreshnessSignal](type=simtime_t);
+         
         // display icon
         @display("i=block/app");
 

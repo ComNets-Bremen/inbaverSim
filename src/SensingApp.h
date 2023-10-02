@@ -16,6 +16,8 @@
 #include <string>
 #include <queue>
 #include <iostream>
+#include <cstring>
+#include <cstdio>
 
 #include "Demiurge.h"
 #include "inbaver.h"
@@ -56,6 +58,12 @@ class SensingApp : public cSimpleModule
     // last sensor reading to send
     string lastSensorReading;
 
+    //Store RNP Details
+    string reflexiveNamePrefix;
+
+    //Store my RegistrationID
+    string myRegistrationID;
+
     // since water and electricity has a current meter reading
     double waterCurrent;
     double electricCurrent;
@@ -76,5 +84,6 @@ class SensingApp : public cSimpleModule
 
 #define SENSINGAPP_APP_REG_REMINDER_CODE   116
 #define SENSINGAPP_WAKEUP_REMINDER_CODE    117
+#define SENSOR_REG_REMINDER_CODE           118
 
 #endif

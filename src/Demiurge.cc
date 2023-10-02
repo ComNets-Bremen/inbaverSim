@@ -16,6 +16,10 @@ void Demiurge::initialize()
     networkCacheHitCount = 0;
     networkCacheMissCount = 0;
     networkInterstRetransmissionCount = 0;
+    totalTraffic = 0;
+    totalTrafficBytes = 0;
+    subContentObjectSentCount = 0;
+    subContentObjectReceivedCount = 0;
 
 }
 
@@ -27,6 +31,43 @@ void Demiurge::handleMessage(cMessage *msg)
 void Demiurge::incrementNetworkCacheHitCount()
 {
     networkCacheHitCount++;
+}
+
+simtime_t Demiurge::getContentFreshness()
+{
+    return contentFreshness;
+}
+void Demiurge::incrementSubContentobjectSentCount()
+{
+    subContentObjectSentCount++;
+}
+void Demiurge::incrementSubContentobjectReceivedCount()
+{
+    subContentObjectReceivedCount++;
+}
+
+long Demiurge::getSubContentobjectSentCount()
+{
+    return subContentObjectSentCount;
+}
+long Demiurge::getSubContentobjectReceivedCount()
+{
+    return subContentObjectReceivedCount;
+}
+
+void Demiurge::incrementTrafficCount()
+{
+    totalTraffic++;
+}
+
+long Demiurge:: getTotalTrafficCount()
+{
+    return totalTraffic;
+}
+
+long Demiurge:: getTotalTrafficBytesCount()
+{
+    return totalTrafficBytes;
 }
 
 double Demiurge::getNetworkCacheHitRatio()
