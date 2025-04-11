@@ -14,7 +14,7 @@ class WiredTransport;
 class Demiurge;
 class Numen;
 
-typedef struct WirelessTransportInfo {
+struct WirelessTransportInfo {
     string macAddress;
     WirelessTransport *wirelessTransportModel;
     inet::IMobility *mobilityModel;
@@ -23,39 +23,35 @@ typedef struct WirelessTransportInfo {
     string wirelessTechnology;
     string operationMode;
     string connectString;
+};
 
-} WirelessTransportInfo;
 
-
-typedef struct WiredTransportInfo {
+struct WiredTransportInfo {
     string macAddress;
     WiredTransport *wiredTransportModel;
     cModule *nodeModel;
     Numen *numenModel;
     inet::IMobility *mobilityModel;
+};
 
-} WiredTransportInfo;
 
-
-typedef struct NodeInfo {
+struct NodeInfo {
     long nodeID;
     cModule *nodeModel;
     Numen *numenModel;
     inet::IMobility *mobilityModel;
     list<WirelessTransportInfo*> wirelessTransportInfoList;
     list<WiredTransportInfo*> wiredTransportInfoList;
+};
 
-} NodeInfo;
 
-
-typedef struct SameWirelessGroup {
+struct SameWirelessGroup {
     string wirelessTechnology;
     string operationMode;
     string connectString;
 
     list<WirelessTransportInfo*> wirelessTransportInfoList;
-
-} SameWirelessGroup;
+};
 
 
 
@@ -64,14 +60,13 @@ typedef struct SameWirelessGroup {
 #define INBAVER_INTEREST_RTN_MSG_HEADER_SIZE               16
 
 
-typedef struct HostedContentEntry {
+struct HostedContentEntry {
     // CCNx name segments
     string prefixName;
     string dataName;
     string versionName;
     int totalNumSegments;
-
-} HostedContentEntry;
+};
 
 enum FaceTypes
 {
@@ -80,7 +75,7 @@ enum FaceTypes
     ServiceTypeFace = 3
 };
 
-typedef struct FaceEntry {
+struct FaceEntry {
 
     // the ID sent by application or interface or service
     long faceID;
@@ -97,28 +92,25 @@ typedef struct FaceEntry {
 
     //  variables specific to transport type faces
     string transportAddress; // address assigned to face by the transport
+};
 
-} FaceEntry;
-
-typedef struct FIBEntry {
+struct FIBEntry {
     // CCNx prefix
     string prefixName;
 
-   list <FaceEntry *> forwardedFaces;
+    list<FaceEntry *> forwardedFaces;
+};
 
-} FIBEntry;
-
-typedef struct ArrivalInfo {
+struct ArrivalInfo {
 
     // arrival received face
     FaceEntry *receivedFace;
 
     // transport address of sender
     string transportAddress;
+};
 
-} ArrivalInfo;
-
-typedef struct PITEntry {
+struct PITEntry {
     // CCNx name segments
     string prefixName;
     string dataName;
@@ -130,11 +122,10 @@ typedef struct PITEntry {
     int hopsTravelled;
 
     // arrival details of received interest
-    vector <ArrivalInfo *> arrivalInfoList;
+    vector<ArrivalInfo *> arrivalInfoList;
+};
 
-} PITEntry;
-
-typedef struct CSEntry {
+struct CSEntry {
     // CCNx name segments
     string prefixName;
     string dataName;
@@ -153,8 +144,7 @@ typedef struct CSEntry {
 
     // size in bytes
     long payloadSize;
-
-} CSEntry;
+};
 
 class ExchangedTransportInfo : public omnetpp::cObject
 {
@@ -165,10 +155,9 @@ class ExchangedTransportInfo : public omnetpp::cObject
 //    const char *getName() {return name;}
     virtual ExchangedTransportInfo *dup() const {ExchangedTransportInfo *t = new ExchangedTransportInfo("ExchangedTransportInfo"); t->transportAddress = transportAddress; return t;};
     ~ExchangedTransportInfo() {free(name);}
-
 };
 
-typedef struct SensorEntry {
+struct SensorEntry {
 
     // sensor name (the OMNeT name given)
     string sensorName;
@@ -183,7 +172,7 @@ typedef struct SensorEntry {
     int dataSize;
 
     // most recent sensor readings
-    vector <string> lastSensorReadingsList;
+    vector<string> lastSensorReadingsList;
 
     // prefix of the sensor and the transport face ID
     // through witch the sensor is reachable at the
@@ -192,11 +181,10 @@ typedef struct SensorEntry {
     long faceID;
     int faceType;
     bool prefixRegistered;
+};
 
-} SensorEntry;
 
-
-typedef struct SensorDataEntry {
+struct SensorDataEntry {
 
     // sensor data name
     string sensorDataName;
@@ -211,12 +199,11 @@ typedef struct SensorDataEntry {
     double dataLifetime;
 
     // most recent sensor data readings
-    vector <string> lastDataReadingsList;
+    vector<string> lastDataReadingsList;
 
     // most recent sensor data reading times
-    vector <double> lastDataReadingTimesList;
-
-} SensorDataEntry;
+    vector<double> lastDataReadingTimesList;
+};
 
 
 #endif /* INBAVER_H_ */
