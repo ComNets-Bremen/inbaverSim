@@ -1,10 +1,7 @@
 //
-// A wireless sensor node that communicates over CCN. It has one
-// LoRa wireless network interface. 
+// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
 //
-// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
-// @date   : 18-feb-2023
-//
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
 
 package inbaversim;
@@ -13,6 +10,10 @@ import inbaversim.Node;
 import inbaversim.WirelessTransport;
 
 
+//
+// A wireless sensor node that communicates over CCN. It has one
+// LoRa wireless network interface.
+//
 module WirelessSensorNode extends Node
 {
     parameters:
@@ -20,7 +21,7 @@ module WirelessSensorNode extends Node
 
         // transports used in node
         int wirelessSensorNodeLoRaNumWirelessTransports = default(1);
-        
+
         // forwarder used in node
         string forwarder = default("RFC8569Forwarder");
 
@@ -43,10 +44,10 @@ module WirelessSensorNode extends Node
         double wirelessSensorNodeLoRaDataRate @unit(bps) = default(5.5kbps);
         double wirelessSensorNodeLoRaPacketErrorRate @unit(pct) = default(0.0pct);
         int wirelessSensorNodeLoRaHeaderSize @unit(byte) = default(20byte);
-        
+
         // mobility model settings
         string mobility = default("StationaryMobility");
-        
+
         // set forwarder used
         fwd.typename = forwarder;
 

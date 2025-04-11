@@ -1,14 +1,15 @@
 //
-// A file hosting (content server) application that 
-// implements the IApplication interface.
+// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
 //
-// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
-// @date   : 31-mar-2021
-//
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
 
 package inbaversim;
 
+//
+// A file hosting (content server) application that
+// implements the IApplication interface.
+//
 simple ContentHostApp like IApplication
 {
     parameters:
@@ -17,7 +18,7 @@ simple ContentHostApp like IApplication
         string dataNamePrefix = default("file");
         volatile int segmentSize @unit(byte) = default(10000byte);
         volatile int numSegmentsPerFile = default(intuniform(5, 100));
-        volatile double cacheTime @unit(s) = default(3600s); // 0 means infinite 
+        volatile double cacheTime @unit(s) = default(3600s); // 0 means infinite
 
         // statistic signals
         @signal[appTotalInterestsBytesReceived](type=long);

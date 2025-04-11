@@ -1,13 +1,14 @@
 //
-// A wired CCN node with one wired interface. 
+// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
 //
-// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
-// @date   : 31-mar-2021
-//
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
 
 package inbaversim;
 
+//
+// A wired CCN node with one wired interface.
+//
 module WiredNode extends Node
 {
     parameters:

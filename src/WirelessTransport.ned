@@ -1,23 +1,25 @@
 //
+// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+
+package inbaversim;
+
+//
 // A wireless transport that implements the ITransport
 // interface.
 //
-// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
-// @date   : 31-mar-2021
-//
-//
-package inbaversim;
-
 simple WirelessTransport like ITransport
 {
     parameters:
-        
+
         // wireless technology -> WLAN, Bluetooth
         string wirelessTechnology = default("WLAN");
 
         // wireless mode of operation -> ap, client, direct
         string operationMode = default("client");
-        
+
         // wireless connection string - for ap, client
         string connectString = default("ccn");
 
@@ -36,7 +38,7 @@ simple WirelessTransport like ITransport
 
         // header size
         int headerSize @unit(byte) = default(32byte);
-        
+
         // whether to show and the color of the circle drawn for the wireless range
         bool wirelessRangeRadiusShow = default(false);
         string wirelessRangeRadiusColor = default("black");
@@ -52,5 +54,5 @@ simple WirelessTransport like ITransport
         inout forwarderInOut;
         inout physicalInOut;
         input radioIn @directIn;
-    
+
 }

@@ -1,9 +1,7 @@
 //
-// A simple CCN wireless network. 
+// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
 //
-// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
-// @date   : 22-sep-2021
-//
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
 
 package inbaversim.simulations;
@@ -18,6 +16,9 @@ import inbaversim.WirelessNode;
 import ned.DatarateChannel;
 
 
+//
+// A simple CCN wireless network.
+//
 network WirelessNetwork
 {
     parameters:

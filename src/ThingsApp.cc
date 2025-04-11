@@ -1,12 +1,9 @@
 //
-// A simple application to retrieve data from a sensor network
-// managed by a gateway, that implements the IApplication
-// interface.
+// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
 //
-// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
-// @date   : 24-feb-2023
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
-//
+
 
 #include "ThingsApp.h"
 

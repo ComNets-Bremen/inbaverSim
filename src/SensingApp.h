@@ -1,12 +1,9 @@
 //
-// A generic sensing application that is able to be
-// configured to return different data values of
-// sensors. It implements the IApplication interface.
+// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
 //
-// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
-// @date   : 18-feb-2023
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
-//
+
 
 #ifndef __INBAVERSIM_SENSINGAPP_H_
 #define __INBAVERSIM_SENSINGAPP_H_
@@ -27,6 +24,11 @@ using namespace std;
 
 class Demiurge;
 
+/**
+ * A generic sensing application that is able to be
+ * configured to return different data values of
+ * sensors. It implements the IApplication interface.
+ */
 class SensingApp : public cSimpleModule
 {
 

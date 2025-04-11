@@ -1,12 +1,9 @@
 //
-// The node specific control module of a CCN node. Only one
-// of these instances are created in a simulation for every
-// node.
+// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
 //
-// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
-// @date   : 31-mar-2021
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
-//
+
 
 #include "Numen.h"
 
