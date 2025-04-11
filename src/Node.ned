@@ -51,7 +51,7 @@ module Node
         @statistic[transportTotalWiredBytesReceived](source=transportTotalWiredBytesReceived; record=count,mean,sum,vector);
         @statistic[transportTotalWiredBytesSent](source=transportTotalWiredBytesSent; record=count,mean,sum,vector);
 
-        @statistic[transportTotalWirlessdBytesReceived](source=transportTotalWirlessdBytesReceived; record=count,mean,sum,vector);
+        @statistic[transportTotalWirelessBytesReceived](source=transportTotalWirelessBytesReceived; record=count,mean,sum,vector);
         @statistic[transportTotalWirelessBytesSent](source=transportTotalWirelessBytesSent; record=count,mean,sum,vector);
 
         @display("bgb=423,301");
