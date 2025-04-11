@@ -1,15 +1,16 @@
 //
-// A CCN based IoT gatewway with 2 network interfaces - a
-// LoRa interface facing a sensor network and an Ethernet 
-// interface facing the internet.
+// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
 //
-// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
-// @date   : 18-feb-2023
-//
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
 
 package inbaversim;
 
+//
+// A CCN based IoT gatewway with 2 network interfaces - a
+// LoRa interface facing a sensor network and an Ethernet
+// interface facing the internet.
+//
 module IoTGateway extends Node
 {
     parameters:
@@ -18,7 +19,7 @@ module IoTGateway extends Node
         // number of transports
         int iotGatewayNumWiredTransports = default(1);
         int iotGatewayNumWirelessTransports = default(1);
-                
+
         // forwarder used in node
         string forwarder = default("RFC8569Forwarder");
 

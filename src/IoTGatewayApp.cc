@@ -1,12 +1,9 @@
 //
-// An application that connects an IoT with the Internet
-// and is able to handle the functionality required to
-// manage the duty cycled IoT and the permently-on
-// Internet. It implements the IApplication interface.
+// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
 //
-// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
-// @date   : 19-feb-2023
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
+
 
 #include "IoTGatewayApp.h"
 

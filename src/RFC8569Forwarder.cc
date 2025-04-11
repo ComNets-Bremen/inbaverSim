@@ -1,11 +1,9 @@
 //
-// A CCN forwarder implementing the RFC 8569 using the
-// IForwarder interface.
+// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
 //
-// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
-// @date   : 31-mar-2021
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
-//
+
 
 #include "RFC8569Forwarder.h"
 

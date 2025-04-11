@@ -1,10 +1,7 @@
 //
-// A wireless CCN node with two network interfaces, one
-// WLAN and the other Bluetooth. 
+// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
 //
-// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
-// @date   : 31-mar-2021
-//
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
 
 package inbaversim;
@@ -12,6 +9,10 @@ package inbaversim;
 //import inet.mobility.static.StationaryMobility;
 //import inet.mobility.base.MobilityBase;
 
+//
+// A wireless CCN node with two network interfaces, one
+// WLAN and the other Bluetooth.
+//
 module WirelessNode extends Node
 {
     parameters:
@@ -20,25 +21,25 @@ module WirelessNode extends Node
         // transports used in node
         int wirelessNodeNumWiredTransports = default(0);
         int wirelessNodeNumWirelessTransports = default(2);
-        
+
         // forwarder used in node
         string forwarder = default("RFC8569Forwarder");
-        
+
         // WLAN transport parameters
         string wlanConnectString = default("ccn");
         double wlanWirelessRange @unit(meter) = default(10m);
         double wlanDataRate @unit(bps) = default(1e6bps);
         double wlanPacketErrorRate @unit(pct) = default(0.0pct);
 
-        // Bluetooth transport settings         
+        // Bluetooth transport settings
         string btConnectString = default("ccn");
         double btWirelessRange @unit(meter) = default(10m);
         double btDataRate @unit(bps) = default(1e6bps);
         double btPacketErrorRate @unit(pct) = default(0.0pct);
-        
+
         // mobility model settings
         string mobility = default("StationaryMobility");
-        
+
         // set forwarder used
         fwd.typename = forwarder;
 

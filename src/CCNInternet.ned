@@ -1,14 +1,15 @@
 //
-// A node that acts as the CCN Internet. Applications can be
-// deployed to simulate the nodes in the Internt. 
+// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
 //
-// @author : Asanga Udugama (adu@comnets.uni-bremen.de)
-// @date   : 23-feb-2023
-//
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
 
 package inbaversim;
 
+//
+// A node that acts as the CCN Internet. Applications can be
+// deployed to simulate the nodes in the Internt.
+//
 module CCNInternet extends Node
 {
     parameters:
@@ -17,7 +18,7 @@ module CCNInternet extends Node
         // transports used in node
         int internetNumWiredTransports = default(0);
         int internetNumWirelessTransports = default(0);
-        
+
         // forwarder used in node
         string forwarder = default("RFC8569Forwarder");
 
