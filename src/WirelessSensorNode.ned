@@ -11,8 +11,17 @@ import inbaversim.WirelessTransport;
 
 
 //
-// A wireless sensor node that communicates over CCN. It has one
-// LoRa wireless network interface.
+// Low-power IoT sensor device that communicates using CCN protocols over LoRa
+// wireless technology. Designed for long-range, energy-efficient communication
+// with IoT gateways. Features detailed configuration of LoRa parameters
+// including wireless range, data rate, and header specifications.
+//
+// The model provides a simplified representation of LoRa communication, focusing
+// on basic parameters while abstracting the detailed LoRaWAN protocol stack.
+// Physical layer aspects like spreading factors and coding rates are
+// approximated through the data rate parameter. Energy consumption modeling is
+// limited, with duty cycling handled at the application level rather than
+// through detailed power state transitions.
 //
 module WirelessSensorNode extends Node
 {

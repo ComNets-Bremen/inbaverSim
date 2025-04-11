@@ -7,7 +7,18 @@
 package inbaversim;
 
 //
-// A CCN content server hosting applications.
+// Dedicated server node that hosts content-providing applications in the CCN
+// network. Primarily connects via wired transports to deliver content in
+// response to Interest messages. Designed to efficiently serve as a content
+// repository within the network.
+//
+// The model implements the CCN-specific content serving functions in detail,
+// including name-based content retrieval and segmentation. However, it abstracts
+// server hardware aspects like processing power, memory architecture, and
+// storage systems. Content management functions such as replication, load
+// balancing, and content lifecycle management are not explicitly modeled.
+// Security aspects like access control and content authentication are
+// simplified.
 //
 module ContentServer extends Node
 {

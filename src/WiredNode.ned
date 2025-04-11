@@ -7,7 +7,17 @@
 package inbaversim;
 
 //
-// A wired CCN node with one wired interface.
+// End-user device that connects to the CCN network through a wired Ethernet
+// interface. Typically hosts content download applications and communicates with
+// the network through access routers. Configured with appropriate data rates and
+// error parameters for wired connections.
+//
+// The model provides detailed configuration of the basic connectivity parameters
+// of wired end devices. However, it abstracts the actual Ethernet protocol
+// stack, including MAC addressing, frame formats, and link-level procedures.
+// TCP/IP protocols are not modeled as CCN operates directly over the link layer.
+// Physical aspects like cabling types and distances are simplified to basic data
+// rate and error rate parameters.
 //
 module WiredNode extends Node
 {

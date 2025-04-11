@@ -9,7 +9,18 @@ package inbaversim;
 import inet.mobility.contract.IMobility;
 
 //
-// A CCN node containing the CCN protocol stack.
+// Base module for all CCN network nodes, implementing the complete CCN protocol
+// stack. Provides a modular architecture with configurable application,
+// forwarding, and transport layers. Collects comprehensive statistics for
+// performance analysis of CCN operations.
+//
+// The model implements the core CCN protocol stack architecture in detail,
+// including the layered design and interfaces between components. However, it
+// abstracts operating system aspects like process scheduling, memory
+// management, and device drivers. Hardware aspects such as CPU architecture,
+// bus systems, and physical interfaces are not modeled. The focus is on the
+// network protocol functionality rather than the underlying platform that would
+// host it in a real system.
 //
 module Node
 {

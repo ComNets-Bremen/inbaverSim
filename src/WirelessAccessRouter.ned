@@ -7,8 +7,17 @@
 package inbaversim;
 
 //
-// A CCN wireless access router to connect WLAN based
-// CCN nodes.
+// Dual-interface router that connects wireless CCN nodes to the wired network
+// infrastructure. Functions as an access point for WLAN clients while providing
+// a wired uplink to the core network. Configurable wireless parameters include
+// range, data rate, and connection identifiers.
+//
+// The model provides detailed configuration of the physical connectivity aspects
+// of wireless access points, including wireless range and data rates. However,
+// it abstracts the actual 802.11 protocol stack into a simplified model. MAC
+// layer functions like channel access, contention resolution, and association
+// procedures are not explicitly modeled. Radio propagation is simplified to a
+// circular range model rather than detailed path loss calculations.
 //
 module WirelessAccessRouter extends Node
 {

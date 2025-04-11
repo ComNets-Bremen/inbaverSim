@@ -7,9 +7,17 @@
 package inbaversim;
 
 //
-// A CCN based IoT gatewway with 2 network interfaces - a
-// LoRa interface facing a sensor network and an Ethernet
-// interface facing the internet.
+// Dual-interface gateway node that connects CCN-based IoT sensor networks to the
+// wider CCN network. Features a LoRa wireless interface for communicating with
+// sensor nodes and an Ethernet interface for connecting to the core network,
+// enabling seamless data flow between these different network domains.
+//
+// The model provides detailed configuration of the physical connectivity aspects
+// of IoT gateways, including wireless range, data rates, and protocol headers.
+// However, it abstracts the actual LoRaWAN protocol stack into a simplified
+// model. Gateway-specific functions like protocol translation between LoRaWAN
+// and IP networks are not explicitly modeled, focusing instead on the CCN
+// forwarding capabilities across different network domains.
 //
 module IoTGateway extends Node
 {

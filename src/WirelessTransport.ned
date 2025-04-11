@@ -7,8 +7,17 @@
 package inbaversim;
 
 //
-// A wireless transport that implements the ITransport
-// interface.
+// Transport component that handles the transmission of CCN messages over
+// wireless connections. Supports multiple wireless technologies (WLAN,
+// Bluetooth, LoRa) and operation modes (access point, client, direct).
+// Simulates wireless characteristics including range, data rate, and error
+// rates.
+//
+// The model abstracts the actual wireless protocols (802.11, Bluetooth) into a
+// simplified model that focuses on connectivity and basic transmission
+// properties rather than protocol-specific details. Protocol overhead and
+// medium access control mechanisms are approximated through configurable
+// parameters rather than detailed implementation.
 //
 simple WirelessTransport like ITransport
 {

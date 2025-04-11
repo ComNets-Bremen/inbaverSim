@@ -7,8 +7,18 @@
 package inbaversim;
 
 //
-// The global control module of a CCN network. Only one
-// of these instances are created in a simulation.
+// Global singleton module that manages network-wide information and statistics
+// for the CCN simulation. Maintains centralized data structures and coordinates
+// operations that span multiple nodes, such as network-wide cache hit ratios and
+// other performance metrics.
+//
+// The model focuses on collecting and aggregating network-wide statistics in
+// detail, providing a global view of the simulation. However, it abstracts the
+// actual mechanisms that would be needed to gather such information in a real
+// network, such as management protocols and monitoring systems. It represents a
+// simulation convenience rather than modeling a real-world entity, allowing
+// direct access to information that would be difficult to obtain in a
+// distributed system.
 //
 simple Demiurge
 {

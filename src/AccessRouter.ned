@@ -7,8 +7,16 @@
 package inbaversim;
 
 //
-// A CCN wired access router to connect wired CCN
-// nodes.
+// Wired access router that connects wired CCN nodes to the network. Functions as an
+// intermediary between end nodes and the core network, forwarding CCN messages
+// between connected devices.
+//
+// The model provides detailed configuration of the basic connectivity parameters
+// of wired routers. However, it abstracts traditional IP routing protocols and
+// functions, focusing instead on CCN's name-based forwarding. Ethernet switching
+// functions like MAC learning and spanning tree protocols are not modeled.
+// Physical aspects of routing hardware like processing delays and buffer sizes
+// are simplified to basic data rate parameters.
 //
 module AccessRouter extends Node
 {

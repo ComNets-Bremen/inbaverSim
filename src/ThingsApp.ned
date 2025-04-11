@@ -7,9 +7,17 @@
 package inbaversim;
 
 //
-// A simple application to retrieve data from a sensor network
-// managed by a gateway, that implements the IApplication
-// interface.
+// Client application that periodically retrieves sensor data from IoT networks
+// through gateway nodes. Requests various types of sensor readings (temperature,
+// humidity, etc.) using CCN Interest messages and stores historical data.
+// Configurable for different retrieval patterns and data types.
+//
+// The model implements the CCN-based sensor data retrieval mechanisms in detail,
+// including interest generation and content processing. However, it abstracts
+// the actual data usage and analysis processes. User behavior is simplified to
+// statistical distributions rather than context-aware patterns, and data
+// visualization or processing algorithms are not modeled. Storage constraints
+// are approximated through a simple limit on historical readings.
 //
 simple ThingsApp like IApplication
 {

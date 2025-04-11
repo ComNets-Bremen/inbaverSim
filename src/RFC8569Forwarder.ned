@@ -7,11 +7,16 @@
 package inbaversim;
 
 //
-// A CCN forwarder implementing the RFC 8569 using the
-// IForwarder interface.
+// Forwarding component that implements the CCN protocol as specified in RFC 8569.
+// Manages the Pending Interest Table (PIT), Forwarding Information Base (FIB),
+// and Content Store (CS) to process Interest and Content Object messages
+// according to the CCN protocol specification.
 //
-//
-// TODO auto-generated module
+// The implementation models the core CCN forwarding mechanisms in detail, while
+// abstracting some implementation-specific aspects. Cache replacement policies
+// are simplified to FIFO (First-In-First-Out), and cache placement strategies
+// use LCE (Leave Copy Everywhere). Security aspects mentioned in the RFC are
+// not fully implemented, focusing instead on the basic forwarding functionality.
 //
 simple RFC8569Forwarder like IForwarder
 {
