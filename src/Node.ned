@@ -70,7 +70,7 @@ module Node
             @display("p=198,169");
         }
         wired[numWiredTransports]: <> like ITransport {
-            @display("p=96,246,t=WiredTransport");
+            @display("p=96,246;t=WiredTransport");
         }
         wireless[numWirelessTransports]: <> like ITransport {
             @display("p=309,246");
