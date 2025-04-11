@@ -7,9 +7,17 @@
 package inbaversim;
 
 //
-// An application that serves sensor data to the outside world
-// and is able to receive and store sensor data from the local
-// IoT. It implements the IApplication interface.
+// Gateway application that bridges IoT sensor networks with the wider CCN
+// network. Collects and stores data from local sensors while making this
+// information available to external requesters. Manages name prefixes for both
+// sensor data collection and external data serving.
+//
+// The model implements the CCN-based data collection and serving mechanisms in
+// detail, including name-based routing between sensor and Internet domains.
+// However, it abstracts gateway-specific functions like protocol translation,
+// data aggregation, and filtering. Security aspects such as access control and
+// data validation are not modeled. Storage constraints are approximated through
+// a simple limit on historical readings rather than detailed memory management.
 //
 simple IoTGatewayApp like IApplication
 {

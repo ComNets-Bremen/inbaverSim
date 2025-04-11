@@ -7,8 +7,18 @@
 package inbaversim;
 
 //
-// A CCN root router that routes between content providers
-// and propagates prefixes.
+// Central backbone router in the CCN network that interconnects different
+// network segments. Handles high-volume traffic between content providers and
+// consumers while propagating content name prefixes throughout the network to
+// maintain routing information.
+//
+// The model implements the CCN-specific routing functions in detail, including
+// prefix propagation and forwarding based on longest prefix matching. However,
+// it abstracts traditional backbone routing protocols like BGP and OSPF.
+// Hardware aspects of core routers such as switching fabric architecture,
+// line card processing, and quality of service mechanisms are not explicitly
+// modeled. High-availability features like redundant components and failover
+// mechanisms are also not implemented.
 //
 module CoreRouter extends Node
 {

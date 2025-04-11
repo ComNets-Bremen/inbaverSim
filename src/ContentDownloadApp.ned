@@ -7,8 +7,17 @@
 package inbaversim;
 
 //
-// A file download client (content requester) application that
-// implements the IApplication interface.
+// Client application that periodically requests and downloads content from the
+// CCN network. Sends Interest messages for specific named content and processes
+// received Content Objects. Supports configurable download intervals and
+// interest retransmission for reliability.
+//
+// The model implements the core CCN content retrieval mechanisms in detail,
+// including interest retransmission and segment-by-segment content download.
+// However, it abstracts user behavior patterns to simple statistical
+// distributions. Content selection is randomized rather than based on realistic
+// popularity models, and application-level protocols (HTTP, FTP, etc.) are not
+// explicitly modeled.
 //
 simple ContentDownloadApp like IApplication
 {

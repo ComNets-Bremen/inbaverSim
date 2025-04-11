@@ -10,8 +10,17 @@ package inbaversim;
 //import inet.mobility.base.MobilityBase;
 
 //
-// A wireless CCN node with two network interfaces, one
-// WLAN and the other Bluetooth.
+// Mobile end-user device with dual wireless connectivity capabilities. Features
+// a WLAN interface for infrastructure-based connections to access points and a
+// Bluetooth interface for direct device-to-device communications. Supports
+// configurable wireless parameters and mobility patterns.
+//
+// The model abstracts the actual wireless protocols (802.11, Bluetooth) and
+// focuses on connectivity and basic transmission properties rather than
+// protocol-specific details. MAC layer contention, physical layer modulation,
+// and protocol-specific handshakes are not explicitly modeled. Uses INET's
+// mobility models for realistic movement patterns while simplifying the radio
+// propagation characteristics.
 //
 module WirelessNode extends Node
 {

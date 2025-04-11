@@ -7,9 +7,17 @@
 package inbaversim;
 
 //
-// A generic sensing application that is able to be
-// configured to return different data values of
-// sensors. It implements the IApplication interface.
+// Configurable sensor application that simulates various environmental and
+// utility sensors in IoT networks. Generates realistic sensor readings for
+// temperature, humidity, water content, salinity, and utility meters. Supports
+// duty cycling and communicates with gateway nodes using CCN protocols.
+//
+// The model focuses on generating realistic sensor data patterns while
+// abstracting the actual sensing hardware and mechanisms. Physical sensor
+// characteristics like accuracy, precision, and calibration drift are not
+// modeled. Energy consumption is approximated through simple duty cycling
+// rather than detailed power models. Sensor data is generated using statistical
+// distributions rather than physical environment models.
 //
 simple SensingApp like IApplication
 {

@@ -7,8 +7,18 @@
 package inbaversim;
 
 //
-// A node that acts as the CCN Internet. Applications can be
-// deployed to simulate the nodes in the Internt.
+// Simulates the CCN-based Internet as a single node. Provides a high-capacity
+// network backbone with configurable wired and wireless transports to connect
+// various network segments. Can host applications to emulate multiple Internet
+// nodes.
+//
+// The model provides a highly abstracted representation of the global CCN
+// Internet, focusing on its role as a content source and sink rather than
+// modeling its internal structure in detail. The complex topology, routing
+// infrastructure, and billions of nodes in the real Internet are simplified into
+// a single node. Delay and bandwidth characteristics are approximated through
+// basic parameters rather than modeling actual geographic distances and network
+// congestion.
 //
 module CCNInternet extends Node
 {
