@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -19,6 +19,8 @@ package inbaversim;
 // and IP networks are not explicitly modeled, focusing instead on the CCN
 // forwarding capabilities across different network domains.
 //
+package inbaversim;
+
 module IoTGateway extends Node
 {
     parameters:
@@ -26,10 +28,14 @@ module IoTGateway extends Node
 
         // number of transports
         int iotGatewayNumWiredTransports = default(1);
-        int iotGatewayNumWirelessTransports = default(1);
-
+        int iotGatewayNumWirelessTransports = default(2);
+        
+        // is the gateway a pure wireless gateway or has also a wired 
+        // interface in addition to the wireless interfaces
+        bool pureWireless = default(false);
+        
         // forwarder used in node
-        string forwarder = default("RFC8569Forwarder");
+        string forwarder = default("RFC8569WithRFForwarder");
 
         // LoRa transport parameters
         //   source: https://www.techplayon.com/lora-long-range-network-architecture-protocol-architecture-and-frame-formats/
@@ -54,6 +60,13 @@ module IoTGateway extends Node
         // Ethernet transport parameters
         double iotGatewayEthDataRate @unit(bps) = default(1e6bps);
         double iotGatewayEthPacketErrorRate @unit(pct) = default(0.0pct);
+        
+        // WLAN transport parameters
+        string wlanConnectString = default("ccn");
+        double wlanWirelessRange @unit(meter) = default(10m);
+        double wlanDataRate @unit(bps) = default(1e6bps);
+        double wlanPacketErrorRate @unit(pct) = default(0.0pct);
+        
 
         // mobility model settings
         string mobility = default("StationaryMobility");
@@ -65,7 +78,7 @@ module IoTGateway extends Node
         numWiredTransports = iotGatewayNumWiredTransports;
         numWirelessTransports = iotGatewayNumWirelessTransports;
 
-        // set first interface (WLAN)
+        // set first interface (LoRa)
         wireless[0].typename = "WirelessTransport";
         wireless[0].wirelessTechnology = "LoRa";
         wireless[0].operationMode = "ap";
@@ -76,12 +89,26 @@ module IoTGateway extends Node
         wireless[0].scanInterval = 1s;
         wireless[0].headerSize = iotGatewayLoRaHeaderSize;
         wireless[0].wirelessRangeRadiusShow = true;
+        wireless[0].wirelessRangeRadiusColor = "teal";
+        
+        // set second interface (WLAN)
+        wireless[1].typename = "WirelessTransport";
+        wireless[1].wirelessTechnology = "WLAN";
+        wireless[1].operationMode = "client";
+        wireless[1].connectString = wlanConnectString;
+        wireless[1].wirelessRange = wlanWirelessRange;
+        wireless[1].dataRate = wlanDataRate;
+        wireless[1].packetErrorRate = wlanPacketErrorRate;
+        wireless[1].scanInterval = 1s;
+        wireless[1].headerSize = 32byte;
 
-        // set second interface (Wired)
+
+        // set third interface (Wired)
         wired[0].typename = "WiredTransport";
         wired[0].dataRate = iotGatewayEthDataRate;
         wired[0].packetErrorRate = iotGatewayEthPacketErrorRate;
         wired[0].headerSize = 32byte;
+        wired[0].dummyTransport = (pureWireless ? true : false);
 
         // set mobility default
         mob.typename = mobility;

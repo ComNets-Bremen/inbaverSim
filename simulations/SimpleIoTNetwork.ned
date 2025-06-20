@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -11,114 +11,117 @@ import inbaversim.CCNInternet;
 import inbaversim.ContentServer;
 import inbaversim.CoreRouter;
 import inbaversim.Demiurge;
+import inbaversim.IoTGateway;
 import inbaversim.WiredNode;
 import inbaversim.WirelessAccessRouter;
 import inbaversim.WirelessNode;
 import inbaversim.IoTGateway;
 import inbaversim.WirelessSensorNode;
+import inbaversim.WirelessActuatorNode;
+import inet.node.wireless.AccessPoint;
 import ned.DatarateChannel;
 
 
-//
-// A simple IoT CCN network.
-//
+
 network SimpleIoTNetwork
 {
     parameters:
 
-        // statistics
-        @statistic[appNetworkInterestRetransmissionCount](source=appNetworkInterestRetransmissionCount; record=last,vector);
+		// statistics
+        @statistic[appNetworkInterestRetransmissionCount](source=appNetworkInterestRetransmissionCount; record=last,vector,mean);
+        @statistic[appNetworkInterestInjectedCount](source=appNetworkInterestInjectedCount; record=last,vector);
+        @statistic[appContentFreshnessSignal](source=appContentFreshnessSignal; record=min,max,count,last,vector,mean);
+        @statistic[apptotalContentObjectReceivedCount](source=apptotalContentObjectReceivedCount; record=min,max,count,last,vector,sum,mean);
+        @statistic[apptotalInterestsSentCount](source=apptotalInterestsSentCount; record=min,max,count,last,vector,sum,mean);
 
-        @statistic[fwdNetworkCacheHitRatio](source=fwdNetworkCacheHitRatio; record=min,max,count,last,vector);
-        @statistic[fwdNetworkCacheMissRatio](source=fwdNetworkCacheMissRatio; record=min,max,count,last,vector);
+        @statistic[fwdNetworkCacheHitRatio](source=fwdNetworkCacheHitRatio; record=min,max,count,last,vector,mean);
+        @statistic[fwdNetworkCacheMissRatio](source=fwdNetworkCacheMissRatio; record=min,max,count,last,vector,mean);
+        @statistic[fwdInterestToContentRatio](source=fwdInterestToContentRatio; record=min,max,count,last,vector,mean);
+        @statistic[fwdTotalTraffic](source=fwdTotalTraffic; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdTotalTrafficBytes](source=fwdTotalTrafficBytes; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdtotalExpiredPITCountSignal](source=fwdtotalExpiredPITCountSignal; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdtotalSatisfiedPITCountSignal](source=fwdtotalSatisfiedPITCountSignal; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwddurationOfPITEntrySignal](source=fwddurationOfPITEntrySignal; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdtotalCacheEntriesCountSignal](source=fwdtotalCacheEntriesCountSignal; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwddurationOfFirstCacheEmitSignal](source=fwddurationOfFirstCacheEmitSignal; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdTotalNetworkPITEntryCount](source=fwdTotalNetworkPITEntryCount; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdTotalNetworkFIBEntryCount](source=fwdTotalNetworkFIBEntryCount; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdTotalNetworkCSEntryCount](source=fwdTotalNetworkCSEntryCount; record=min,max,count,last,vector,sum,mean);
 
-        @display("bgb=727,333");
+        @display("bgb=600,300;bgg=100,0,grey95;bgu=m");
 
     submodules:
-        eeRouter: AccessRouter {
-            @display("p=69,148;is=s");
-        }
-        csAP: WirelessAccessRouter {
-            @display("p=490,155;is=s");
-        }
-        frank: WiredNode {
-            @display("p=34,216;is=s");
-        }
-        eeManagement: WiredNode {
-            @display("p=69,256;is=s");
-        }
-        daniel: WirelessNode {
-            @display("p=490,108;is=s");
-        }
-        silvia: WirelessNode {
-            @display("p=446,135;is=s");
-        }
-        peter: WirelessNode {
-            @display("p=76,55;is=s");
-        }
-        eeCoreRouter: CoreRouter {
-            @display("p=194,156;is=s");
-        }
-        csCoreRouter: CoreRouter {
-            @display("p=468,216;is=s");
-        }
-        eeContentServer: ContentServer {
-            @display("p=245,98;is=s");
-        }
-        csContentServer: ContentServer {
-            @display("p=532,270;is=s");
-        }
         demiurge: Demiurge {
-            @display("p=226,27;is=m");
+            @display("p=50,27;is=m");
         }
-        eeIoTGW: IoTGateway {
-            @display("p=163,224;is=s");
-        }
-        csIoTGW: IoTGateway {
-            @display("p=591,147;is=s");
-        }
-        temperature1: WirelessSensorNode {
-            @display("p=152,279;is=s");
-        }
-        humidity1: WirelessSensorNode {
-            @display("p=226,248;is=s");
-        }
-        humidity2: WirelessSensorNode {
-            @display("p=633,71;is=s");
-        }
-        temperature2: WirelessSensorNode {
-            @display("p=573,97;is=s");
-        }
-        eeAP: WirelessAccessRouter {
-            @display("p=107,97;is=s");
-        }
-        internet: CCNInternet {
-            @display("p=436,47;is=vl");
+        Internet: CCNInternet {
+            @display("p=161.53847,37.69231");
         }
         zfnRouter: CoreRouter {
-            @display("p=332,193;is=s");
+            @display("p=350.76926,37.69231;is=s");
+        }
+        zfnAP: WirelessAccessRouter {
+            @display("p=468,51;is=s");
+        }
+        zfnUser: WirelessNode {
+            @display("p=498,52;is=vs");
         }
 
-        csRouter: AccessRouter {
-            @display("p=618,205;is=s");
+
+
+        bulb: WirelessActuatorNode {
+            @display("p=106,209;is=s");
         }
-        csManagement: WiredNode {
-            @display("p=657,262;is=s");
+        furnace: WirelessActuatorNode {
+            @display("p=56,187;is=s");
         }
+        GW: IoTGateway {
+            @display("p=106,149;is=s");
+        }
+        lightSen: WirelessSensorNode {
+            @display("p=56,137;is=vs");
+        }
+        motionSen: WirelessSensorNode {
+            @display("p=156,161;is=vs");
+        }
+        tempSen: WirelessSensorNode {
+            @display("p=149,195;is=vs");
+        }
+
+        CoreRouter: CoreRouter {
+            @display("p=245.38463,76.15385;is=s");
+        }
+        Management: WiredNode {
+            @display("p=419,133;is=s");
+        }
+        Router: AccessRouter {
+            @display("p=349,95;is=s");
+        }
+
+        AP: WirelessAccessRouter {
+            @display("p=126,136;is=s");
+        }
+        User: WirelessNode {
+            @display("p=109,110;is=vs");
+        }
+
+        ContentServer: ContentServer {
+            @display("p=278,161;is=s");
+        }
+
     connections allowunconnected:
-        frank.wiredInOut++ <--> DatarateChannel {  datarate = 100Mbps; } <--> eeRouter.wiredInOut++;
-        eeManagement.wiredInOut++ <--> DatarateChannel {  datarate = 100Mbps; } <--> eeRouter.wiredInOut++;
-        eeRouter.wiredInOut++ <--> DatarateChannel {  datarate = 100Mbps; } <--> eeCoreRouter.wiredInOut++;
-        eeAP.wiredInOut++ <--> DatarateChannel {  datarate = 100Mbps; } <--> eeCoreRouter.wiredInOut++;
-        csAP.wiredInOut++ <--> DatarateChannel {  datarate = 100Mbps; } <--> csCoreRouter.wiredInOut++;
-        eeCoreRouter.wiredInOut++ <--> DatarateChannel {  datarate = 1Gbps; } <--> eeContentServer.wiredInOut++;
-        csCoreRouter.wiredInOut++ <--> DatarateChannel {  datarate = 1e6bps; } <--> csContentServer.wiredInOut++;
-        eeIoTGW.wiredInOut++ <--> DatarateChannel {  datarate = 100Mbps; } <--> eeRouter.wiredInOut++;
-        csIoTGW.wiredInOut++ <--> DatarateChannel {  datarate = 100Mbps; } <--> csCoreRouter.wiredInOut++;
-        eeCoreRouter.wiredInOut++ <--> DatarateChannel {  datarate = 1Gbps;@display("ls=black,3"); } <--> zfnRouter.wiredInOut++;
-        csCoreRouter.wiredInOut++ <--> DatarateChannel {  datarate = 1Gbps;@display("ls=black,3"); } <--> zfnRouter.wiredInOut++;
-        zfnRouter.wiredInOut++ <--> DatarateChannel {  datarate = 1Gbps;@display("ls=red,4"); } <--> internet.wiredInOut++;
-        csManagement.wiredInOut++ <--> DatarateChannel {  datarate = 100Mbps; } <--> csRouter.wiredInOut++;
-        csRouter.wiredInOut++ <--> DatarateChannel {  datarate = 100Mbps; } <--> csCoreRouter.wiredInOut++;
+
+		//Internet
+        zfnRouter.wiredInOut++ <--> DatarateChannel {  datarate = 1Gbps;@display("ls=red,4"); } <--> Internet.wiredInOut[0];
+        zfnAP.wiredInOut++ <--> DatarateChannel {  datarate = 1Gbps;@display("ls=black,3"); } <--> zfnRouter.wiredInOut++;
+
+        //Internal network
+        CoreRouter.wiredInOut++ <--> DatarateChannel {  datarate = 1Gbps;@display("ls=black,3"); } <--> zfnRouter.wiredInOut++;
+        CoreRouter.wiredInOut++ <--> DatarateChannel {  datarate = 1Gbps; } <--> ContentServer.wiredInOut++;
+
+        Management.wiredInOut++ <--> DatarateChannel {  datarate = 100Mbps; } <--> Router.wiredInOut++;
+        Router.wiredInOut++ <--> DatarateChannel {  datarate = 100Mbps; } <--> CoreRouter.wiredInOut++;
+        AP.wiredInOut++ <--> DatarateChannel {  datarate = 100Mbps; } <--> CoreRouter.wiredInOut++;
 
 }
+

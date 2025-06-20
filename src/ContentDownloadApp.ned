@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -45,12 +45,20 @@ simple ContentDownloadApp like IApplication
         @signal[appContentDownloadDuration](type=simtime_t);
         @signal[appSegmentDownloadDuration](type=simtime_t);
         @signal[appTotalInterestsBytesSent](type=long);
-        @signal[appRetransmissionInterestsBytesSent](type=long);
+        @signal[appRetransmissionInterestsBytesSent](type=long);        
         @signal[appTotalContentObjsBytesReceived](type=long);
         @signal[appTotalDataBytesReceived](type=long);
         @signal[appNetworkInterestRetransmissionCount](type=long);
         @signal[appNetworkInterestInjectedCount](type=long);
 
+       // statistics
+        @statistic[appContentDownloadDuration](source=appContentDownloadDuration; record=stats,histogram,vector);
+        @statistic[appSegmentDownloadDuration](source=appSegmentDownloadDuration; record=stats,histogram,vector);
+        @statistic[appTotalInterestsBytesSent](source=appTotalInterestsBytesSent; record=stats,histogram,vector);
+        @statistic[appRetransmissionInterestsBytesSent](source=appRetransmissionInterestsBytesSent; record=stats,histogram,vector);
+        @statistic[appTotalContentObjsBytesReceived](source=appTotalContentObjsBytesReceived; record=stats,histogram,vector);
+        @statistic[appTotalDataBytesReceived](source=appTotalDataBytesReceived; record=stats,histogram,vector);       
+        
         // display icon
         @display("i=block/app");
 

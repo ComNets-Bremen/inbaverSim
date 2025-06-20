@@ -1,12 +1,13 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
 //
-// The formats of all the messages defined in RFC 8609 for
-// communications between CCN nodes.
+// The formats of all the messages defined in RFC 8609 and the 
+// Reflexive Forwarding draft for communications between CCN 
+// nodes.
 //
 
 //
@@ -34,9 +35,14 @@ packet InterestMsg
     //====== Validation (Validation)
 
     // no security aspects incorporated yet
+    
+    //Fields for Reflexive Interest
+    string reflexiveNamePrefix;
+    int forwardPendingToken;
+    int reversePendingToken;
 
 
-    //====== Others fields used only by simulator
+    //====== Others fields used only by simulator 
 
     // msg sizes in bytes
     int headerSize;
@@ -44,7 +50,7 @@ packet InterestMsg
 
     // hops
     int hopsTravelled;
-
+    
     // arrival face ID and type at the forwarding (CCN) layer
     long arrivalFaceID;
     int arrivalFaceType;
@@ -74,11 +80,14 @@ packet ContentObjMsg
     simtime_t expirytime;
 
     //====== Validation (Validation)
+    
+    //Fields for Reflexive Interest
+    int reversePendingToken;
 
     // no security aspects incorporated yet
 
 
-    //====== Others fields used only by simulator
+    //====== Others fields used only by simulator 
 
     // msg sizes in bytes
     int headerSize;
@@ -111,7 +120,7 @@ enum ReturnCodeTypes
 packet InterestRtnMsg
 {
 
-    //====== Return Code
+    //====== Return Code 
 
     // return reason
     int returnCode @enum(ReturnCodeTypes);
@@ -125,11 +134,17 @@ packet InterestRtnMsg
     string dataName;
     string versionName;
     int segmentNum;
+    
+    //Fields for Reflexive Interest
+    string reflexiveNamePrefix;
+    int forwardPendingToken;
+    int reversePendingToken;
 
-    //====== Others fields used only by simulator
+    //====== Others fields used only by simulator 
 
     // msg sizes in bytes
     int headerSize;
     int payloadSize;
+    
 
 }

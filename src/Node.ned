@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -66,29 +66,29 @@ module Node
         @statistic[transportTotalWirelessBytesReceived](source=transportTotalWirelessBytesReceived; record=count,mean,sum,vector);
         @statistic[transportTotalWirelessBytesSent](source=transportTotalWirelessBytesSent; record=count,mean,sum,vector);
 
-        @display("bgb=423,301");
+        @display("bgb=392,289");
 
     gates:
         inout wiredInOut[numWiredTransports];
 
     submodules:
         numen: Numen {
-            @display("p=198,22;t=Numen,l");
+            @display("p=43,39;t=Numen,t");
         }
         app[numApps]: <> like IApplication {
-            @display("p=198,89");
+            @display("p=185,39;t=Applications,t");
         }
         fwd: <> like IForwarder {
-            @display("p=198,169");
+            @display("p=185,145;t=Forwarder,t");
         }
         wired[numWiredTransports]: <> like ITransport {
-            @display("p=96,246;t=WiredTransport");
+            @display("p=91,240;t=WiredTransports,t");
         }
         wireless[numWirelessTransports]: <> like ITransport {
-            @display("p=309,246");
+            @display("p=287,240;t=WirelessTransports,t");
         }
         mob: <> like IMobility {
-            @display("p=299,169;t=Mobility,l");
+            @display("p=326,39;t=Mobility,t");
         }
 
     connections allowunconnected:

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -34,6 +34,12 @@ simple WiredTransport like ITransport
         // header size
         int headerSize @unit(byte) = default(32byte);
 
+        // dummy wired transport, meaning instantiated but does not appear as a face
+        // this was done to handle the problem with the IoTGateway that is sometimes 
+        // a pure wireless gateway or a gateway with a single wired and multiple
+        // wireless interfaces
+        bool dummyTransport = default(false); 
+
         // statistic signals
         @signal[transportTotalWiredBytesReceived](type=long);
         @signal[transportTotalWiredBytesSent](type=long);
@@ -45,5 +51,6 @@ simple WiredTransport like ITransport
         inout forwarderInOut;
         inout physicalInOut;
         input radioIn @directIn;
+
 
 }

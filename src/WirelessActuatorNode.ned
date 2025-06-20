@@ -11,7 +11,7 @@ import inbaversim.WirelessTransport;
 
 
 //
-// Low-power IoT sensor device that communicates using CCN protocols over LoRa
+// Low-power IoT actuator device that communicates using CCN protocols over LoRa
 // wireless technology. Designed for long-range, energy-efficient communication
 // with IoT gateways. Features detailed configuration of LoRa parameters
 // including wireless range, data rate, and header specifications.
@@ -23,7 +23,7 @@ import inbaversim.WirelessTransport;
 // limited, with duty cycling handled at the application level rather than
 // through detailed power state transitions.
 //
-module WirelessSensorNode extends Node
+module WirelessActuatorNode extends Node
 {
     parameters:
         @networkNode();
@@ -78,7 +78,7 @@ module WirelessSensorNode extends Node
         // set mobility default
         mob.typename = mobility;
 
-        @display("i=misc/sensor3;bgb=418,317");
+        @display("i=block/control;bgb=418,317");
 
     submodules:
 

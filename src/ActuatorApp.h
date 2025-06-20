@@ -5,8 +5,8 @@
 //
 
 
-#ifndef __INBAVERSIM_SENSINGAPP_H_
-#define __INBAVERSIM_SENSINGAPP_H_
+#ifndef __INBAVERSIM_ACTUATORAPP_H_
+#define __INBAVERSIM_ACTUATORAPP_H_
 
 #include <omnetpp.h>
 #include <cstdlib>
@@ -26,10 +26,9 @@ using namespace std;
 
 class Demiurge;
 
-class SensingApp : public cSimpleModule
+class ActuatorApp : public cSimpleModule
 {
-
-  protected:
+protected:
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
     virtual int numInitStages() const {return 3;}
@@ -40,30 +39,27 @@ class SensingApp : public cSimpleModule
 
     string gwPrefixName;
     double interestLifetime;
-    string sensorPrefixName;
+    string actuatorPrefixName;
     int segmentSize;
     int numSegmentsPerFile;
+    int maxActuatorDataReadingsToKeep;
+    string actuatorDataTypes;
     double cacheTime;
-    string sensedDataTypes;
     double wakeupInterval;
 
     Demiurge *demiurgeModel;
 
-    // list of sensed data types
-    vector <string> sensedDataTypesList;
+    // list of actuators data recently received
+    vector <ActuatorDataEntry*> servedActuatorDataList;
 
-    // last sensor reading to send
-    string lastSensorReading;
+    // list of actuator data types
+    vector <string> actuatorDataTypesList;
 
     //Store RNP Details
     string reflexiveNamePrefix;
 
     //Store my RegistrationID
     string myRegistrationID;
-
-    // since water and electricity has a current meter reading
-    double waterCurrent;
-    double electricCurrent;
 
     // stat signals
     simsignal_t totalInterestsBytesReceivedSignal;
@@ -79,8 +75,9 @@ class SensingApp : public cSimpleModule
 
 };
 
-#define SENSINGAPP_APP_REG_REMINDER_CODE   116
-#define SENSINGAPP_WAKEUP_REMINDER_CODE    117
-#define SENSOR_REG_REMINDER_CODE           118
+#define ACTUATORAPP_APP_REG_REMINDER_CODE   116
+#define ACTUATOR_REG_REMINDER_CODE          117
+#define ACTUATOR_SUB_REMINDER_CODE          118
+
 
 #endif

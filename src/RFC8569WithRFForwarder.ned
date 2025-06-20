@@ -7,10 +7,10 @@
 package inbaversim;
 
 //
-// Forwarding component that implements the CCN protocol as specified in RFC 8569.
-// Manages the Pending Interest Table (PIT), Forwarding Information Base (FIB),
-// and Content Store (CS) to process Interest and Content Object messages
-// according to the CCN protocol specification.
+// Forwarding component that implements the CCN protocol as specified in RFC 8569
+// and in the Reflexive Forwarding draft. Manages the Pending Interest Table (PIT), 
+// Forwarding Information Base (FIB), and Content Store (CS) to process Interest 
+// and Content Object messages according to the CCN protocol specification.
 //
 // The implementation models the core CCN forwarding mechanisms in detail, while
 // abstracting some implementation-specific aspects. Cache replacement policies
@@ -18,7 +18,7 @@ package inbaversim;
 // use LCE (Leave Copy Everywhere). Security aspects mentioned in the RFC are
 // not fully implemented, focusing instead on the basic forwarding functionality.
 //
-simple RFC8569Forwarder like IForwarder
+simple RFC8569WithRFForwarder like IForwarder
 {
     parameters:
 
@@ -41,6 +41,17 @@ simple RFC8569Forwarder like IForwarder
         @signal[fwdCacheMissRatio](type=double);
         @signal[fwdNetworkCacheHitRatio](type=double);
         @signal[fwdNetworkCacheMissRatio](type=double);
+        @signal[fwdInterestToContentRatio](type=double);
+        @signal[fwdTotalTraffic](type=long);
+
+        @signal[fwdtotalExpiredPITCountSignal](type=long);
+        @signal[fwdtotalSatisfiedPITCountSignal](type=long);
+        @signal[fwddurationOfPITEntrySignal](type=double);
+        @signal[fwdtotalCacheEntriesCountSignal](type=long);
+        @signal[fwddurationOfFirstCacheEmitSignal](type=double);
+        @signal[fwddelayInRetrievingContent](type=double);
+
+        double periodicStatGenInterval @unit(s) = default(60s);
 
         // display icon
         @display("i=block/fork");

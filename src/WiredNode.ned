@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -29,7 +29,7 @@ module WiredNode extends Node
         int wiredNodeNumWirelessTransports = default(0);
 
         // forwarder used in node
-        string forwarder = default("RFC8569Forwarder");
+        string forwarder = default("RFC8569WithRFForwarder");
 
         // Ethernet transport parameters
         double ethDataRate @unit(bps) = default(1e6bps);

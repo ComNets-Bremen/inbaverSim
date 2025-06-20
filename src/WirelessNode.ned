@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -32,7 +32,7 @@ module WirelessNode extends Node
         int wirelessNodeNumWirelessTransports = default(2);
 
         // forwarder used in node
-        string forwarder = default("RFC8569Forwarder");
+        string forwarder = default("RFC8569WithRFForwarder");
 
         // WLAN transport parameters
         string wlanConnectString = default("ccn");
