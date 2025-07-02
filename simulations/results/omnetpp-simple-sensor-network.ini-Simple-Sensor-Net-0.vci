@@ -1,0 +1,575 @@
+file 5795395 1749744042                                         
+version 3
+run Simple-Sensor-Net-0-20250612-18:00:30-9760
+attr configname Simple-Sensor-Net
+attr datetime 20250612-18:00:30
+attr datetimef 20250612-180030
+attr experiment Simple-Sensor-Net
+attr inifile omnetpp-simple-sensor-network.ini
+attr iterationvars ""
+attr iterationvarsd ""
+attr iterationvarsf ""
+attr measurement ""
+attr network SimpleSensorNetwork
+attr processid 9760
+attr repetition 0
+attr replication #0
+attr resultdir results/
+attr runnumber 0
+attr seedset 0
+config image-path ../../inet4.5/images
+config **.router.accessRouterNumWiredTransports 2
+config **.frank.numApps 1
+config **.frank.app[0].typename ThingsApp
+config **.frank.app[0].sensorDataRetrievalStartTime 30s
+config **.frank.app[0].interDataDownloadInterval uniform(20s,50s)
+config **.frank.app[0].requestedSensorNetworkPrefixName "\"ccnx://uhb.de/ee/iot/\""
+config **.frank.app[0].interestLifetime 8s
+config **.frank.app[0].sensorDataNames "\"vwc;salinity;temperature;humidity\""
+config **.frank.app[0].nextIndexOfSensorDataToRetrieve "intuniform(0, 2)"
+config **.frank.app[0].maxSensorDataReadingsToKeep 100
+config **.frank.app[0].maxHopsAllowed 5
+config **.gw.numApps 1
+config **.gw.app[0].typename IoTGatewayApp
+config **.gw.app[0].hostedPrefixName "\"ccnx://uhb.de/ee/iot/\""
+config **.gw.app[0].hostedPrefixNameForSensorNet "\"ccnx://uhb.de/ee/gw/\""
+config **.gw.app[0].sensorPrefixName "\"ccnx://uhb.de/ee/sensor/\""
+config **.gw.app[0].interestLifetime 3s
+config **.gw.app[0].maximumSensorReadingsToKeep 100
+config **.climateSensor.numApps 1
+config **.climateSensor.app[0].typename SensingApp
+config **.climateSensor.app[0].sensorPrefixName "\"ccnx://uhb.de/ee/sensor/\""
+config **.climateSensor.app[0].gwPrefixName "\"ccnx://uhb.de/ee/gw/\""
+config **.climateSensor.app[0].interestLifetime 3s
+config **.climateSensor.app[0].segmentSize 36byte
+config **.climateSensor.app[0].numSegmentsPerFile 1
+config **.climateSensor.app[0].cacheTime 800s
+config **.climateSensor.app[0].sensedDataTypes "\"temperature;humidity\""
+config **.climateSensor.app[0].temperature "uniform(20.0, 23.0)"
+config **.climateSensor.app[0].humidity "uniform(50.0, 70.0)"
+config **.climateSensor.app[0].wakeupInterval 15s
+config **.plantSensor.numApps 1
+config **.plantSensor.app[0].typename SensingApp
+config **.plantSensor.app[0].sensorPrefixName "\"ccnx://uhb.de/ee/sensor/\""
+config **.plantSensor.app[0].gwPrefixName "\"ccnx://uhb.de/ee/gw/\""
+config **.plantSensor.app[0].interestLifetime 3s
+config **.plantSensor.app[0].segmentSize 36byte
+config **.plantSensor.app[0].numSegmentsPerFile 1
+config **.plantSensor.app[0].cacheTime 800s
+config **.plantSensor.app[0].sensedDataTypes "\"vwc;salinity\""
+config **.plantSensor.app[0].vwc "uniform(30.0, 40.0)"
+config **.plantSensor.app[0].salinity "intuniform(1500, 2100)"
+config **.plantSensor.app[0].wakeupInterval 15s
+config **.constraintAreaMinX 0m
+config **.constraintAreaMinY 0m
+config **.constraintAreaMinZ 0m
+config **.constraintAreaMaxX 400m
+config **.constraintAreaMaxY 400m
+config **.constraintAreaMaxZ 0m
+config **.updateInterval 1s
+config **.initFromDisplayString true
+config network SimpleSensorNetwork
+config sim-time-limit 48h
+config repeat 1
+config num-rngs 8
+config seed-0-mt 1000
+config seed-1-mt 2000
+config seed-2-mt 3000
+config seed-3-mt 4000
+config seed-4-mt 5000
+config seed-5-mt 6000
+config seed-6-mt 7000
+config seed-7-mt 8000
+config **.demiurge.rng-0 1
+config **.numen.rng-0 2
+config **.app[*].rng-0 3
+config **.fwd.rng-0 4
+config **.wired[*].rng-0 5
+config **.wireless[*].rng-0 6
+config **.mobility.rng-0 7
+config result-dir results/
+config output-vector-file results//omnetpp-simple-sensor-network.ini-Simple-Sensor-Net-0.vec
+config output-scalar-file results//omnetpp-simple-sensor-network.ini-Simple-Sensor-Net-0.sca
+config **.vector-recording true
+config **.scalar-recording true
+config **.statistic-recording true
+config record-eventlog false
+config eventlog-file results//omnetpp-simple-sensor-network.ini-Simple-Sensor-Net-0.elog
+
+vector 0 SimpleSensorNetwork.router appContentDownloadDuration:vector ETV
+attr recordingmode vector
+attr source appContentDownloadDuration
+vector 1 SimpleSensorNetwork.router appSegmentDownloadDuration:vector ETV
+attr recordingmode vector
+attr source appSegmentDownloadDuration
+vector 2 SimpleSensorNetwork.router appTotalInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalInterestsBytesSent
+vector 3 SimpleSensorNetwork.router appRetransmissionInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source appRetransmissionInterestsBytesSent
+vector 4 SimpleSensorNetwork.router appTotalContentObjsBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalContentObjsBytesReceived
+vector 5 SimpleSensorNetwork.router appTotalDataBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalDataBytesReceived
+vector 6 SimpleSensorNetwork.router appTotalInterestsBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalInterestsBytesReceived
+vector 7 SimpleSensorNetwork.router appTotalContentObjsBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalContentObjsBytesSent
+vector 8 SimpleSensorNetwork.router appTotalDataBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalDataBytesSent
+vector 9 SimpleSensorNetwork.router fwdTotalInterestsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestsBytesReceived
+vector 10 SimpleSensorNetwork.router fwdTotalInterestRtnsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestRtnsBytesReceived
+vector 11 SimpleSensorNetwork.router fwdTotalContentObjsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalContentObjsBytesReceived
+vector 12 SimpleSensorNetwork.router fwdTotalInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestsBytesSent
+vector 13 SimpleSensorNetwork.router fwdTotalInterestRtnsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestRtnsBytesSent
+vector 14 SimpleSensorNetwork.router fwdTotalContentObjsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalContentObjsBytesSent
+vector 15 SimpleSensorNetwork.router fwdCacheSizeBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheSizeBytes
+vector 16 SimpleSensorNetwork.router fwdCacheAdditionsBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheAdditionsBytes
+vector 17 SimpleSensorNetwork.router fwdCacheRemovalsBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheRemovalsBytes
+vector 18 SimpleSensorNetwork.router fwdFIBEntryCount:vector ETV
+attr recordingmode vector
+attr source fwdFIBEntryCount
+vector 19 SimpleSensorNetwork.router fwdPITEntryCount:vector ETV
+attr recordingmode vector
+attr source fwdPITEntryCount
+vector 20 SimpleSensorNetwork.router fwdCacheHitRatio:vector ETV
+attr recordingmode vector
+attr source fwdCacheHitRatio
+vector 21 SimpleSensorNetwork.router fwdCacheMissRatio:vector ETV
+attr recordingmode vector
+attr source fwdCacheMissRatio
+vector 22 SimpleSensorNetwork.router transportTotalWiredBytesReceived:vector ETV
+attr recordingmode vector
+attr source transportTotalWiredBytesReceived
+vector 23 SimpleSensorNetwork.router transportTotalWiredBytesSent:vector ETV
+attr recordingmode vector
+attr source transportTotalWiredBytesSent
+vector 24 SimpleSensorNetwork.router transportTotalWirelessBytesReceived:vector ETV
+attr recordingmode vector
+attr source transportTotalWirelessBytesReceived
+vector 25 SimpleSensorNetwork.router transportTotalWirelessBytesSent:vector ETV
+attr recordingmode vector
+attr source transportTotalWirelessBytesSent
+vector 26 SimpleSensorNetwork.frank appContentDownloadDuration:vector ETV
+attr recordingmode vector
+attr source appContentDownloadDuration
+vector 27 SimpleSensorNetwork.frank appSegmentDownloadDuration:vector ETV
+attr recordingmode vector
+attr source appSegmentDownloadDuration
+vector 28 SimpleSensorNetwork.frank appTotalInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalInterestsBytesSent
+vector 29 SimpleSensorNetwork.frank appRetransmissionInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source appRetransmissionInterestsBytesSent
+vector 30 SimpleSensorNetwork.frank appTotalContentObjsBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalContentObjsBytesReceived
+vector 31 SimpleSensorNetwork.frank appTotalDataBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalDataBytesReceived
+vector 32 SimpleSensorNetwork.frank appTotalInterestsBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalInterestsBytesReceived
+vector 33 SimpleSensorNetwork.frank appTotalContentObjsBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalContentObjsBytesSent
+vector 34 SimpleSensorNetwork.frank appTotalDataBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalDataBytesSent
+vector 35 SimpleSensorNetwork.frank fwdTotalInterestsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestsBytesReceived
+vector 36 SimpleSensorNetwork.frank fwdTotalInterestRtnsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestRtnsBytesReceived
+vector 37 SimpleSensorNetwork.frank fwdTotalContentObjsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalContentObjsBytesReceived
+vector 38 SimpleSensorNetwork.frank fwdTotalInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestsBytesSent
+vector 39 SimpleSensorNetwork.frank fwdTotalInterestRtnsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestRtnsBytesSent
+vector 40 SimpleSensorNetwork.frank fwdTotalContentObjsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalContentObjsBytesSent
+vector 41 SimpleSensorNetwork.frank fwdCacheSizeBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheSizeBytes
+vector 42 SimpleSensorNetwork.frank fwdCacheAdditionsBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheAdditionsBytes
+vector 43 SimpleSensorNetwork.frank fwdCacheRemovalsBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheRemovalsBytes
+vector 44 SimpleSensorNetwork.frank fwdFIBEntryCount:vector ETV
+attr recordingmode vector
+attr source fwdFIBEntryCount
+vector 45 SimpleSensorNetwork.frank fwdPITEntryCount:vector ETV
+attr recordingmode vector
+attr source fwdPITEntryCount
+vector 46 SimpleSensorNetwork.frank fwdCacheHitRatio:vector ETV
+attr recordingmode vector
+attr source fwdCacheHitRatio
+vector 47 SimpleSensorNetwork.frank fwdCacheMissRatio:vector ETV
+attr recordingmode vector
+attr source fwdCacheMissRatio
+vector 48 SimpleSensorNetwork.frank transportTotalWiredBytesReceived:vector ETV
+attr recordingmode vector
+attr source transportTotalWiredBytesReceived
+vector 49 SimpleSensorNetwork.frank transportTotalWiredBytesSent:vector ETV
+attr recordingmode vector
+attr source transportTotalWiredBytesSent
+vector 50 SimpleSensorNetwork.frank transportTotalWirelessBytesReceived:vector ETV
+attr recordingmode vector
+attr source transportTotalWirelessBytesReceived
+vector 51 SimpleSensorNetwork.frank transportTotalWirelessBytesSent:vector ETV
+attr recordingmode vector
+attr source transportTotalWirelessBytesSent
+vector 52 SimpleSensorNetwork.gw appContentDownloadDuration:vector ETV
+attr recordingmode vector
+attr source appContentDownloadDuration
+vector 53 SimpleSensorNetwork.gw appSegmentDownloadDuration:vector ETV
+attr recordingmode vector
+attr source appSegmentDownloadDuration
+vector 54 SimpleSensorNetwork.gw appTotalInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalInterestsBytesSent
+vector 55 SimpleSensorNetwork.gw appRetransmissionInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source appRetransmissionInterestsBytesSent
+vector 56 SimpleSensorNetwork.gw appTotalContentObjsBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalContentObjsBytesReceived
+vector 57 SimpleSensorNetwork.gw appTotalDataBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalDataBytesReceived
+vector 58 SimpleSensorNetwork.gw appTotalInterestsBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalInterestsBytesReceived
+vector 59 SimpleSensorNetwork.gw appTotalContentObjsBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalContentObjsBytesSent
+vector 60 SimpleSensorNetwork.gw appTotalDataBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalDataBytesSent
+vector 61 SimpleSensorNetwork.gw fwdTotalInterestsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestsBytesReceived
+vector 62 SimpleSensorNetwork.gw fwdTotalInterestRtnsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestRtnsBytesReceived
+vector 63 SimpleSensorNetwork.gw fwdTotalContentObjsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalContentObjsBytesReceived
+vector 64 SimpleSensorNetwork.gw fwdTotalInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestsBytesSent
+vector 65 SimpleSensorNetwork.gw fwdTotalInterestRtnsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestRtnsBytesSent
+vector 66 SimpleSensorNetwork.gw fwdTotalContentObjsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalContentObjsBytesSent
+vector 67 SimpleSensorNetwork.gw fwdCacheSizeBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheSizeBytes
+vector 68 SimpleSensorNetwork.gw fwdCacheAdditionsBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheAdditionsBytes
+vector 69 SimpleSensorNetwork.gw fwdCacheRemovalsBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheRemovalsBytes
+vector 70 SimpleSensorNetwork.gw fwdFIBEntryCount:vector ETV
+attr recordingmode vector
+attr source fwdFIBEntryCount
+vector 71 SimpleSensorNetwork.gw fwdPITEntryCount:vector ETV
+attr recordingmode vector
+attr source fwdPITEntryCount
+vector 72 SimpleSensorNetwork.gw fwdCacheHitRatio:vector ETV
+attr recordingmode vector
+attr source fwdCacheHitRatio
+vector 73 SimpleSensorNetwork.gw fwdCacheMissRatio:vector ETV
+attr recordingmode vector
+attr source fwdCacheMissRatio
+vector 74 SimpleSensorNetwork.gw transportTotalWiredBytesReceived:vector ETV
+attr recordingmode vector
+attr source transportTotalWiredBytesReceived
+vector 75 SimpleSensorNetwork.gw transportTotalWiredBytesSent:vector ETV
+attr recordingmode vector
+attr source transportTotalWiredBytesSent
+vector 76 SimpleSensorNetwork.gw transportTotalWirelessBytesReceived:vector ETV
+attr recordingmode vector
+attr source transportTotalWirelessBytesReceived
+vector 77 SimpleSensorNetwork.gw transportTotalWirelessBytesSent:vector ETV
+attr recordingmode vector
+attr source transportTotalWirelessBytesSent
+vector 78 SimpleSensorNetwork.climateSensor appContentDownloadDuration:vector ETV
+attr recordingmode vector
+attr source appContentDownloadDuration
+vector 79 SimpleSensorNetwork.climateSensor appSegmentDownloadDuration:vector ETV
+attr recordingmode vector
+attr source appSegmentDownloadDuration
+vector 80 SimpleSensorNetwork.climateSensor appTotalInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalInterestsBytesSent
+vector 81 SimpleSensorNetwork.climateSensor appRetransmissionInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source appRetransmissionInterestsBytesSent
+vector 82 SimpleSensorNetwork.climateSensor appTotalContentObjsBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalContentObjsBytesReceived
+vector 83 SimpleSensorNetwork.climateSensor appTotalDataBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalDataBytesReceived
+vector 84 SimpleSensorNetwork.climateSensor appTotalInterestsBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalInterestsBytesReceived
+vector 85 SimpleSensorNetwork.climateSensor appTotalContentObjsBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalContentObjsBytesSent
+vector 86 SimpleSensorNetwork.climateSensor appTotalDataBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalDataBytesSent
+vector 87 SimpleSensorNetwork.climateSensor fwdTotalInterestsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestsBytesReceived
+vector 88 SimpleSensorNetwork.climateSensor fwdTotalInterestRtnsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestRtnsBytesReceived
+vector 89 SimpleSensorNetwork.climateSensor fwdTotalContentObjsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalContentObjsBytesReceived
+vector 90 SimpleSensorNetwork.climateSensor fwdTotalInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestsBytesSent
+vector 91 SimpleSensorNetwork.climateSensor fwdTotalInterestRtnsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestRtnsBytesSent
+vector 92 SimpleSensorNetwork.climateSensor fwdTotalContentObjsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalContentObjsBytesSent
+vector 93 SimpleSensorNetwork.climateSensor fwdCacheSizeBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheSizeBytes
+vector 94 SimpleSensorNetwork.climateSensor fwdCacheAdditionsBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheAdditionsBytes
+vector 95 SimpleSensorNetwork.climateSensor fwdCacheRemovalsBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheRemovalsBytes
+vector 96 SimpleSensorNetwork.climateSensor fwdFIBEntryCount:vector ETV
+attr recordingmode vector
+attr source fwdFIBEntryCount
+vector 97 SimpleSensorNetwork.climateSensor fwdPITEntryCount:vector ETV
+attr recordingmode vector
+attr source fwdPITEntryCount
+vector 98 SimpleSensorNetwork.climateSensor fwdCacheHitRatio:vector ETV
+attr recordingmode vector
+attr source fwdCacheHitRatio
+vector 99 SimpleSensorNetwork.climateSensor fwdCacheMissRatio:vector ETV
+attr recordingmode vector
+attr source fwdCacheMissRatio
+vector 100 SimpleSensorNetwork.climateSensor transportTotalWiredBytesReceived:vector ETV
+attr recordingmode vector
+attr source transportTotalWiredBytesReceived
+vector 101 SimpleSensorNetwork.climateSensor transportTotalWiredBytesSent:vector ETV
+attr recordingmode vector
+attr source transportTotalWiredBytesSent
+vector 102 SimpleSensorNetwork.climateSensor transportTotalWirelessBytesReceived:vector ETV
+attr recordingmode vector
+attr source transportTotalWirelessBytesReceived
+vector 103 SimpleSensorNetwork.climateSensor transportTotalWirelessBytesSent:vector ETV
+attr recordingmode vector
+attr source transportTotalWirelessBytesSent
+vector 104 SimpleSensorNetwork.plantSensor appContentDownloadDuration:vector ETV
+attr recordingmode vector
+attr source appContentDownloadDuration
+vector 105 SimpleSensorNetwork.plantSensor appSegmentDownloadDuration:vector ETV
+attr recordingmode vector
+attr source appSegmentDownloadDuration
+vector 106 SimpleSensorNetwork.plantSensor appTotalInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalInterestsBytesSent
+vector 107 SimpleSensorNetwork.plantSensor appRetransmissionInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source appRetransmissionInterestsBytesSent
+vector 108 SimpleSensorNetwork.plantSensor appTotalContentObjsBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalContentObjsBytesReceived
+vector 109 SimpleSensorNetwork.plantSensor appTotalDataBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalDataBytesReceived
+vector 110 SimpleSensorNetwork.plantSensor appTotalInterestsBytesReceived:vector ETV
+attr recordingmode vector
+attr source appTotalInterestsBytesReceived
+vector 111 SimpleSensorNetwork.plantSensor appTotalContentObjsBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalContentObjsBytesSent
+vector 112 SimpleSensorNetwork.plantSensor appTotalDataBytesSent:vector ETV
+attr recordingmode vector
+attr source appTotalDataBytesSent
+vector 113 SimpleSensorNetwork.plantSensor fwdTotalInterestsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestsBytesReceived
+vector 114 SimpleSensorNetwork.plantSensor fwdTotalInterestRtnsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestRtnsBytesReceived
+vector 115 SimpleSensorNetwork.plantSensor fwdTotalContentObjsBytesReceived:vector ETV
+attr recordingmode vector
+attr source fwdTotalContentObjsBytesReceived
+vector 116 SimpleSensorNetwork.plantSensor fwdTotalInterestsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestsBytesSent
+vector 117 SimpleSensorNetwork.plantSensor fwdTotalInterestRtnsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalInterestRtnsBytesSent
+vector 118 SimpleSensorNetwork.plantSensor fwdTotalContentObjsBytesSent:vector ETV
+attr recordingmode vector
+attr source fwdTotalContentObjsBytesSent
+vector 119 SimpleSensorNetwork.plantSensor fwdCacheSizeBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheSizeBytes
+vector 120 SimpleSensorNetwork.plantSensor fwdCacheAdditionsBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheAdditionsBytes
+vector 121 SimpleSensorNetwork.plantSensor fwdCacheRemovalsBytes:vector ETV
+attr recordingmode vector
+attr source fwdCacheRemovalsBytes
+vector 122 SimpleSensorNetwork.plantSensor fwdFIBEntryCount:vector ETV
+attr recordingmode vector
+attr source fwdFIBEntryCount
+vector 123 SimpleSensorNetwork.plantSensor fwdPITEntryCount:vector ETV
+attr recordingmode vector
+attr source fwdPITEntryCount
+vector 124 SimpleSensorNetwork.plantSensor fwdCacheHitRatio:vector ETV
+attr recordingmode vector
+attr source fwdCacheHitRatio
+vector 125 SimpleSensorNetwork.plantSensor fwdCacheMissRatio:vector ETV
+attr recordingmode vector
+attr source fwdCacheMissRatio
+vector 126 SimpleSensorNetwork.plantSensor transportTotalWiredBytesReceived:vector ETV
+attr recordingmode vector
+attr source transportTotalWiredBytesReceived
+vector 127 SimpleSensorNetwork.plantSensor transportTotalWiredBytesSent:vector ETV
+attr recordingmode vector
+attr source transportTotalWiredBytesSent
+vector 128 SimpleSensorNetwork.plantSensor transportTotalWirelessBytesReceived:vector ETV
+attr recordingmode vector
+attr source transportTotalWirelessBytesReceived
+vector 129 SimpleSensorNetwork.plantSensor transportTotalWirelessBytesSent:vector ETV
+attr recordingmode vector
+attr source transportTotalWirelessBytesSent
+vector 130 SimpleSensorNetwork appNetworkInterestRetransmissionCount:vector ETV
+attr recordingmode vector
+attr source appNetworkInterestRetransmissionCount
+vector 131 SimpleSensorNetwork fwdNetworkCacheHitRatio:vector ETV
+attr recordingmode vector
+attr source fwdNetworkCacheHitRatio
+vector 132 SimpleSensorNetwork fwdNetworkCacheMissRatio:vector ETV
+attr recordingmode vector
+attr source fwdNetworkCacheMissRatio
+9	22805 71 86 179 30.00000384 156.700503095675 3 16 16 48 768
+11	22876 73 96 189 30.0000144 156.700513655675 3 52 52 156 8112
+12	22949 74 86 179 30.00000384 156.700503095675 3 16 16 48 768
+14	23023 73 96 189 30.0000144 156.700513655675 3 52 52 156 8112
+15	23096 74 96 189 30.0000144 156.700513655675 3 36 108 216 18144
+16	23170 73 96 189 30.0000144 156.700513655675 3 36 36 108 3888
+18	23243 20 12 13 0 0 2 1 1 2 2
+19	23263 141 86 189 30.00000384 156.700513655675 6 0 1 3 3
+20	23404 71 86 179 30.00000384 156.700503095675 3 0 0 0 0
+21	23475 71 86 179 30.00000384 156.700503095675 3 1 1 3 3
+22	23546 147 84 187 30.00000384 156.700513655675 6 48 84 396 28080
+23	23693 147 87 190 30.00000384 156.700513655675 6 48 84 396 28080
+28	23840 153512 75 84036 30 172786.834579121782 4934 16 16 78944 1263104
+30	177352 153523 101 84038 30.00002112 172786.834579121782 4934 52 52 256568 13341536
+31	330875 153523 101 84038 30.00002112 172786.834579121782 4934 36 36 177624 6394464
+37	484398 75 100 193 30.00002112 156.700520375675 3 52 52 156 8112
+38	484473 65 78 175 30 156.700499255675 3 16 16 48 768
+41	484538 76 100 193 30.00002112 156.700520375675 3 36 108 216 18144
+42	484614 75 100 193 30.00002112 156.700520375675 3 36 36 108 3888
+44	484689 10 15 15 0 0 1 1 1 1 1
+45	484699 134 78 193 30 156.700520375675 6 0 1 3 3
+46	484833 221320 78 84037 30 172786.834579121782 4934 0 0.99939197405756 4909.5896664446 4890.1763600424
+47	706153 232788 78 84037 30 172786.834579121782 4934 0.00060802594244021 1 24.410333555341 4.9970271530864
+48	938941 74 98 191 30.00002112 156.700520375675 3 84 84 252 21168
+49	939015 65 81 176 30 156.700499255675 3 48 48 144 6912
+61	939080 124 31 183 15.052363636364 156.700506935675 5 16 16 80 1280
+63	939204 50 71 72 15.209454545455 15.209454545455 2 52 52 104 5408
+64	939254 50 37 40 15.052363636364 15.052363636364 2 16 16 32 512
+66	939304 124 35 185 15.052363636364 156.700506935675 5 24 52 204 9264
+67	939428 176 35 185 15.052363636364 156.700506935675 7 8 196 644 90160
+68	939604 172 35 185 15.052363636364 156.700506935675 7 8 36 196 6608
+70	939776 88 16 39 0 15.052363636364 6 1 5 18 64
+71	939864 334 31 185 15.052363636364 156.700506935675 14 0 2 13 19
+72	940198 167 31 183 15.052363636364 156.700506935675 7 0 0 0 0
+73	940365 167 31 183 15.052363636364 156.700506935675 7 1 1 7 7
+74	940532 74 88 181 30.00000768 156.700506935675 3 48 48 144 6912
+75	940606 74 93 186 30.00000768 156.700506935675 3 84 84 252 21168
+76	940680 100 29 70 15.052363636364 15.209454545455 4 36 72 216 12960
+77	940780 100 41 44 15.052363636364 15.052363636364 4 36 44 160 6464
+79	940880 198489 67 84043 15.116363636364 172800 11520 0 0 0 0
+82	1139369 210009 67 84043 15.116363636364 172800 11520 24 24 276480 6635520
+83	1349378 198489 67 84043 15.116363636364 172800 11520 8 8 92160 737280
+84	1547867 25 53 53 15.104727272728 15.104727272728 1 16 16 16 256
+85	1547892 25 53 53 15.104727272728 15.104727272728 1 52 52 52 2704
+86	1547917 25 53 53 15.104727272728 15.104727272728 1 36 36 36 1296
+87	1547942 50 49 51 15.104727272728 15.104727272728 2 16 16 32 512
+89	1547992 50 63 65 15.116363636364 15.116363636364 2 24 24 48 1152
+90	1548042 12 25 25 15 15 1 16 16 16 256
+92	1548054 25 55 55 15.104727272728 15.104727272728 1 52 52 52 2704
+93	1548079 75 55 65 15.104727272728 15.116363636364 3 36 52 132 5936
+94	1548154 73 55 65 15.104727272728 15.116363636364 3 8 36 52 1424
+96	1548227 20 19 20 0 0 2 1 2 3 5
+97	1548247 107 25 63 15 15.116363636364 5 1 3 9 19
+98	1548354 369245 25 84041 15 172800 11522 0 0.99973962853671 11494.712182231 11472.977989982
+99	1917599 400466 25 84041 15 172800 11522 0.00026037146328762 1 27.28781776943 5.5536255211398
+102	2318065 104 45 61 15.104727272728 15.116363636364 4 36 44 160 6464
+103	2318169 39 27 57 15 15.104727272728 2 36 72 108 6480
+105	2318208 210009 68 84044 15.116363636364 172800 11520 0 0 0 0
+108	2528217 221529 68 84044 15.116363636364 172800 11520 24 24 276480 6635520
+109	2749746 210009 68 84044 15.116363636364 172800 11520 8 8 92160 737280
+110	2959755 26 54 54 15.104727272728 15.104727272728 1 16 16 16 256
+111	2959781 26 54 54 15.104727272728 15.104727272728 1 52 52 52 2704
+112	2959807 26 54 54 15.104727272728 15.104727272728 1 36 36 36 1296
+113	2959833 52 50 52 15.104727272728 15.104727272728 2 16 16 32 512
+115	2959885 52 64 66 15.116363636364 15.116363636364 2 24 24 48 1152
+116	2959937 13 26 26 15 15 1 16 16 16 256
+118	2959950 26 56 56 15.104727272728 15.104727272728 1 52 52 52 2704
+119	2959976 78 56 66 15.104727272728 15.116363636364 3 36 52 132 5936
+120	2960054 76 56 66 15.104727272728 15.116363636364 3 8 36 52 1424
+122	2960130 22 21 22 0 0 2 1 2 3 5
+123	2960152 112 26 66 15 15.116363636364 5 1 3 9 19
+124	2960264 380767 26 84042 15 172800 11522 0 0.99973962853671 11494.712182231 11472.977989982
+125	3341031 411988 26 84042 15 172800 11522 0.00026037146328762 1 27.28781776943 5.5536255211398
+128	3753019 104 46 62 15.104727272728 15.116363636364 4 36 44 160 6464
+129	3753123 39 28 58 15 15.104727272728 2 36 72 108 6480
+131	3753162 989617 25 84042 15 172800 27988 0 0.99932113763041 27834.44558328 27712.935012081
+132	4742779 1052615 25 84042 15 172800 27988 0.00067886236958697 1 153.55441671971 32.043845520358
+

@@ -1,0 +1,1969 @@
+version 3
+run Simple-Sensor-Net-0-20250612-18:00:30-9760
+attr configname Simple-Sensor-Net
+attr datetime 20250612-18:00:30
+attr datetimef 20250612-180030
+attr experiment Simple-Sensor-Net
+attr inifile omnetpp-simple-sensor-network.ini
+attr iterationvars ""
+attr iterationvarsd ""
+attr iterationvarsf ""
+attr measurement ""
+attr network SimpleSensorNetwork
+attr processid 9760
+attr repetition 0
+attr replication #0
+attr resultdir results/
+attr runnumber 0
+attr seedset 0
+config image-path ../../inet4.5/images
+config **.router.accessRouterNumWiredTransports 2
+config **.frank.numApps 1
+config **.frank.app[0].typename ThingsApp
+config **.frank.app[0].sensorDataRetrievalStartTime 30s
+config **.frank.app[0].interDataDownloadInterval uniform(20s,50s)
+config **.frank.app[0].requestedSensorNetworkPrefixName "\"ccnx://uhb.de/ee/iot/\""
+config **.frank.app[0].interestLifetime 8s
+config **.frank.app[0].sensorDataNames "\"vwc;salinity;temperature;humidity\""
+config **.frank.app[0].nextIndexOfSensorDataToRetrieve "intuniform(0, 2)"
+config **.frank.app[0].maxSensorDataReadingsToKeep 100
+config **.frank.app[0].maxHopsAllowed 5
+config **.gw.numApps 1
+config **.gw.app[0].typename IoTGatewayApp
+config **.gw.app[0].hostedPrefixName "\"ccnx://uhb.de/ee/iot/\""
+config **.gw.app[0].hostedPrefixNameForSensorNet "\"ccnx://uhb.de/ee/gw/\""
+config **.gw.app[0].sensorPrefixName "\"ccnx://uhb.de/ee/sensor/\""
+config **.gw.app[0].interestLifetime 3s
+config **.gw.app[0].maximumSensorReadingsToKeep 100
+config **.climateSensor.numApps 1
+config **.climateSensor.app[0].typename SensingApp
+config **.climateSensor.app[0].sensorPrefixName "\"ccnx://uhb.de/ee/sensor/\""
+config **.climateSensor.app[0].gwPrefixName "\"ccnx://uhb.de/ee/gw/\""
+config **.climateSensor.app[0].interestLifetime 3s
+config **.climateSensor.app[0].segmentSize 36byte
+config **.climateSensor.app[0].numSegmentsPerFile 1
+config **.climateSensor.app[0].cacheTime 800s
+config **.climateSensor.app[0].sensedDataTypes "\"temperature;humidity\""
+config **.climateSensor.app[0].temperature "uniform(20.0, 23.0)"
+config **.climateSensor.app[0].humidity "uniform(50.0, 70.0)"
+config **.climateSensor.app[0].wakeupInterval 15s
+config **.plantSensor.numApps 1
+config **.plantSensor.app[0].typename SensingApp
+config **.plantSensor.app[0].sensorPrefixName "\"ccnx://uhb.de/ee/sensor/\""
+config **.plantSensor.app[0].gwPrefixName "\"ccnx://uhb.de/ee/gw/\""
+config **.plantSensor.app[0].interestLifetime 3s
+config **.plantSensor.app[0].segmentSize 36byte
+config **.plantSensor.app[0].numSegmentsPerFile 1
+config **.plantSensor.app[0].cacheTime 800s
+config **.plantSensor.app[0].sensedDataTypes "\"vwc;salinity\""
+config **.plantSensor.app[0].vwc "uniform(30.0, 40.0)"
+config **.plantSensor.app[0].salinity "intuniform(1500, 2100)"
+config **.plantSensor.app[0].wakeupInterval 15s
+config **.constraintAreaMinX 0m
+config **.constraintAreaMinY 0m
+config **.constraintAreaMinZ 0m
+config **.constraintAreaMaxX 400m
+config **.constraintAreaMaxY 400m
+config **.constraintAreaMaxZ 0m
+config **.updateInterval 1s
+config **.initFromDisplayString true
+config network SimpleSensorNetwork
+config sim-time-limit 48h
+config repeat 1
+config num-rngs 8
+config seed-0-mt 1000
+config seed-1-mt 2000
+config seed-2-mt 3000
+config seed-3-mt 4000
+config seed-4-mt 5000
+config seed-5-mt 6000
+config seed-6-mt 7000
+config seed-7-mt 8000
+config **.demiurge.rng-0 1
+config **.numen.rng-0 2
+config **.app[*].rng-0 3
+config **.fwd.rng-0 4
+config **.wired[*].rng-0 5
+config **.wireless[*].rng-0 6
+config **.mobility.rng-0 7
+config result-dir results/
+config output-vector-file results//omnetpp-simple-sensor-network.ini-Simple-Sensor-Net-0.vec
+config output-scalar-file results//omnetpp-simple-sensor-network.ini-Simple-Sensor-Net-0.sca
+config **.vector-recording true
+config **.scalar-recording true
+config **.statistic-recording true
+config record-eventlog false
+config eventlog-file results//omnetpp-simple-sensor-network.ini-Simple-Sensor-Net-0.elog
+
+par SimpleSensorNetwork.frank.wiredInOut$o[0].channel typename "\"ned.DatarateChannel\""
+par SimpleSensorNetwork.frank.wiredInOut$o[0].channel disabled false
+attr mutable ""
+par SimpleSensorNetwork.frank.wiredInOut$o[0].channel delay 0s
+attr mutable ""
+attr unit s
+par SimpleSensorNetwork.frank.wiredInOut$o[0].channel datarate 1e+08bps
+attr mutable ""
+attr unit bps
+par SimpleSensorNetwork.frank.wiredInOut$o[0].channel ber 0
+attr mutable ""
+par SimpleSensorNetwork.frank.wiredInOut$o[0].channel per 0
+attr mutable ""
+par SimpleSensorNetwork.router.wiredInOut$o[0].channel typename "\"ned.DatarateChannel\""
+par SimpleSensorNetwork.router.wiredInOut$o[0].channel disabled false
+attr mutable ""
+par SimpleSensorNetwork.router.wiredInOut$o[0].channel delay 0s
+attr mutable ""
+attr unit s
+par SimpleSensorNetwork.router.wiredInOut$o[0].channel datarate 1e+08bps
+attr mutable ""
+attr unit bps
+par SimpleSensorNetwork.router.wiredInOut$o[0].channel ber 0
+attr mutable ""
+par SimpleSensorNetwork.router.wiredInOut$o[0].channel per 0
+attr mutable ""
+par SimpleSensorNetwork.gw.wiredInOut$o[0].channel typename "\"ned.DatarateChannel\""
+par SimpleSensorNetwork.gw.wiredInOut$o[0].channel disabled false
+attr mutable ""
+par SimpleSensorNetwork.gw.wiredInOut$o[0].channel delay 0s
+attr mutable ""
+attr unit s
+par SimpleSensorNetwork.gw.wiredInOut$o[0].channel datarate 1e+08bps
+attr mutable ""
+attr unit bps
+par SimpleSensorNetwork.gw.wiredInOut$o[0].channel ber 0
+attr mutable ""
+par SimpleSensorNetwork.gw.wiredInOut$o[0].channel per 0
+attr mutable ""
+par SimpleSensorNetwork.router.wiredInOut$o[1].channel typename "\"ned.DatarateChannel\""
+par SimpleSensorNetwork.router.wiredInOut$o[1].channel disabled false
+attr mutable ""
+par SimpleSensorNetwork.router.wiredInOut$o[1].channel delay 0s
+attr mutable ""
+attr unit s
+par SimpleSensorNetwork.router.wiredInOut$o[1].channel datarate 1e+08bps
+attr mutable ""
+attr unit bps
+par SimpleSensorNetwork.router.wiredInOut$o[1].channel ber 0
+attr mutable ""
+par SimpleSensorNetwork.router.wiredInOut$o[1].channel per 0
+attr mutable ""
+par SimpleSensorNetwork.demiurge typename "\"inbaversim.Demiurge\""
+par SimpleSensorNetwork.router.numen typename "\"inbaversim.Numen\""
+par SimpleSensorNetwork.router.fwd typename "\"inbaversim.RFC8569Forwarder\""
+par SimpleSensorNetwork.router.fwd maximumContentStoreSize 0byte
+attr unit byte
+par SimpleSensorNetwork.router.wired[0] typename "\"inbaversim.WiredTransport\""
+par SimpleSensorNetwork.router.wired[0] wiredTechnology "\"Ethernet\""
+par SimpleSensorNetwork.router.wired[0] dataRate 1e+06bps
+attr unit bps
+par SimpleSensorNetwork.router.wired[0] packetErrorRate 0pct
+attr unit pct
+par SimpleSensorNetwork.router.wired[0] headerSize 32byte
+attr unit byte
+par SimpleSensorNetwork.router.wired[1] typename "\"inbaversim.WiredTransport\""
+par SimpleSensorNetwork.router.wired[1] wiredTechnology "\"Ethernet\""
+par SimpleSensorNetwork.router.wired[1] dataRate 1e+06bps
+attr unit bps
+par SimpleSensorNetwork.router.wired[1] packetErrorRate 0pct
+attr unit pct
+par SimpleSensorNetwork.router.wired[1] headerSize 32byte
+attr unit byte
+par SimpleSensorNetwork.router.mob typename "\"inet.mobility.static.StationaryMobility\""
+par SimpleSensorNetwork.router.mob subjectModule "\"^\""
+par SimpleSensorNetwork.router.mob coordinateSystemModule "\"\""
+par SimpleSensorNetwork.router.mob displayStringTextFormat "\"p: %p\\nv: %v\""
+attr mutable ""
+par SimpleSensorNetwork.router.mob updateDisplayString true
+par SimpleSensorNetwork.router.mob constraintAreaMinX 0m
+attr unit m
+par SimpleSensorNetwork.router.mob constraintAreaMinY 0m
+attr unit m
+par SimpleSensorNetwork.router.mob constraintAreaMinZ 0m
+attr unit m
+par SimpleSensorNetwork.router.mob constraintAreaMaxX 400m
+attr unit m
+par SimpleSensorNetwork.router.mob constraintAreaMaxY 400m
+attr unit m
+par SimpleSensorNetwork.router.mob constraintAreaMaxZ 0m
+attr unit m
+par SimpleSensorNetwork.router.mob initialX 261.436m
+attr unit m
+par SimpleSensorNetwork.router.mob initialY 82.2087m
+attr unit m
+par SimpleSensorNetwork.router.mob initialZ 0m
+attr unit m
+par SimpleSensorNetwork.router.mob initialLatitude "nan deg"
+attr unit deg
+par SimpleSensorNetwork.router.mob initialLongitude "nan deg"
+attr unit deg
+par SimpleSensorNetwork.router.mob initialAltitude 0m
+attr unit m
+par SimpleSensorNetwork.router.mob initialHeading 0deg
+attr unit deg
+par SimpleSensorNetwork.router.mob initialElevation 0deg
+attr unit deg
+par SimpleSensorNetwork.router.mob initialBank 0deg
+attr unit deg
+par SimpleSensorNetwork.router.mob initFromDisplayString true
+par SimpleSensorNetwork.router.mob updateFromDisplayString true
+par SimpleSensorNetwork.router typename "\"inbaversim.AccessRouter\""
+par SimpleSensorNetwork.router numApps 0
+par SimpleSensorNetwork.router numWiredTransports 2
+par SimpleSensorNetwork.router numWirelessTransports 0
+par SimpleSensorNetwork.router accessRouterNumWiredTransports 2
+par SimpleSensorNetwork.router accessRouterNumWirelessTransports 0
+par SimpleSensorNetwork.router forwarder "\"RFC8569Forwarder\""
+par SimpleSensorNetwork.router ethDataRate 1e+06bps
+attr unit bps
+par SimpleSensorNetwork.router ethPacketErrorRate 0pct
+attr unit pct
+par SimpleSensorNetwork.router mobility "\"StationaryMobility\""
+scalar SimpleSensorNetwork.router transportTotalWirelessBytesSent:count 0
+attr recordingmode count
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.router transportTotalWirelessBytesSent:mean -nan
+attr recordingmode mean
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.router transportTotalWirelessBytesSent:sum 0
+attr recordingmode sum
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.router transportTotalWirelessBytesReceived:count 0
+attr recordingmode count
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.router transportTotalWirelessBytesReceived:mean -nan
+attr recordingmode mean
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.router transportTotalWirelessBytesReceived:sum 0
+attr recordingmode sum
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.router transportTotalWiredBytesSent:count 6
+attr recordingmode count
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.router transportTotalWiredBytesSent:mean 66
+attr recordingmode mean
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.router transportTotalWiredBytesSent:sum 396
+attr recordingmode sum
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.router transportTotalWiredBytesReceived:count 6
+attr recordingmode count
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.router transportTotalWiredBytesReceived:mean 66
+attr recordingmode mean
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.router transportTotalWiredBytesReceived:sum 396
+attr recordingmode sum
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.router fwdCacheMissRatio:min 1
+attr recordingmode min
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.router fwdCacheMissRatio:max 1
+attr recordingmode max
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.router fwdCacheMissRatio:count 3
+attr recordingmode count
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.router fwdCacheMissRatio:last 1
+attr recordingmode last
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.router fwdCacheHitRatio:min 0
+attr recordingmode min
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.router fwdCacheHitRatio:max 0
+attr recordingmode max
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.router fwdCacheHitRatio:count 3
+attr recordingmode count
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.router fwdCacheHitRatio:last 0
+attr recordingmode last
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.router fwdPITEntryCount:min 0
+attr recordingmode min
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.router fwdPITEntryCount:max 1
+attr recordingmode max
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.router fwdPITEntryCount:count 6
+attr recordingmode count
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.router fwdPITEntryCount:mean 0.5
+attr recordingmode mean
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.router fwdPITEntryCount:timeavg 1.8336516756789e-10
+attr recordingmode timeavg
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.router fwdPITEntryCount:last 0
+attr recordingmode last
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.router fwdFIBEntryCount:min 1
+attr recordingmode min
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.router fwdFIBEntryCount:max 1
+attr recordingmode max
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.router fwdFIBEntryCount:count 2
+attr recordingmode count
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.router fwdFIBEntryCount:mean 1
+attr recordingmode mean
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.router fwdFIBEntryCount:timeavg 1
+attr recordingmode timeavg
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.router fwdFIBEntryCount:last 1
+attr recordingmode last
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.router fwdCacheRemovalsBytes:count 0
+attr recordingmode count
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.router fwdCacheRemovalsBytes:mean -nan
+attr recordingmode mean
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.router fwdCacheRemovalsBytes:sum 0
+attr recordingmode sum
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.router fwdCacheAdditionsBytes:count 3
+attr recordingmode count
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.router fwdCacheAdditionsBytes:mean 36
+attr recordingmode mean
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.router fwdCacheAdditionsBytes:sum 108
+attr recordingmode sum
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.router fwdCacheSizeBytes:min 36
+attr recordingmode min
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.router fwdCacheSizeBytes:max 108
+attr recordingmode max
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.router fwdCacheSizeBytes:count 3
+attr recordingmode count
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.router fwdCacheSizeBytes:mean 72
+attr recordingmode mean
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.router fwdCacheSizeBytes:timeavg 107.96518200665
+attr recordingmode timeavg
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.router fwdCacheSizeBytes:last 108
+attr recordingmode last
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.router fwdTotalContentObjsBytesSent:count 3
+attr recordingmode count
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.router fwdTotalContentObjsBytesSent:mean 52
+attr recordingmode mean
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.router fwdTotalContentObjsBytesSent:sum 156
+attr recordingmode sum
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.router fwdTotalInterestRtnsBytesSent:count 0
+attr recordingmode count
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.router fwdTotalInterestRtnsBytesSent:mean -nan
+attr recordingmode mean
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.router fwdTotalInterestRtnsBytesSent:sum 0
+attr recordingmode sum
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.router fwdTotalInterestsBytesSent:count 3
+attr recordingmode count
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.router fwdTotalInterestsBytesSent:mean 16
+attr recordingmode mean
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.router fwdTotalInterestsBytesSent:sum 48
+attr recordingmode sum
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.router fwdTotalContentObjsBytesReceived:count 3
+attr recordingmode count
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.router fwdTotalContentObjsBytesReceived:mean 52
+attr recordingmode mean
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.router fwdTotalContentObjsBytesReceived:sum 156
+attr recordingmode sum
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.router fwdTotalInterestRtnsBytesReceived:count 0
+attr recordingmode count
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.router fwdTotalInterestRtnsBytesReceived:mean -nan
+attr recordingmode mean
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.router fwdTotalInterestRtnsBytesReceived:sum 0
+attr recordingmode sum
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.router fwdTotalInterestsBytesReceived:count 3
+attr recordingmode count
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.router fwdTotalInterestsBytesReceived:mean 16
+attr recordingmode mean
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.router fwdTotalInterestsBytesReceived:sum 48
+attr recordingmode sum
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.router appTotalDataBytesSent:count 0
+attr recordingmode count
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.router appTotalDataBytesSent:mean -nan
+attr recordingmode mean
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.router appTotalDataBytesSent:sum 0
+attr recordingmode sum
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.router appTotalContentObjsBytesSent:count 0
+attr recordingmode count
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.router appTotalContentObjsBytesSent:mean -nan
+attr recordingmode mean
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.router appTotalContentObjsBytesSent:sum 0
+attr recordingmode sum
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.router appTotalInterestsBytesReceived:count 0
+attr recordingmode count
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.router appTotalInterestsBytesReceived:mean -nan
+attr recordingmode mean
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.router appTotalInterestsBytesReceived:sum 0
+attr recordingmode sum
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.router appTotalDataBytesReceived:count 0
+attr recordingmode count
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.router appTotalDataBytesReceived:mean -nan
+attr recordingmode mean
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.router appTotalDataBytesReceived:sum 0
+attr recordingmode sum
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.router appTotalContentObjsBytesReceived:count 0
+attr recordingmode count
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.router appTotalContentObjsBytesReceived:mean -nan
+attr recordingmode mean
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.router appTotalContentObjsBytesReceived:sum 0
+attr recordingmode sum
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.router appRetransmissionInterestsBytesSent:count 0
+attr recordingmode count
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.router appRetransmissionInterestsBytesSent:mean -nan
+attr recordingmode mean
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.router appRetransmissionInterestsBytesSent:sum 0
+attr recordingmode sum
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.router appTotalInterestsBytesSent:count 0
+attr recordingmode count
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.router appTotalInterestsBytesSent:mean -nan
+attr recordingmode mean
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.router appTotalInterestsBytesSent:sum 0
+attr recordingmode sum
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.router appSegmentDownloadDuration:min -nan
+attr recordingmode min
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.router appSegmentDownloadDuration:max -nan
+attr recordingmode max
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.router appSegmentDownloadDuration:count 0
+attr recordingmode count
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.router appSegmentDownloadDuration:mean -nan
+attr recordingmode mean
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.router appContentDownloadDuration:min -nan
+attr recordingmode min
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.router appContentDownloadDuration:max -nan
+attr recordingmode max
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.router appContentDownloadDuration:count 0
+attr recordingmode count
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.router appContentDownloadDuration:mean -nan
+attr recordingmode mean
+attr source appContentDownloadDuration
+par SimpleSensorNetwork.frank.numen typename "\"inbaversim.Numen\""
+par SimpleSensorNetwork.frank.app[0] typename "\"inbaversim.ThingsApp\""
+par SimpleSensorNetwork.frank.app[0] sensorDataRetrievalStartTime 30s
+attr unit s
+par SimpleSensorNetwork.frank.app[0] interDataDownloadInterval "uniform(20s, 50s)"
+attr unit s
+par SimpleSensorNetwork.frank.app[0] requestedSensorNetworkPrefixName "\"ccnx://uhb.de/ee/iot/\""
+par SimpleSensorNetwork.frank.app[0] interestLifetime 8s
+attr unit s
+par SimpleSensorNetwork.frank.app[0] sensorDataNames "\"vwc;salinity;temperature;humidity\""
+par SimpleSensorNetwork.frank.app[0] nextIndexOfSensorDataToRetrieve "intuniform(0, 2)"
+par SimpleSensorNetwork.frank.app[0] maxSensorDataReadingsToKeep 100
+par SimpleSensorNetwork.frank.app[0] maxHopsAllowed 5
+par SimpleSensorNetwork.frank.fwd typename "\"inbaversim.RFC8569Forwarder\""
+par SimpleSensorNetwork.frank.fwd maximumContentStoreSize 0byte
+attr unit byte
+par SimpleSensorNetwork.frank.wired[0] typename "\"inbaversim.WiredTransport\""
+par SimpleSensorNetwork.frank.wired[0] wiredTechnology "\"Ethernet\""
+par SimpleSensorNetwork.frank.wired[0] dataRate 1e+06bps
+attr unit bps
+par SimpleSensorNetwork.frank.wired[0] packetErrorRate 0pct
+attr unit pct
+par SimpleSensorNetwork.frank.wired[0] headerSize 32byte
+attr unit byte
+par SimpleSensorNetwork.frank.mob typename "\"inet.mobility.static.StationaryMobility\""
+par SimpleSensorNetwork.frank.mob subjectModule "\"^\""
+par SimpleSensorNetwork.frank.mob coordinateSystemModule "\"\""
+par SimpleSensorNetwork.frank.mob displayStringTextFormat "\"p: %p\\nv: %v\""
+attr mutable ""
+par SimpleSensorNetwork.frank.mob updateDisplayString true
+par SimpleSensorNetwork.frank.mob constraintAreaMinX 0m
+attr unit m
+par SimpleSensorNetwork.frank.mob constraintAreaMinY 0m
+attr unit m
+par SimpleSensorNetwork.frank.mob constraintAreaMinZ 0m
+attr unit m
+par SimpleSensorNetwork.frank.mob constraintAreaMaxX 400m
+attr unit m
+par SimpleSensorNetwork.frank.mob constraintAreaMaxY 400m
+attr unit m
+par SimpleSensorNetwork.frank.mob constraintAreaMaxZ 0m
+attr unit m
+par SimpleSensorNetwork.frank.mob initialX 244.153m
+attr unit m
+par SimpleSensorNetwork.frank.mob initialY 380.113m
+attr unit m
+par SimpleSensorNetwork.frank.mob initialZ 0m
+attr unit m
+par SimpleSensorNetwork.frank.mob initialLatitude "nan deg"
+attr unit deg
+par SimpleSensorNetwork.frank.mob initialLongitude "nan deg"
+attr unit deg
+par SimpleSensorNetwork.frank.mob initialAltitude 0m
+attr unit m
+par SimpleSensorNetwork.frank.mob initialHeading 0deg
+attr unit deg
+par SimpleSensorNetwork.frank.mob initialElevation 0deg
+attr unit deg
+par SimpleSensorNetwork.frank.mob initialBank 0deg
+attr unit deg
+par SimpleSensorNetwork.frank.mob initFromDisplayString true
+par SimpleSensorNetwork.frank.mob updateFromDisplayString true
+par SimpleSensorNetwork.frank typename "\"inbaversim.WiredNode\""
+par SimpleSensorNetwork.frank numApps 1
+par SimpleSensorNetwork.frank numWiredTransports 1
+par SimpleSensorNetwork.frank numWirelessTransports 0
+par SimpleSensorNetwork.frank wiredNodeNumWiredTransports 1
+par SimpleSensorNetwork.frank wiredNodeNumWirelessTransports 0
+par SimpleSensorNetwork.frank forwarder "\"RFC8569Forwarder\""
+par SimpleSensorNetwork.frank ethDataRate 1e+06bps
+attr unit bps
+par SimpleSensorNetwork.frank ethPacketErrorRate 0pct
+attr unit pct
+par SimpleSensorNetwork.frank mobility "\"StationaryMobility\""
+scalar SimpleSensorNetwork.frank transportTotalWirelessBytesSent:count 0
+attr recordingmode count
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.frank transportTotalWirelessBytesSent:mean -nan
+attr recordingmode mean
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.frank transportTotalWirelessBytesSent:sum 0
+attr recordingmode sum
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.frank transportTotalWirelessBytesReceived:count 0
+attr recordingmode count
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.frank transportTotalWirelessBytesReceived:mean -nan
+attr recordingmode mean
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.frank transportTotalWirelessBytesReceived:sum 0
+attr recordingmode sum
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.frank transportTotalWiredBytesSent:count 3
+attr recordingmode count
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.frank transportTotalWiredBytesSent:mean 48
+attr recordingmode mean
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.frank transportTotalWiredBytesSent:sum 144
+attr recordingmode sum
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.frank transportTotalWiredBytesReceived:count 3
+attr recordingmode count
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.frank transportTotalWiredBytesReceived:mean 84
+attr recordingmode mean
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.frank transportTotalWiredBytesReceived:sum 252
+attr recordingmode sum
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.frank fwdCacheMissRatio:min 0.00060802594244021
+attr recordingmode min
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.frank fwdCacheMissRatio:max 1
+attr recordingmode max
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.frank fwdCacheMissRatio:count 4934
+attr recordingmode count
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.frank fwdCacheMissRatio:last 0.00060802594244021
+attr recordingmode last
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.frank fwdCacheHitRatio:min 0
+attr recordingmode min
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.frank fwdCacheHitRatio:max 0.99939197405756
+attr recordingmode max
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.frank fwdCacheHitRatio:count 4934
+attr recordingmode count
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.frank fwdCacheHitRatio:last 0.99939197405756
+attr recordingmode last
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.frank fwdPITEntryCount:min 0
+attr recordingmode min
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.frank fwdPITEntryCount:max 1
+attr recordingmode max
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.frank fwdPITEntryCount:count 6
+attr recordingmode count
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.frank fwdPITEntryCount:mean 0.5
+attr recordingmode mean
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.frank fwdPITEntryCount:timeavg 3.6673033512763e-10
+attr recordingmode timeavg
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.frank fwdPITEntryCount:last 0
+attr recordingmode last
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.frank fwdFIBEntryCount:min 1
+attr recordingmode min
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.frank fwdFIBEntryCount:max 1
+attr recordingmode max
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.frank fwdFIBEntryCount:count 1
+attr recordingmode count
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.frank fwdFIBEntryCount:mean 1
+attr recordingmode mean
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.frank fwdFIBEntryCount:timeavg 1
+attr recordingmode timeavg
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.frank fwdFIBEntryCount:last 1
+attr recordingmode last
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.frank fwdCacheRemovalsBytes:count 0
+attr recordingmode count
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.frank fwdCacheRemovalsBytes:mean -nan
+attr recordingmode mean
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.frank fwdCacheRemovalsBytes:sum 0
+attr recordingmode sum
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.frank fwdCacheAdditionsBytes:count 3
+attr recordingmode count
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.frank fwdCacheAdditionsBytes:mean 36
+attr recordingmode mean
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.frank fwdCacheAdditionsBytes:sum 108
+attr recordingmode sum
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.frank fwdCacheSizeBytes:min 36
+attr recordingmode min
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.frank fwdCacheSizeBytes:max 108
+attr recordingmode max
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.frank fwdCacheSizeBytes:count 3
+attr recordingmode count
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.frank fwdCacheSizeBytes:mean 72
+attr recordingmode mean
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.frank fwdCacheSizeBytes:timeavg 107.96518200665
+attr recordingmode timeavg
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.frank fwdCacheSizeBytes:last 108
+attr recordingmode last
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.frank fwdTotalContentObjsBytesSent:count 0
+attr recordingmode count
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.frank fwdTotalContentObjsBytesSent:mean -nan
+attr recordingmode mean
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.frank fwdTotalContentObjsBytesSent:sum 0
+attr recordingmode sum
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.frank fwdTotalInterestRtnsBytesSent:count 0
+attr recordingmode count
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.frank fwdTotalInterestRtnsBytesSent:mean -nan
+attr recordingmode mean
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.frank fwdTotalInterestRtnsBytesSent:sum 0
+attr recordingmode sum
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.frank fwdTotalInterestsBytesSent:count 3
+attr recordingmode count
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.frank fwdTotalInterestsBytesSent:mean 16
+attr recordingmode mean
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.frank fwdTotalInterestsBytesSent:sum 48
+attr recordingmode sum
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.frank fwdTotalContentObjsBytesReceived:count 3
+attr recordingmode count
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.frank fwdTotalContentObjsBytesReceived:mean 52
+attr recordingmode mean
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.frank fwdTotalContentObjsBytesReceived:sum 156
+attr recordingmode sum
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.frank fwdTotalInterestRtnsBytesReceived:count 0
+attr recordingmode count
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.frank fwdTotalInterestRtnsBytesReceived:mean -nan
+attr recordingmode mean
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.frank fwdTotalInterestRtnsBytesReceived:sum 0
+attr recordingmode sum
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.frank fwdTotalInterestsBytesReceived:count 0
+attr recordingmode count
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.frank fwdTotalInterestsBytesReceived:mean -nan
+attr recordingmode mean
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.frank fwdTotalInterestsBytesReceived:sum 0
+attr recordingmode sum
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.frank appTotalDataBytesSent:count 0
+attr recordingmode count
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.frank appTotalDataBytesSent:mean -nan
+attr recordingmode mean
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.frank appTotalDataBytesSent:sum 0
+attr recordingmode sum
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.frank appTotalContentObjsBytesSent:count 0
+attr recordingmode count
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.frank appTotalContentObjsBytesSent:mean -nan
+attr recordingmode mean
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.frank appTotalContentObjsBytesSent:sum 0
+attr recordingmode sum
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.frank appTotalInterestsBytesReceived:count 0
+attr recordingmode count
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.frank appTotalInterestsBytesReceived:mean -nan
+attr recordingmode mean
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.frank appTotalInterestsBytesReceived:sum 0
+attr recordingmode sum
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.frank appTotalDataBytesReceived:count 4934
+attr recordingmode count
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.frank appTotalDataBytesReceived:mean 36
+attr recordingmode mean
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.frank appTotalDataBytesReceived:sum 177624
+attr recordingmode sum
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.frank appTotalContentObjsBytesReceived:count 4934
+attr recordingmode count
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.frank appTotalContentObjsBytesReceived:mean 52
+attr recordingmode mean
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.frank appTotalContentObjsBytesReceived:sum 256568
+attr recordingmode sum
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.frank appRetransmissionInterestsBytesSent:count 0
+attr recordingmode count
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.frank appRetransmissionInterestsBytesSent:mean -nan
+attr recordingmode mean
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.frank appRetransmissionInterestsBytesSent:sum 0
+attr recordingmode sum
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.frank appTotalInterestsBytesSent:count 4934
+attr recordingmode count
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.frank appTotalInterestsBytesSent:mean 16
+attr recordingmode mean
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.frank appTotalInterestsBytesSent:sum 78944
+attr recordingmode sum
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.frank appSegmentDownloadDuration:min -nan
+attr recordingmode min
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.frank appSegmentDownloadDuration:max -nan
+attr recordingmode max
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.frank appSegmentDownloadDuration:count 0
+attr recordingmode count
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.frank appSegmentDownloadDuration:mean -nan
+attr recordingmode mean
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.frank appContentDownloadDuration:min -nan
+attr recordingmode min
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.frank appContentDownloadDuration:max -nan
+attr recordingmode max
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.frank appContentDownloadDuration:count 0
+attr recordingmode count
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.frank appContentDownloadDuration:mean -nan
+attr recordingmode mean
+attr source appContentDownloadDuration
+par SimpleSensorNetwork.gw.numen typename "\"inbaversim.Numen\""
+par SimpleSensorNetwork.gw.app[0] typename "\"inbaversim.IoTGatewayApp\""
+par SimpleSensorNetwork.gw.app[0] hostedPrefixName "\"ccnx://uhb.de/ee/iot/\""
+par SimpleSensorNetwork.gw.app[0] hostedPrefixNameForSensorNet "\"ccnx://uhb.de/ee/gw/\""
+par SimpleSensorNetwork.gw.app[0] sensorPrefixName "\"ccnx://uhb.de/ee/sensor/\""
+par SimpleSensorNetwork.gw.app[0] interestLifetime 3s
+attr unit s
+par SimpleSensorNetwork.gw.app[0] maximumSensorReadingsToKeep 100
+par SimpleSensorNetwork.gw.fwd typename "\"inbaversim.RFC8569Forwarder\""
+par SimpleSensorNetwork.gw.fwd maximumContentStoreSize 0byte
+attr unit byte
+par SimpleSensorNetwork.gw.wired[0] typename "\"inbaversim.WiredTransport\""
+par SimpleSensorNetwork.gw.wired[0] wiredTechnology "\"Ethernet\""
+par SimpleSensorNetwork.gw.wired[0] dataRate 1e+06bps
+attr unit bps
+par SimpleSensorNetwork.gw.wired[0] packetErrorRate 0pct
+attr unit pct
+par SimpleSensorNetwork.gw.wired[0] headerSize 32byte
+attr unit byte
+par SimpleSensorNetwork.gw.wireless[0] typename "\"inbaversim.WirelessTransport\""
+par SimpleSensorNetwork.gw.wireless[0] wirelessTechnology "\"LoRa\""
+par SimpleSensorNetwork.gw.wireless[0] operationMode "\"ap\""
+par SimpleSensorNetwork.gw.wireless[0] connectString "\"LoRa\""
+par SimpleSensorNetwork.gw.wireless[0] wirelessRange 200meter
+attr unit meter
+par SimpleSensorNetwork.gw.wireless[0] dataRate 5500bps
+attr unit bps
+par SimpleSensorNetwork.gw.wireless[0] packetErrorRate 0pct
+attr unit pct
+par SimpleSensorNetwork.gw.wireless[0] scanInterval 1s
+attr unit s
+par SimpleSensorNetwork.gw.wireless[0] headerSize 20byte
+attr unit byte
+par SimpleSensorNetwork.gw.wireless[0] wirelessRangeRadiusShow true
+par SimpleSensorNetwork.gw.wireless[0] wirelessRangeRadiusColor "\"black\""
+par SimpleSensorNetwork.gw.mob typename "\"inet.mobility.static.StationaryMobility\""
+par SimpleSensorNetwork.gw.mob subjectModule "\"^\""
+par SimpleSensorNetwork.gw.mob coordinateSystemModule "\"\""
+par SimpleSensorNetwork.gw.mob displayStringTextFormat "\"p: %p\\nv: %v\""
+attr mutable ""
+par SimpleSensorNetwork.gw.mob updateDisplayString true
+par SimpleSensorNetwork.gw.mob constraintAreaMinX 0m
+attr unit m
+par SimpleSensorNetwork.gw.mob constraintAreaMinY 0m
+attr unit m
+par SimpleSensorNetwork.gw.mob constraintAreaMinZ 0m
+attr unit m
+par SimpleSensorNetwork.gw.mob constraintAreaMaxX 400m
+attr unit m
+par SimpleSensorNetwork.gw.mob constraintAreaMaxY 400m
+attr unit m
+par SimpleSensorNetwork.gw.mob constraintAreaMaxZ 0m
+attr unit m
+par SimpleSensorNetwork.gw.mob initialX 192.877m
+attr unit m
+par SimpleSensorNetwork.gw.mob initialY 144.321m
+attr unit m
+par SimpleSensorNetwork.gw.mob initialZ 0m
+attr unit m
+par SimpleSensorNetwork.gw.mob initialLatitude "nan deg"
+attr unit deg
+par SimpleSensorNetwork.gw.mob initialLongitude "nan deg"
+attr unit deg
+par SimpleSensorNetwork.gw.mob initialAltitude 0m
+attr unit m
+par SimpleSensorNetwork.gw.mob initialHeading 0deg
+attr unit deg
+par SimpleSensorNetwork.gw.mob initialElevation 0deg
+attr unit deg
+par SimpleSensorNetwork.gw.mob initialBank 0deg
+attr unit deg
+par SimpleSensorNetwork.gw.mob initFromDisplayString true
+par SimpleSensorNetwork.gw.mob updateFromDisplayString true
+par SimpleSensorNetwork.gw typename "\"inbaversim.IoTGateway\""
+par SimpleSensorNetwork.gw numApps 1
+par SimpleSensorNetwork.gw numWiredTransports 1
+par SimpleSensorNetwork.gw numWirelessTransports 1
+par SimpleSensorNetwork.gw iotGatewayNumWiredTransports 1
+par SimpleSensorNetwork.gw iotGatewayNumWirelessTransports 1
+par SimpleSensorNetwork.gw forwarder "\"RFC8569Forwarder\""
+par SimpleSensorNetwork.gw iotGatewayLoRaWirelessRange 200meter
+attr unit meter
+par SimpleSensorNetwork.gw iotGatewayLoRaDataRate 5500bps
+attr unit bps
+par SimpleSensorNetwork.gw iotGatewayLoRaPacketErrorRate 0pct
+attr unit pct
+par SimpleSensorNetwork.gw iotGatewayLoRaHeaderSize 20byte
+attr unit byte
+par SimpleSensorNetwork.gw iotGatewayEthDataRate 1e+06bps
+attr unit bps
+par SimpleSensorNetwork.gw iotGatewayEthPacketErrorRate 0pct
+attr unit pct
+par SimpleSensorNetwork.gw mobility "\"StationaryMobility\""
+scalar SimpleSensorNetwork.gw transportTotalWirelessBytesSent:count 4
+attr recordingmode count
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.gw transportTotalWirelessBytesSent:mean 40
+attr recordingmode mean
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.gw transportTotalWirelessBytesSent:sum 160
+attr recordingmode sum
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.gw transportTotalWirelessBytesReceived:count 4
+attr recordingmode count
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.gw transportTotalWirelessBytesReceived:mean 54
+attr recordingmode mean
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.gw transportTotalWirelessBytesReceived:sum 216
+attr recordingmode sum
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.gw transportTotalWiredBytesSent:count 3
+attr recordingmode count
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.gw transportTotalWiredBytesSent:mean 84
+attr recordingmode mean
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.gw transportTotalWiredBytesSent:sum 252
+attr recordingmode sum
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.gw transportTotalWiredBytesReceived:count 3
+attr recordingmode count
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.gw transportTotalWiredBytesReceived:mean 48
+attr recordingmode mean
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.gw transportTotalWiredBytesReceived:sum 144
+attr recordingmode sum
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.gw fwdCacheMissRatio:min 1
+attr recordingmode min
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.gw fwdCacheMissRatio:max 1
+attr recordingmode max
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.gw fwdCacheMissRatio:count 7
+attr recordingmode count
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.gw fwdCacheMissRatio:last 1
+attr recordingmode last
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.gw fwdCacheHitRatio:min 0
+attr recordingmode min
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.gw fwdCacheHitRatio:max 0
+attr recordingmode max
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.gw fwdCacheHitRatio:count 7
+attr recordingmode count
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.gw fwdCacheHitRatio:last 0
+attr recordingmode last
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.gw fwdPITEntryCount:min 0
+attr recordingmode min
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.gw fwdPITEntryCount:max 2
+attr recordingmode max
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.gw fwdPITEntryCount:count 14
+attr recordingmode count
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.gw fwdPITEntryCount:mean 0.92857142857143
+attr recordingmode mean
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.gw fwdPITEntryCount:timeavg 1.8183402112273e-06
+attr recordingmode timeavg
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.gw fwdPITEntryCount:last 0
+attr recordingmode last
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.gw fwdFIBEntryCount:min 1
+attr recordingmode min
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.gw fwdFIBEntryCount:max 5
+attr recordingmode max
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.gw fwdFIBEntryCount:count 6
+attr recordingmode count
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.gw fwdFIBEntryCount:mean 3
+attr recordingmode mean
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.gw fwdFIBEntryCount:timeavg 4.9998257828283
+attr recordingmode timeavg
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.gw fwdFIBEntryCount:last 5
+attr recordingmode last
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.gw fwdCacheRemovalsBytes:count 0
+attr recordingmode count
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.gw fwdCacheRemovalsBytes:mean -nan
+attr recordingmode mean
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.gw fwdCacheRemovalsBytes:sum 0
+attr recordingmode sum
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.gw fwdCacheAdditionsBytes:count 7
+attr recordingmode count
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.gw fwdCacheAdditionsBytes:mean 28
+attr recordingmode mean
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.gw fwdCacheAdditionsBytes:sum 196
+attr recordingmode sum
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.gw fwdCacheSizeBytes:min 8
+attr recordingmode min
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.gw fwdCacheSizeBytes:max 196
+attr recordingmode max
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.gw fwdCacheSizeBytes:count 7
+attr recordingmode count
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.gw fwdCacheSizeBytes:mean 92
+attr recordingmode mean
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.gw fwdCacheSizeBytes:timeavg 195.95577646712
+attr recordingmode timeavg
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.gw fwdCacheSizeBytes:last 196
+attr recordingmode last
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.gw fwdTotalContentObjsBytesSent:count 5
+attr recordingmode count
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.gw fwdTotalContentObjsBytesSent:mean 40.8
+attr recordingmode mean
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.gw fwdTotalContentObjsBytesSent:sum 204
+attr recordingmode sum
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.gw fwdTotalInterestRtnsBytesSent:count 0
+attr recordingmode count
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.gw fwdTotalInterestRtnsBytesSent:mean -nan
+attr recordingmode mean
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.gw fwdTotalInterestRtnsBytesSent:sum 0
+attr recordingmode sum
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.gw fwdTotalInterestsBytesSent:count 2
+attr recordingmode count
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.gw fwdTotalInterestsBytesSent:mean 16
+attr recordingmode mean
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.gw fwdTotalInterestsBytesSent:sum 32
+attr recordingmode sum
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.gw fwdTotalContentObjsBytesReceived:count 2
+attr recordingmode count
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.gw fwdTotalContentObjsBytesReceived:mean 52
+attr recordingmode mean
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.gw fwdTotalContentObjsBytesReceived:sum 104
+attr recordingmode sum
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.gw fwdTotalInterestRtnsBytesReceived:count 0
+attr recordingmode count
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.gw fwdTotalInterestRtnsBytesReceived:mean -nan
+attr recordingmode mean
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.gw fwdTotalInterestRtnsBytesReceived:sum 0
+attr recordingmode sum
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.gw fwdTotalInterestsBytesReceived:count 5
+attr recordingmode count
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.gw fwdTotalInterestsBytesReceived:mean 16
+attr recordingmode mean
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.gw fwdTotalInterestsBytesReceived:sum 80
+attr recordingmode sum
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.gw appTotalDataBytesSent:count 0
+attr recordingmode count
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.gw appTotalDataBytesSent:mean -nan
+attr recordingmode mean
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.gw appTotalDataBytesSent:sum 0
+attr recordingmode sum
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.gw appTotalContentObjsBytesSent:count 0
+attr recordingmode count
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.gw appTotalContentObjsBytesSent:mean -nan
+attr recordingmode mean
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.gw appTotalContentObjsBytesSent:sum 0
+attr recordingmode sum
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.gw appTotalInterestsBytesReceived:count 0
+attr recordingmode count
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.gw appTotalInterestsBytesReceived:mean -nan
+attr recordingmode mean
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.gw appTotalInterestsBytesReceived:sum 0
+attr recordingmode sum
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.gw appTotalDataBytesReceived:count 0
+attr recordingmode count
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.gw appTotalDataBytesReceived:mean -nan
+attr recordingmode mean
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.gw appTotalDataBytesReceived:sum 0
+attr recordingmode sum
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.gw appTotalContentObjsBytesReceived:count 0
+attr recordingmode count
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.gw appTotalContentObjsBytesReceived:mean -nan
+attr recordingmode mean
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.gw appTotalContentObjsBytesReceived:sum 0
+attr recordingmode sum
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.gw appRetransmissionInterestsBytesSent:count 0
+attr recordingmode count
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.gw appRetransmissionInterestsBytesSent:mean -nan
+attr recordingmode mean
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.gw appRetransmissionInterestsBytesSent:sum 0
+attr recordingmode sum
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.gw appTotalInterestsBytesSent:count 0
+attr recordingmode count
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.gw appTotalInterestsBytesSent:mean -nan
+attr recordingmode mean
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.gw appTotalInterestsBytesSent:sum 0
+attr recordingmode sum
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.gw appSegmentDownloadDuration:min -nan
+attr recordingmode min
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.gw appSegmentDownloadDuration:max -nan
+attr recordingmode max
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.gw appSegmentDownloadDuration:count 0
+attr recordingmode count
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.gw appSegmentDownloadDuration:mean -nan
+attr recordingmode mean
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.gw appContentDownloadDuration:min -nan
+attr recordingmode min
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.gw appContentDownloadDuration:max -nan
+attr recordingmode max
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.gw appContentDownloadDuration:count 0
+attr recordingmode count
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.gw appContentDownloadDuration:mean -nan
+attr recordingmode mean
+attr source appContentDownloadDuration
+par SimpleSensorNetwork.climateSensor.numen typename "\"inbaversim.Numen\""
+par SimpleSensorNetwork.climateSensor.app[0] typename "\"inbaversim.SensingApp\""
+par SimpleSensorNetwork.climateSensor.app[0] sensorPrefixName "\"ccnx://uhb.de/ee/sensor/\""
+par SimpleSensorNetwork.climateSensor.app[0] gwPrefixName "\"ccnx://uhb.de/ee/gw/\""
+par SimpleSensorNetwork.climateSensor.app[0] interestLifetime 3s
+attr unit s
+par SimpleSensorNetwork.climateSensor.app[0] segmentSize 36byte
+attr unit byte
+par SimpleSensorNetwork.climateSensor.app[0] numSegmentsPerFile 1
+par SimpleSensorNetwork.climateSensor.app[0] cacheTime 800s
+attr unit s
+par SimpleSensorNetwork.climateSensor.app[0] sensedDataTypes "\"temperature;humidity\""
+par SimpleSensorNetwork.climateSensor.app[0] temperature "uniform(20, 23)"
+par SimpleSensorNetwork.climateSensor.app[0] humidity "uniform(50, 70)"
+par SimpleSensorNetwork.climateSensor.app[0] vwc "uniform(20, 30)"
+par SimpleSensorNetwork.climateSensor.app[0] salinity "intuniform(1000, 1200)"
+par SimpleSensorNetwork.climateSensor.app[0] waterStart 16588
+par SimpleSensorNetwork.climateSensor.app[0] waterIncrease "uniform(0.04, 0.06)"
+par SimpleSensorNetwork.climateSensor.app[0] electricStart 9259.4
+par SimpleSensorNetwork.climateSensor.app[0] electricIncrease "uniform(0.0025, 0.005)"
+par SimpleSensorNetwork.climateSensor.app[0] wakeupInterval 15s
+attr unit s
+par SimpleSensorNetwork.climateSensor.fwd typename "\"inbaversim.RFC8569Forwarder\""
+par SimpleSensorNetwork.climateSensor.fwd maximumContentStoreSize 0byte
+attr unit byte
+par SimpleSensorNetwork.climateSensor.wireless[0] typename "\"inbaversim.WirelessTransport\""
+par SimpleSensorNetwork.climateSensor.wireless[0] wirelessTechnology "\"LoRa\""
+par SimpleSensorNetwork.climateSensor.wireless[0] operationMode "\"client\""
+par SimpleSensorNetwork.climateSensor.wireless[0] connectString "\"LoRa\""
+par SimpleSensorNetwork.climateSensor.wireless[0] wirelessRange 200meter
+attr unit meter
+par SimpleSensorNetwork.climateSensor.wireless[0] dataRate 5500bps
+attr unit bps
+par SimpleSensorNetwork.climateSensor.wireless[0] packetErrorRate 0pct
+attr unit pct
+par SimpleSensorNetwork.climateSensor.wireless[0] scanInterval 1s
+attr unit s
+par SimpleSensorNetwork.climateSensor.wireless[0] headerSize 20byte
+attr unit byte
+par SimpleSensorNetwork.climateSensor.wireless[0] wirelessRangeRadiusShow false
+par SimpleSensorNetwork.climateSensor.wireless[0] wirelessRangeRadiusColor "\"black\""
+par SimpleSensorNetwork.climateSensor.mob typename "\"inet.mobility.static.StationaryMobility\""
+par SimpleSensorNetwork.climateSensor.mob subjectModule "\"^\""
+par SimpleSensorNetwork.climateSensor.mob coordinateSystemModule "\"\""
+par SimpleSensorNetwork.climateSensor.mob displayStringTextFormat "\"p: %p\\nv: %v\""
+attr mutable ""
+par SimpleSensorNetwork.climateSensor.mob updateDisplayString true
+par SimpleSensorNetwork.climateSensor.mob constraintAreaMinX 0m
+attr unit m
+par SimpleSensorNetwork.climateSensor.mob constraintAreaMinY 0m
+attr unit m
+par SimpleSensorNetwork.climateSensor.mob constraintAreaMinZ 0m
+attr unit m
+par SimpleSensorNetwork.climateSensor.mob constraintAreaMaxX 400m
+attr unit m
+par SimpleSensorNetwork.climateSensor.mob constraintAreaMaxY 400m
+attr unit m
+par SimpleSensorNetwork.climateSensor.mob constraintAreaMaxZ 0m
+attr unit m
+par SimpleSensorNetwork.climateSensor.mob initialX 339.996m
+attr unit m
+par SimpleSensorNetwork.climateSensor.mob initialY 84.9331m
+attr unit m
+par SimpleSensorNetwork.climateSensor.mob initialZ 0m
+attr unit m
+par SimpleSensorNetwork.climateSensor.mob initialLatitude "nan deg"
+attr unit deg
+par SimpleSensorNetwork.climateSensor.mob initialLongitude "nan deg"
+attr unit deg
+par SimpleSensorNetwork.climateSensor.mob initialAltitude 0m
+attr unit m
+par SimpleSensorNetwork.climateSensor.mob initialHeading 0deg
+attr unit deg
+par SimpleSensorNetwork.climateSensor.mob initialElevation 0deg
+attr unit deg
+par SimpleSensorNetwork.climateSensor.mob initialBank 0deg
+attr unit deg
+par SimpleSensorNetwork.climateSensor.mob initFromDisplayString true
+par SimpleSensorNetwork.climateSensor.mob updateFromDisplayString true
+par SimpleSensorNetwork.climateSensor typename "\"inbaversim.WirelessSensorNode\""
+par SimpleSensorNetwork.climateSensor numApps 1
+par SimpleSensorNetwork.climateSensor numWiredTransports 0
+par SimpleSensorNetwork.climateSensor numWirelessTransports 1
+par SimpleSensorNetwork.climateSensor wirelessSensorNodeLoRaNumWirelessTransports 1
+par SimpleSensorNetwork.climateSensor forwarder "\"RFC8569Forwarder\""
+par SimpleSensorNetwork.climateSensor wirelessSensorNodeLoRaWirelessRange 200meter
+attr unit meter
+par SimpleSensorNetwork.climateSensor wirelessSensorNodeLoRaDataRate 5500bps
+attr unit bps
+par SimpleSensorNetwork.climateSensor wirelessSensorNodeLoRaPacketErrorRate 0pct
+attr unit pct
+par SimpleSensorNetwork.climateSensor wirelessSensorNodeLoRaHeaderSize 20byte
+attr unit byte
+par SimpleSensorNetwork.climateSensor mobility "\"StationaryMobility\""
+scalar SimpleSensorNetwork.climateSensor transportTotalWirelessBytesSent:count 2
+attr recordingmode count
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.climateSensor transportTotalWirelessBytesSent:mean 54
+attr recordingmode mean
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.climateSensor transportTotalWirelessBytesSent:sum 108
+attr recordingmode sum
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.climateSensor transportTotalWirelessBytesReceived:count 4
+attr recordingmode count
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.climateSensor transportTotalWirelessBytesReceived:mean 40
+attr recordingmode mean
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.climateSensor transportTotalWirelessBytesReceived:sum 160
+attr recordingmode sum
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.climateSensor transportTotalWiredBytesSent:count 0
+attr recordingmode count
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.climateSensor transportTotalWiredBytesSent:mean -nan
+attr recordingmode mean
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.climateSensor transportTotalWiredBytesSent:sum 0
+attr recordingmode sum
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.climateSensor transportTotalWiredBytesReceived:count 0
+attr recordingmode count
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.climateSensor transportTotalWiredBytesReceived:mean -nan
+attr recordingmode mean
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.climateSensor transportTotalWiredBytesReceived:sum 0
+attr recordingmode sum
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.climateSensor fwdCacheMissRatio:min 0.00026037146328762
+attr recordingmode min
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.climateSensor fwdCacheMissRatio:max 1
+attr recordingmode max
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.climateSensor fwdCacheMissRatio:count 11522
+attr recordingmode count
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.climateSensor fwdCacheMissRatio:last 0.00026037146328762
+attr recordingmode last
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.climateSensor fwdCacheHitRatio:min 0
+attr recordingmode min
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.climateSensor fwdCacheHitRatio:max 0.99973962853671
+attr recordingmode max
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.climateSensor fwdCacheHitRatio:count 11522
+attr recordingmode count
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.climateSensor fwdCacheHitRatio:last 0.99973962853671
+attr recordingmode last
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.climateSensor fwdPITEntryCount:min 1
+attr recordingmode min
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.climateSensor fwdPITEntryCount:max 3
+attr recordingmode max
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.climateSensor fwdPITEntryCount:count 5
+attr recordingmode count
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.climateSensor fwdPITEntryCount:mean 1.8
+attr recordingmode mean
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.climateSensor fwdPITEntryCount:timeavg 1.0000000673459
+attr recordingmode timeavg
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.climateSensor fwdPITEntryCount:last 1
+attr recordingmode last
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.climateSensor fwdFIBEntryCount:min 1
+attr recordingmode min
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.climateSensor fwdFIBEntryCount:max 2
+attr recordingmode max
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.climateSensor fwdFIBEntryCount:count 2
+attr recordingmode count
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.climateSensor fwdFIBEntryCount:mean 1.5
+attr recordingmode mean
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.climateSensor fwdFIBEntryCount:timeavg 2
+attr recordingmode timeavg
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.climateSensor fwdFIBEntryCount:last 2
+attr recordingmode last
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.climateSensor fwdCacheRemovalsBytes:count 0
+attr recordingmode count
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.climateSensor fwdCacheRemovalsBytes:mean -nan
+attr recordingmode mean
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.climateSensor fwdCacheRemovalsBytes:sum 0
+attr recordingmode sum
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.climateSensor fwdCacheAdditionsBytes:count 3
+attr recordingmode count
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.climateSensor fwdCacheAdditionsBytes:mean 17.333333333333
+attr recordingmode mean
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.climateSensor fwdCacheAdditionsBytes:sum 52
+attr recordingmode sum
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.climateSensor fwdCacheSizeBytes:min 36
+attr recordingmode min
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.climateSensor fwdCacheSizeBytes:max 52
+attr recordingmode max
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.climateSensor fwdCacheSizeBytes:count 3
+attr recordingmode count
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.climateSensor fwdCacheSizeBytes:mean 44
+attr recordingmode mean
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.climateSensor fwdCacheSizeBytes:timeavg 51.999998922465
+attr recordingmode timeavg
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.climateSensor fwdCacheSizeBytes:last 52
+attr recordingmode last
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.climateSensor fwdTotalContentObjsBytesSent:count 1
+attr recordingmode count
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.climateSensor fwdTotalContentObjsBytesSent:mean 52
+attr recordingmode mean
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.climateSensor fwdTotalContentObjsBytesSent:sum 52
+attr recordingmode sum
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.climateSensor fwdTotalInterestRtnsBytesSent:count 0
+attr recordingmode count
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.climateSensor fwdTotalInterestRtnsBytesSent:mean -nan
+attr recordingmode mean
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.climateSensor fwdTotalInterestRtnsBytesSent:sum 0
+attr recordingmode sum
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.climateSensor fwdTotalInterestsBytesSent:count 1
+attr recordingmode count
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.climateSensor fwdTotalInterestsBytesSent:mean 16
+attr recordingmode mean
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.climateSensor fwdTotalInterestsBytesSent:sum 16
+attr recordingmode sum
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.climateSensor fwdTotalContentObjsBytesReceived:count 2
+attr recordingmode count
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.climateSensor fwdTotalContentObjsBytesReceived:mean 24
+attr recordingmode mean
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.climateSensor fwdTotalContentObjsBytesReceived:sum 48
+attr recordingmode sum
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.climateSensor fwdTotalInterestRtnsBytesReceived:count 0
+attr recordingmode count
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.climateSensor fwdTotalInterestRtnsBytesReceived:mean -nan
+attr recordingmode mean
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.climateSensor fwdTotalInterestRtnsBytesReceived:sum 0
+attr recordingmode sum
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.climateSensor fwdTotalInterestsBytesReceived:count 2
+attr recordingmode count
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.climateSensor fwdTotalInterestsBytesReceived:mean 16
+attr recordingmode mean
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.climateSensor fwdTotalInterestsBytesReceived:sum 32
+attr recordingmode sum
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.climateSensor appTotalDataBytesSent:count 1
+attr recordingmode count
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.climateSensor appTotalDataBytesSent:mean 36
+attr recordingmode mean
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.climateSensor appTotalDataBytesSent:sum 36
+attr recordingmode sum
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.climateSensor appTotalContentObjsBytesSent:count 1
+attr recordingmode count
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.climateSensor appTotalContentObjsBytesSent:mean 52
+attr recordingmode mean
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.climateSensor appTotalContentObjsBytesSent:sum 52
+attr recordingmode sum
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.climateSensor appTotalInterestsBytesReceived:count 1
+attr recordingmode count
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.climateSensor appTotalInterestsBytesReceived:mean 16
+attr recordingmode mean
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.climateSensor appTotalInterestsBytesReceived:sum 16
+attr recordingmode sum
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.climateSensor appTotalDataBytesReceived:count 11520
+attr recordingmode count
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.climateSensor appTotalDataBytesReceived:mean 8
+attr recordingmode mean
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.climateSensor appTotalDataBytesReceived:sum 92160
+attr recordingmode sum
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.climateSensor appTotalContentObjsBytesReceived:count 11520
+attr recordingmode count
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.climateSensor appTotalContentObjsBytesReceived:mean 24
+attr recordingmode mean
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.climateSensor appTotalContentObjsBytesReceived:sum 276480
+attr recordingmode sum
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.climateSensor appRetransmissionInterestsBytesSent:count 0
+attr recordingmode count
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.climateSensor appRetransmissionInterestsBytesSent:mean -nan
+attr recordingmode mean
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.climateSensor appRetransmissionInterestsBytesSent:sum 0
+attr recordingmode sum
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.climateSensor appTotalInterestsBytesSent:count 0
+attr recordingmode count
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.climateSensor appTotalInterestsBytesSent:mean -nan
+attr recordingmode mean
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.climateSensor appTotalInterestsBytesSent:sum 0
+attr recordingmode sum
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.climateSensor appSegmentDownloadDuration:min 0
+attr recordingmode min
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.climateSensor appSegmentDownloadDuration:max 0
+attr recordingmode max
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.climateSensor appSegmentDownloadDuration:count 11520
+attr recordingmode count
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.climateSensor appSegmentDownloadDuration:mean 0
+attr recordingmode mean
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.climateSensor appContentDownloadDuration:min -nan
+attr recordingmode min
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.climateSensor appContentDownloadDuration:max -nan
+attr recordingmode max
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.climateSensor appContentDownloadDuration:count 0
+attr recordingmode count
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.climateSensor appContentDownloadDuration:mean -nan
+attr recordingmode mean
+attr source appContentDownloadDuration
+par SimpleSensorNetwork.plantSensor.numen typename "\"inbaversim.Numen\""
+par SimpleSensorNetwork.plantSensor.app[0] typename "\"inbaversim.SensingApp\""
+par SimpleSensorNetwork.plantSensor.app[0] sensorPrefixName "\"ccnx://uhb.de/ee/sensor/\""
+par SimpleSensorNetwork.plantSensor.app[0] gwPrefixName "\"ccnx://uhb.de/ee/gw/\""
+par SimpleSensorNetwork.plantSensor.app[0] interestLifetime 3s
+attr unit s
+par SimpleSensorNetwork.plantSensor.app[0] segmentSize 36byte
+attr unit byte
+par SimpleSensorNetwork.plantSensor.app[0] numSegmentsPerFile 1
+par SimpleSensorNetwork.plantSensor.app[0] cacheTime 800s
+attr unit s
+par SimpleSensorNetwork.plantSensor.app[0] sensedDataTypes "\"vwc;salinity\""
+par SimpleSensorNetwork.plantSensor.app[0] temperature "uniform(5, 7)"
+par SimpleSensorNetwork.plantSensor.app[0] humidity "uniform(45, 60)"
+par SimpleSensorNetwork.plantSensor.app[0] vwc "uniform(30, 40)"
+par SimpleSensorNetwork.plantSensor.app[0] salinity "intuniform(1500, 2100)"
+par SimpleSensorNetwork.plantSensor.app[0] waterStart 18442.6
+par SimpleSensorNetwork.plantSensor.app[0] waterIncrease "uniform(0.04, 0.06)"
+par SimpleSensorNetwork.plantSensor.app[0] electricStart 9762.82
+par SimpleSensorNetwork.plantSensor.app[0] electricIncrease "uniform(0.0025, 0.005)"
+par SimpleSensorNetwork.plantSensor.app[0] wakeupInterval 15s
+attr unit s
+par SimpleSensorNetwork.plantSensor.fwd typename "\"inbaversim.RFC8569Forwarder\""
+par SimpleSensorNetwork.plantSensor.fwd maximumContentStoreSize 0byte
+attr unit byte
+par SimpleSensorNetwork.plantSensor.wireless[0] typename "\"inbaversim.WirelessTransport\""
+par SimpleSensorNetwork.plantSensor.wireless[0] wirelessTechnology "\"LoRa\""
+par SimpleSensorNetwork.plantSensor.wireless[0] operationMode "\"client\""
+par SimpleSensorNetwork.plantSensor.wireless[0] connectString "\"LoRa\""
+par SimpleSensorNetwork.plantSensor.wireless[0] wirelessRange 200meter
+attr unit meter
+par SimpleSensorNetwork.plantSensor.wireless[0] dataRate 5500bps
+attr unit bps
+par SimpleSensorNetwork.plantSensor.wireless[0] packetErrorRate 0pct
+attr unit pct
+par SimpleSensorNetwork.plantSensor.wireless[0] scanInterval 1s
+attr unit s
+par SimpleSensorNetwork.plantSensor.wireless[0] headerSize 20byte
+attr unit byte
+par SimpleSensorNetwork.plantSensor.wireless[0] wirelessRangeRadiusShow false
+par SimpleSensorNetwork.plantSensor.wireless[0] wirelessRangeRadiusColor "\"black\""
+par SimpleSensorNetwork.plantSensor.mob typename "\"inet.mobility.static.StationaryMobility\""
+par SimpleSensorNetwork.plantSensor.mob subjectModule "\"^\""
+par SimpleSensorNetwork.plantSensor.mob coordinateSystemModule "\"\""
+par SimpleSensorNetwork.plantSensor.mob displayStringTextFormat "\"p: %p\\nv: %v\""
+attr mutable ""
+par SimpleSensorNetwork.plantSensor.mob updateDisplayString true
+par SimpleSensorNetwork.plantSensor.mob constraintAreaMinX 0m
+attr unit m
+par SimpleSensorNetwork.plantSensor.mob constraintAreaMinY 0m
+attr unit m
+par SimpleSensorNetwork.plantSensor.mob constraintAreaMinZ 0m
+attr unit m
+par SimpleSensorNetwork.plantSensor.mob constraintAreaMaxX 400m
+attr unit m
+par SimpleSensorNetwork.plantSensor.mob constraintAreaMaxY 400m
+attr unit m
+par SimpleSensorNetwork.plantSensor.mob constraintAreaMaxZ 0m
+attr unit m
+par SimpleSensorNetwork.plantSensor.mob initialX 16.2838m
+attr unit m
+par SimpleSensorNetwork.plantSensor.mob initialY 137.696m
+attr unit m
+par SimpleSensorNetwork.plantSensor.mob initialZ 0m
+attr unit m
+par SimpleSensorNetwork.plantSensor.mob initialLatitude "nan deg"
+attr unit deg
+par SimpleSensorNetwork.plantSensor.mob initialLongitude "nan deg"
+attr unit deg
+par SimpleSensorNetwork.plantSensor.mob initialAltitude 0m
+attr unit m
+par SimpleSensorNetwork.plantSensor.mob initialHeading 0deg
+attr unit deg
+par SimpleSensorNetwork.plantSensor.mob initialElevation 0deg
+attr unit deg
+par SimpleSensorNetwork.plantSensor.mob initialBank 0deg
+attr unit deg
+par SimpleSensorNetwork.plantSensor.mob initFromDisplayString true
+par SimpleSensorNetwork.plantSensor.mob updateFromDisplayString true
+par SimpleSensorNetwork.plantSensor typename "\"inbaversim.WirelessSensorNode\""
+par SimpleSensorNetwork.plantSensor numApps 1
+par SimpleSensorNetwork.plantSensor numWiredTransports 0
+par SimpleSensorNetwork.plantSensor numWirelessTransports 1
+par SimpleSensorNetwork.plantSensor wirelessSensorNodeLoRaNumWirelessTransports 1
+par SimpleSensorNetwork.plantSensor forwarder "\"RFC8569Forwarder\""
+par SimpleSensorNetwork.plantSensor wirelessSensorNodeLoRaWirelessRange 200meter
+attr unit meter
+par SimpleSensorNetwork.plantSensor wirelessSensorNodeLoRaDataRate 5500bps
+attr unit bps
+par SimpleSensorNetwork.plantSensor wirelessSensorNodeLoRaPacketErrorRate 0pct
+attr unit pct
+par SimpleSensorNetwork.plantSensor wirelessSensorNodeLoRaHeaderSize 20byte
+attr unit byte
+par SimpleSensorNetwork.plantSensor mobility "\"StationaryMobility\""
+scalar SimpleSensorNetwork.plantSensor transportTotalWirelessBytesSent:count 2
+attr recordingmode count
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.plantSensor transportTotalWirelessBytesSent:mean 54
+attr recordingmode mean
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.plantSensor transportTotalWirelessBytesSent:sum 108
+attr recordingmode sum
+attr source transportTotalWirelessBytesSent
+scalar SimpleSensorNetwork.plantSensor transportTotalWirelessBytesReceived:count 4
+attr recordingmode count
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.plantSensor transportTotalWirelessBytesReceived:mean 40
+attr recordingmode mean
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.plantSensor transportTotalWirelessBytesReceived:sum 160
+attr recordingmode sum
+attr source transportTotalWirelessBytesReceived
+scalar SimpleSensorNetwork.plantSensor transportTotalWiredBytesSent:count 0
+attr recordingmode count
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.plantSensor transportTotalWiredBytesSent:mean -nan
+attr recordingmode mean
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.plantSensor transportTotalWiredBytesSent:sum 0
+attr recordingmode sum
+attr source transportTotalWiredBytesSent
+scalar SimpleSensorNetwork.plantSensor transportTotalWiredBytesReceived:count 0
+attr recordingmode count
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.plantSensor transportTotalWiredBytesReceived:mean -nan
+attr recordingmode mean
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.plantSensor transportTotalWiredBytesReceived:sum 0
+attr recordingmode sum
+attr source transportTotalWiredBytesReceived
+scalar SimpleSensorNetwork.plantSensor fwdCacheMissRatio:min 0.00026037146328762
+attr recordingmode min
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.plantSensor fwdCacheMissRatio:max 1
+attr recordingmode max
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.plantSensor fwdCacheMissRatio:count 11522
+attr recordingmode count
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.plantSensor fwdCacheMissRatio:last 0.00026037146328762
+attr recordingmode last
+attr source fwdCacheMissRatio
+scalar SimpleSensorNetwork.plantSensor fwdCacheHitRatio:min 0
+attr recordingmode min
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.plantSensor fwdCacheHitRatio:max 0.99973962853671
+attr recordingmode max
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.plantSensor fwdCacheHitRatio:count 11522
+attr recordingmode count
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.plantSensor fwdCacheHitRatio:last 0.99973962853671
+attr recordingmode last
+attr source fwdCacheHitRatio
+scalar SimpleSensorNetwork.plantSensor fwdPITEntryCount:min 1
+attr recordingmode min
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.plantSensor fwdPITEntryCount:max 3
+attr recordingmode max
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.plantSensor fwdPITEntryCount:count 5
+attr recordingmode count
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.plantSensor fwdPITEntryCount:mean 1.8
+attr recordingmode mean
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.plantSensor fwdPITEntryCount:timeavg 1.0000000673459
+attr recordingmode timeavg
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.plantSensor fwdPITEntryCount:last 1
+attr recordingmode last
+attr source fwdPITEntryCount
+scalar SimpleSensorNetwork.plantSensor fwdFIBEntryCount:min 1
+attr recordingmode min
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.plantSensor fwdFIBEntryCount:max 2
+attr recordingmode max
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.plantSensor fwdFIBEntryCount:count 2
+attr recordingmode count
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.plantSensor fwdFIBEntryCount:mean 1.5
+attr recordingmode mean
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.plantSensor fwdFIBEntryCount:timeavg 2
+attr recordingmode timeavg
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.plantSensor fwdFIBEntryCount:last 2
+attr recordingmode last
+attr source fwdFIBEntryCount
+scalar SimpleSensorNetwork.plantSensor fwdCacheRemovalsBytes:count 0
+attr recordingmode count
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.plantSensor fwdCacheRemovalsBytes:mean -nan
+attr recordingmode mean
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.plantSensor fwdCacheRemovalsBytes:sum 0
+attr recordingmode sum
+attr source fwdCacheRemovalsBytes
+scalar SimpleSensorNetwork.plantSensor fwdCacheAdditionsBytes:count 3
+attr recordingmode count
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.plantSensor fwdCacheAdditionsBytes:mean 17.333333333333
+attr recordingmode mean
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.plantSensor fwdCacheAdditionsBytes:sum 52
+attr recordingmode sum
+attr source fwdCacheAdditionsBytes
+scalar SimpleSensorNetwork.plantSensor fwdCacheSizeBytes:min 36
+attr recordingmode min
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.plantSensor fwdCacheSizeBytes:max 52
+attr recordingmode max
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.plantSensor fwdCacheSizeBytes:count 3
+attr recordingmode count
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.plantSensor fwdCacheSizeBytes:mean 44
+attr recordingmode mean
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.plantSensor fwdCacheSizeBytes:timeavg 51.999998922465
+attr recordingmode timeavg
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.plantSensor fwdCacheSizeBytes:last 52
+attr recordingmode last
+attr source fwdCacheSizeBytes
+scalar SimpleSensorNetwork.plantSensor fwdTotalContentObjsBytesSent:count 1
+attr recordingmode count
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.plantSensor fwdTotalContentObjsBytesSent:mean 52
+attr recordingmode mean
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.plantSensor fwdTotalContentObjsBytesSent:sum 52
+attr recordingmode sum
+attr source fwdTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.plantSensor fwdTotalInterestRtnsBytesSent:count 0
+attr recordingmode count
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.plantSensor fwdTotalInterestRtnsBytesSent:mean -nan
+attr recordingmode mean
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.plantSensor fwdTotalInterestRtnsBytesSent:sum 0
+attr recordingmode sum
+attr source fwdTotalInterestRtnsBytesSent
+scalar SimpleSensorNetwork.plantSensor fwdTotalInterestsBytesSent:count 1
+attr recordingmode count
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.plantSensor fwdTotalInterestsBytesSent:mean 16
+attr recordingmode mean
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.plantSensor fwdTotalInterestsBytesSent:sum 16
+attr recordingmode sum
+attr source fwdTotalInterestsBytesSent
+scalar SimpleSensorNetwork.plantSensor fwdTotalContentObjsBytesReceived:count 2
+attr recordingmode count
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.plantSensor fwdTotalContentObjsBytesReceived:mean 24
+attr recordingmode mean
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.plantSensor fwdTotalContentObjsBytesReceived:sum 48
+attr recordingmode sum
+attr source fwdTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.plantSensor fwdTotalInterestRtnsBytesReceived:count 0
+attr recordingmode count
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.plantSensor fwdTotalInterestRtnsBytesReceived:mean -nan
+attr recordingmode mean
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.plantSensor fwdTotalInterestRtnsBytesReceived:sum 0
+attr recordingmode sum
+attr source fwdTotalInterestRtnsBytesReceived
+scalar SimpleSensorNetwork.plantSensor fwdTotalInterestsBytesReceived:count 2
+attr recordingmode count
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.plantSensor fwdTotalInterestsBytesReceived:mean 16
+attr recordingmode mean
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.plantSensor fwdTotalInterestsBytesReceived:sum 32
+attr recordingmode sum
+attr source fwdTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.plantSensor appTotalDataBytesSent:count 1
+attr recordingmode count
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.plantSensor appTotalDataBytesSent:mean 36
+attr recordingmode mean
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.plantSensor appTotalDataBytesSent:sum 36
+attr recordingmode sum
+attr source appTotalDataBytesSent
+scalar SimpleSensorNetwork.plantSensor appTotalContentObjsBytesSent:count 1
+attr recordingmode count
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.plantSensor appTotalContentObjsBytesSent:mean 52
+attr recordingmode mean
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.plantSensor appTotalContentObjsBytesSent:sum 52
+attr recordingmode sum
+attr source appTotalContentObjsBytesSent
+scalar SimpleSensorNetwork.plantSensor appTotalInterestsBytesReceived:count 1
+attr recordingmode count
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.plantSensor appTotalInterestsBytesReceived:mean 16
+attr recordingmode mean
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.plantSensor appTotalInterestsBytesReceived:sum 16
+attr recordingmode sum
+attr source appTotalInterestsBytesReceived
+scalar SimpleSensorNetwork.plantSensor appTotalDataBytesReceived:count 11520
+attr recordingmode count
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.plantSensor appTotalDataBytesReceived:mean 8
+attr recordingmode mean
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.plantSensor appTotalDataBytesReceived:sum 92160
+attr recordingmode sum
+attr source appTotalDataBytesReceived
+scalar SimpleSensorNetwork.plantSensor appTotalContentObjsBytesReceived:count 11520
+attr recordingmode count
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.plantSensor appTotalContentObjsBytesReceived:mean 24
+attr recordingmode mean
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.plantSensor appTotalContentObjsBytesReceived:sum 276480
+attr recordingmode sum
+attr source appTotalContentObjsBytesReceived
+scalar SimpleSensorNetwork.plantSensor appRetransmissionInterestsBytesSent:count 0
+attr recordingmode count
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.plantSensor appRetransmissionInterestsBytesSent:mean -nan
+attr recordingmode mean
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.plantSensor appRetransmissionInterestsBytesSent:sum 0
+attr recordingmode sum
+attr source appRetransmissionInterestsBytesSent
+scalar SimpleSensorNetwork.plantSensor appTotalInterestsBytesSent:count 0
+attr recordingmode count
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.plantSensor appTotalInterestsBytesSent:mean -nan
+attr recordingmode mean
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.plantSensor appTotalInterestsBytesSent:sum 0
+attr recordingmode sum
+attr source appTotalInterestsBytesSent
+scalar SimpleSensorNetwork.plantSensor appSegmentDownloadDuration:min 0
+attr recordingmode min
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.plantSensor appSegmentDownloadDuration:max 0
+attr recordingmode max
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.plantSensor appSegmentDownloadDuration:count 11520
+attr recordingmode count
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.plantSensor appSegmentDownloadDuration:mean 0
+attr recordingmode mean
+attr source appSegmentDownloadDuration
+scalar SimpleSensorNetwork.plantSensor appContentDownloadDuration:min -nan
+attr recordingmode min
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.plantSensor appContentDownloadDuration:max -nan
+attr recordingmode max
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.plantSensor appContentDownloadDuration:count 0
+attr recordingmode count
+attr source appContentDownloadDuration
+scalar SimpleSensorNetwork.plantSensor appContentDownloadDuration:mean -nan
+attr recordingmode mean
+attr source appContentDownloadDuration
+par SimpleSensorNetwork typename "\"inbaversim.simulations.SimpleSensorNetwork\""
+scalar SimpleSensorNetwork fwdNetworkCacheMissRatio:min 0.00067886236958697
+attr recordingmode min
+attr source fwdNetworkCacheMissRatio
+scalar SimpleSensorNetwork fwdNetworkCacheMissRatio:max 1
+attr recordingmode max
+attr source fwdNetworkCacheMissRatio
+scalar SimpleSensorNetwork fwdNetworkCacheMissRatio:count 27988
+attr recordingmode count
+attr source fwdNetworkCacheMissRatio
+scalar SimpleSensorNetwork fwdNetworkCacheMissRatio:last 0.00067886236958697
+attr recordingmode last
+attr source fwdNetworkCacheMissRatio
+scalar SimpleSensorNetwork fwdNetworkCacheHitRatio:min 0
+attr recordingmode min
+attr source fwdNetworkCacheHitRatio
+scalar SimpleSensorNetwork fwdNetworkCacheHitRatio:max 0.99932113763041
+attr recordingmode max
+attr source fwdNetworkCacheHitRatio
+scalar SimpleSensorNetwork fwdNetworkCacheHitRatio:count 27988
+attr recordingmode count
+attr source fwdNetworkCacheHitRatio
+scalar SimpleSensorNetwork fwdNetworkCacheHitRatio:last 0.99932113763041
+attr recordingmode last
+attr source fwdNetworkCacheHitRatio
+scalar SimpleSensorNetwork appNetworkInterestRetransmissionCount:last nan
+attr recordingmode last
+attr source appNetworkInterestRetransmissionCount
+
