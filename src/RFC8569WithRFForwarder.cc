@@ -88,6 +88,7 @@ void RFC8569WithRFForwarder::initialize(int stage)
         durationOfFirstCacheEmitSignal = registerSignal("fwddurationOfFirstCacheEmitSignal");
         delayInRetrievingContent = registerSignal("fwddelayInRetrievingContent");
 
+
         totalNetworkPITEntryCountEmitSignal = registerSignal("fwdTotalNetworkPITEntryCount");
         totalNetworkFIBEntryCountEmitSignal = registerSignal("fwdTotalNetworkFIBEntryCount");
         totalNetworkCSEntryCountEmitSignal = registerSignal("fwdTotalNetworkCSEntryCount");
@@ -329,7 +330,7 @@ void RFC8569WithRFForwarder::processInterest(InterestMsg *interestMsg)
     // check and get Face and transport address info of sender of Interest
     ExchangedTransportInfo *arrivalTransportInfo = NULL;
     if (interestMsg->hasObject("ExchangedTransportInfo")) {
-        arrivalTransportInfo = check_and_cast<ExchangedTransportInfo*>(interestMsg->getObject("ExchangedTransportInfo"));
+        arrivalTransportInfo = dynamic_cast<ExchangedTransportInfo*>(interestMsg->getObject("ExchangedTransportInfo"));
         interestMsg->removeObject("ExchangedTransportInfo");
     }
 
@@ -1520,7 +1521,7 @@ FIBEntry *RFC8569WithRFForwarder::updateFIB(string prefixName, FaceEntry *faceEn
     FIBEntry *fibEntry = NULL;
 
     bool found = false;
-    bool faceIDPresent = false;
+//    bool faceIDPresent = false;
     list<FIBEntry*>::iterator iteratorFIBEntry = fib.begin();
     while (iteratorFIBEntry != fib.end()) {
         fibEntry = *iteratorFIBEntry;

@@ -66,8 +66,8 @@ simple AdminThingsApp like IApplication
         @signal[appContentFreshnessSignal](type=simtime_t);
         @signal[apptotalContentObjectReceivedCount](type=long);
         @signal[apptotalInterestsSentCount](type=long);
-        
-         
+        @signal[appSubContentObjectsReceivedByUserCount](type=long);
+
         // display icon
         @display("i=block/app");
 

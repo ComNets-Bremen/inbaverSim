@@ -43,6 +43,7 @@ simple RFC8569WithRFForwarder like IForwarder
         @signal[fwdNetworkCacheMissRatio](type=double);
         @signal[fwdInterestToContentRatio](type=double);
         @signal[fwdTotalTraffic](type=long);
+        @signal[fwdTotalTrafficBytes](type=long);
 
         @signal[fwdtotalExpiredPITCountSignal](type=long);
         @signal[fwdtotalSatisfiedPITCountSignal](type=long);
@@ -50,8 +51,14 @@ simple RFC8569WithRFForwarder like IForwarder
         @signal[fwdtotalCacheEntriesCountSignal](type=long);
         @signal[fwddurationOfFirstCacheEmitSignal](type=double);
         @signal[fwddelayInRetrievingContent](type=double);
+        
+        @signal[fwdTotalNetworkPITEntryCount](type=long);
+        @signal[fwdTotalNetworkFIBEntryCount](type=long);
+        @signal[fwdTotalNetworkCSEntryCount](type=long);
 
         double periodicStatGenInterval @unit(s) = default(60s);
+
+
 
         // display icon
         @display("i=block/fork");

@@ -146,7 +146,7 @@ void IoTGatewayApp::handleMessage(cMessage *msg)
     else if (msg->isSelfMessage() && msg->getKind() == IOTGATEWAYAPP_QUERY_OTHER_GATEWAY_EVENT_CODE){
 
         // identify what type of data to download
-        int index = par("nextIndexOfSensorDataToRetrieve");
+        // int index = par("nextIndexOfSensorDataToRetrieve");
         string requestingData = par("othersensorDataName");
 
         InterestMsg* interestMsg = new InterestMsg("Interest requesting Sensor Data");
@@ -704,12 +704,12 @@ void IoTGatewayApp::handleMessage(cMessage *msg)
                     string receivedDataName = interestMsg->getDataName();
 
                     string requestedData;
-                    int requestedDataID;
+                    // int requestedDataID;
 
                     if(receivedDataName.find("/") != string::npos){
 
                         requestedData = receivedDataName.substr(0,receivedDataName.find("/"));
-                        requestedDataID = stoi(receivedDataName.substr(receivedDataName.find("/")+1));
+                        // requestedDataID = stoi(receivedDataName.substr(receivedDataName.find("/")+1));
 
                     }
                     else{

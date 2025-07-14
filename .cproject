@@ -24,13 +24,13 @@
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.847548295" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.570550535" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.217626660" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/inet4.4/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/inet4.5/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1667953073" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1999795405" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1534161176" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/inet4.4/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/inet4.5/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.137826798" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -43,7 +43,7 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.base.171955483" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.both.asm.option.include.paths.439836043" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/inet4.4/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/inet4.5/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1987230512" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>

@@ -40,7 +40,7 @@ class AdminThingsApp : public cSimpleModule
     int maxHopsAllowed;
     double interestLifetime;
     int segmentSize;
-    int numSegmentsPerFile;
+    // int numSegmentsPerFile;
     double cacheTime;
     long intCount;
     long coCount;

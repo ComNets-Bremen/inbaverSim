@@ -67,6 +67,7 @@ simple ThingsApp like IApplication
         @signal[appNetworkInterestRetransmissionCount](type=long);
         @signal[appNetworkInterestInjectedCount](type=long);
         @signal[appContentFreshnessSignal](type=simtime_t);
+        @signal[appSubContentObjectsReceivedByUserCount](type=long);
          
         // display icon
         @display("i=block/app");

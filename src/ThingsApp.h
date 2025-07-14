@@ -43,7 +43,7 @@ class ThingsApp : public cSimpleModule
     double interestLifetime;
     double subscriptionDuration;
     int segmentSize;
-    int numSegmentsPerFile;
+    // int numSegmentsPerFile;
     double cacheTime;
 
     //Details needed for next Query/Response Request
