@@ -26,7 +26,7 @@ module CCNInternet extends Node
         @networkNode();
 
         // transports used in node
-        int internetNumWiredTransports = default(0);
+        int internetNumWiredTransports = default(1);
         int internetNumWirelessTransports = default(0);
 
         // forwarder used in node
