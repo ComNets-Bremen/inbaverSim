@@ -16,6 +16,7 @@ src/**/*_m.cc
 
 # gcc output
 out/*
+*.o
 
 # Qt files
 .qtenvrc
