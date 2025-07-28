@@ -58,6 +58,8 @@ class RFC8569WithPingForwarder : public cSimpleModule
       void processInterest(InterestMsg *interestMsg);
       void processContentObj(ContentObjMsg *contentObjMsg);
       void processInterestRtn(InterestRtnMsg *interestRtnMsg);
+      void processTracerouteRqst(TracerouteRqstMsg *tracerouteRqstMsg);
+      void processTracerouteRpl(TracerouteRplMsg *tracerouteRplMsg);
 
       FaceEntry *getFaceEntryFromInputGateName(string inputGateName, int gateIndex);
       FaceEntry *getFaceEntryFromFaceID(long faceID);
@@ -74,9 +76,13 @@ class RFC8569WithPingForwarder : public cSimpleModule
       simsignal_t totalInterestsBytesReceivedSignal;
       simsignal_t totalInterestRtnsBytesReceivedSignal;
       simsignal_t totalContentObjsBytesReceivedSignal;
+      simsignal_t totalTracerouteRqstBytesReceivedSignal;
+      simsignal_t totalTracerouteRplBytesReceivedSignal;
       simsignal_t totalInterestsBytesSentSignal;
       simsignal_t totalInterestRtnsBytesSentSignal;
       simsignal_t totalContentObjsBytesSentSignal;
+      simsignal_t totalTracerouteRqstBytesSentSignal;
+      simsignal_t totalTracerouteRplBytesSentSignal;
       simsignal_t cacheSizeBytesSignal;
       simsignal_t cacheAdditionsBytesSignal;
       simsignal_t cacheRemovalsBytesSignal;

@@ -21,9 +21,13 @@ simple RFC8569WithPingForwarder like IForwarder
         @signal[fwdTotalInterestsBytesReceived](type=long);
         @signal[fwdTotalInterestRtnsBytesReceived](type=long);
         @signal[fwdTotalContentObjsBytesReceived](type=long);
+        @signal[fwdTotalTracerouteRqstBytesReceived](type=long);
+        @signal[fwdTotalTracerouteRplBytesReceived](type=long);
         @signal[fwdTotalInterestsBytesSent](type=long);
         @signal[fwdTotalInterestRtnsBytesSent](type=long);
         @signal[fwdTotalContentObjsBytesSent](type=long);
+        @signal[fwdTotalTracerouteRqstBytesSent](type=long);
+        @signal[fwdTotalTracerouteRplBytesSent](type=long);
         @signal[fwdCacheSizeBytes](type=long);
         @signal[fwdCacheAdditionsBytes](type=long);
         @signal[fwdCacheRemovalsBytes](type=long);

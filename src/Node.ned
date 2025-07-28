@@ -49,9 +49,13 @@ module Node
         @statistic[fwdTotalInterestsBytesReceived](source=fwdTotalInterestsBytesReceived; record=count,mean,sum,vector);
         @statistic[fwdTotalInterestRtnsBytesReceived](source=fwdTotalInterestRtnsBytesReceived; record=count,mean,sum,vector);
         @statistic[fwdTotalContentObjsBytesReceived](source=fwdTotalContentObjsBytesReceived; record=count,mean,sum,vector);
+        @statistic[fwdTotalTracerouteRqstBytesReceived](source=fwdTotalTracerouteRqstBytesReceived; record=count,mean,sum,vector);
+        @statsitic[fwdTotalTracerouteRplBytesReceived](source=fwdTotalTracerouteRplBytesReceived; record=count,mean,sum,vector);
         @statistic[fwdTotalInterestsBytesSent](source=fwdTotalInterestsBytesSent; record=count,mean,sum,vector);
         @statistic[fwdTotalInterestRtnsBytesSent](source=fwdTotalInterestRtnsBytesSent; record=count,mean,sum,vector);
         @statistic[fwdTotalContentObjsBytesSent](source=fwdTotalContentObjsBytesSent; record=count,mean,sum,vector);
+        @statistic[fwdTotalTracerouteRqstBytesSent](source=fwdTotalTracerouteRqstBytesSent; record=count,mean,sum,vector);
+        @statistic[fwdTotalTracerouteRplBytesSent](source=fwdTotalTracerouteRplBytesSent; record=count,mean,sum,vector);
         @statistic[fwdCacheSizeBytes](source=fwdCacheSizeBytes; record=min,max,count,mean,timeavg,last,vector);
         @statistic[fwdCacheAdditionsBytes](source=fwdCacheAdditionsBytes; record=count,mean,sum,vector);
         @statistic[fwdCacheRemovalsBytes](source=fwdCacheRemovalsBytes; record=count,mean,sum,vector);

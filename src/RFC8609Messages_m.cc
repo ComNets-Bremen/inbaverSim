@@ -1766,6 +1766,1204 @@ void InterestRtnMsgDescriptor::setFieldStructValuePointer(omnetpp::any_ptr objec
     }
 }
 
+Register_Class(TracerouteRqstMsg)
+
+TracerouteRqstMsg::TracerouteRqstMsg(const char *name, short kind) : ::omnetpp::cPacket(name, kind)
+{
+}
+
+TracerouteRqstMsg::TracerouteRqstMsg(const TracerouteRqstMsg& other) : ::omnetpp::cPacket(other)
+{
+    copy(other);
+}
+
+TracerouteRqstMsg::~TracerouteRqstMsg()
+{
+}
+
+TracerouteRqstMsg& TracerouteRqstMsg::operator=(const TracerouteRqstMsg& other)
+{
+    if (this == &other) return *this;
+    ::omnetpp::cPacket::operator=(other);
+    copy(other);
+    return *this;
+}
+
+void TracerouteRqstMsg::copy(const TracerouteRqstMsg& other)
+{
+    this->hopLimit = other.hopLimit;
+    this->lifetime = other.lifetime;
+    this->placeholder = other.placeholder;
+    this->prefixName = other.prefixName;
+    this->dataName = other.dataName;
+    this->versionName = other.versionName;
+    this->segmentNum = other.segmentNum;
+    this->headerSize = other.headerSize;
+    this->payloadSize = other.payloadSize;
+    this->hopsTravelled = other.hopsTravelled;
+    this->arrivalFaceID = other.arrivalFaceID;
+    this->arrivalFaceType = other.arrivalFaceType;
+}
+
+void TracerouteRqstMsg::parsimPack(omnetpp::cCommBuffer *b) const
+{
+    ::omnetpp::cPacket::parsimPack(b);
+    doParsimPacking(b,this->hopLimit);
+    doParsimPacking(b,this->lifetime);
+    doParsimPacking(b,this->placeholder);
+    doParsimPacking(b,this->prefixName);
+    doParsimPacking(b,this->dataName);
+    doParsimPacking(b,this->versionName);
+    doParsimPacking(b,this->segmentNum);
+    doParsimPacking(b,this->headerSize);
+    doParsimPacking(b,this->payloadSize);
+    doParsimPacking(b,this->hopsTravelled);
+    doParsimPacking(b,this->arrivalFaceID);
+    doParsimPacking(b,this->arrivalFaceType);
+}
+
+void TracerouteRqstMsg::parsimUnpack(omnetpp::cCommBuffer *b)
+{
+    ::omnetpp::cPacket::parsimUnpack(b);
+    doParsimUnpacking(b,this->hopLimit);
+    doParsimUnpacking(b,this->lifetime);
+    doParsimUnpacking(b,this->placeholder);
+    doParsimUnpacking(b,this->prefixName);
+    doParsimUnpacking(b,this->dataName);
+    doParsimUnpacking(b,this->versionName);
+    doParsimUnpacking(b,this->segmentNum);
+    doParsimUnpacking(b,this->headerSize);
+    doParsimUnpacking(b,this->payloadSize);
+    doParsimUnpacking(b,this->hopsTravelled);
+    doParsimUnpacking(b,this->arrivalFaceID);
+    doParsimUnpacking(b,this->arrivalFaceType);
+}
+
+int TracerouteRqstMsg::getHopLimit() const
+{
+    return this->hopLimit;
+}
+
+void TracerouteRqstMsg::setHopLimit(int hopLimit)
+{
+    this->hopLimit = hopLimit;
+}
+
+omnetpp::simtime_t TracerouteRqstMsg::getLifetime() const
+{
+    return this->lifetime;
+}
+
+void TracerouteRqstMsg::setLifetime(omnetpp::simtime_t lifetime)
+{
+    this->lifetime = lifetime;
+}
+
+int TracerouteRqstMsg::getPlaceholder() const
+{
+    return this->placeholder;
+}
+
+void TracerouteRqstMsg::setPlaceholder(int placeholder)
+{
+    this->placeholder = placeholder;
+}
+
+const char * TracerouteRqstMsg::getPrefixName() const
+{
+    return this->prefixName.c_str();
+}
+
+void TracerouteRqstMsg::setPrefixName(const char * prefixName)
+{
+    this->prefixName = prefixName;
+}
+
+const char * TracerouteRqstMsg::getDataName() const
+{
+    return this->dataName.c_str();
+}
+
+void TracerouteRqstMsg::setDataName(const char * dataName)
+{
+    this->dataName = dataName;
+}
+
+const char * TracerouteRqstMsg::getVersionName() const
+{
+    return this->versionName.c_str();
+}
+
+void TracerouteRqstMsg::setVersionName(const char * versionName)
+{
+    this->versionName = versionName;
+}
+
+int TracerouteRqstMsg::getSegmentNum() const
+{
+    return this->segmentNum;
+}
+
+void TracerouteRqstMsg::setSegmentNum(int segmentNum)
+{
+    this->segmentNum = segmentNum;
+}
+
+int TracerouteRqstMsg::getHeaderSize() const
+{
+    return this->headerSize;
+}
+
+void TracerouteRqstMsg::setHeaderSize(int headerSize)
+{
+    this->headerSize = headerSize;
+}
+
+int TracerouteRqstMsg::getPayloadSize() const
+{
+    return this->payloadSize;
+}
+
+void TracerouteRqstMsg::setPayloadSize(int payloadSize)
+{
+    this->payloadSize = payloadSize;
+}
+
+int TracerouteRqstMsg::getHopsTravelled() const
+{
+    return this->hopsTravelled;
+}
+
+void TracerouteRqstMsg::setHopsTravelled(int hopsTravelled)
+{
+    this->hopsTravelled = hopsTravelled;
+}
+
+long TracerouteRqstMsg::getArrivalFaceID() const
+{
+    return this->arrivalFaceID;
+}
+
+void TracerouteRqstMsg::setArrivalFaceID(long arrivalFaceID)
+{
+    this->arrivalFaceID = arrivalFaceID;
+}
+
+int TracerouteRqstMsg::getArrivalFaceType() const
+{
+    return this->arrivalFaceType;
+}
+
+void TracerouteRqstMsg::setArrivalFaceType(int arrivalFaceType)
+{
+    this->arrivalFaceType = arrivalFaceType;
+}
+
+class TracerouteRqstMsgDescriptor : public omnetpp::cClassDescriptor
+{
+  private:
+    mutable const char **propertyNames;
+    enum FieldConstants {
+        FIELD_hopLimit,
+        FIELD_lifetime,
+        FIELD_placeholder,
+        FIELD_prefixName,
+        FIELD_dataName,
+        FIELD_versionName,
+        FIELD_segmentNum,
+        FIELD_headerSize,
+        FIELD_payloadSize,
+        FIELD_hopsTravelled,
+        FIELD_arrivalFaceID,
+        FIELD_arrivalFaceType,
+    };
+  public:
+    TracerouteRqstMsgDescriptor();
+    virtual ~TracerouteRqstMsgDescriptor();
+
+    virtual bool doesSupport(omnetpp::cObject *obj) const override;
+    virtual const char **getPropertyNames() const override;
+    virtual const char *getProperty(const char *propertyName) const override;
+    virtual int getFieldCount() const override;
+    virtual const char *getFieldName(int field) const override;
+    virtual int findField(const char *fieldName) const override;
+    virtual unsigned int getFieldTypeFlags(int field) const override;
+    virtual const char *getFieldTypeString(int field) const override;
+    virtual const char **getFieldPropertyNames(int field) const override;
+    virtual const char *getFieldProperty(int field, const char *propertyName) const override;
+    virtual int getFieldArraySize(omnetpp::any_ptr object, int field) const override;
+    virtual void setFieldArraySize(omnetpp::any_ptr object, int field, int size) const override;
+
+    virtual const char *getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const override;
+    virtual std::string getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const override;
+    virtual void setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const override;
+    virtual omnetpp::cValue getFieldValue(omnetpp::any_ptr object, int field, int i) const override;
+    virtual void setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const override;
+
+    virtual const char *getFieldStructName(int field) const override;
+    virtual omnetpp::any_ptr getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const override;
+    virtual void setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const override;
+};
+
+Register_ClassDescriptor(TracerouteRqstMsgDescriptor)
+
+TracerouteRqstMsgDescriptor::TracerouteRqstMsgDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(TracerouteRqstMsg)), "omnetpp::cPacket")
+{
+    propertyNames = nullptr;
+}
+
+TracerouteRqstMsgDescriptor::~TracerouteRqstMsgDescriptor()
+{
+    delete[] propertyNames;
+}
+
+bool TracerouteRqstMsgDescriptor::doesSupport(omnetpp::cObject *obj) const
+{
+    return dynamic_cast<TracerouteRqstMsg *>(obj)!=nullptr;
+}
+
+const char **TracerouteRqstMsgDescriptor::getPropertyNames() const
+{
+    if (!propertyNames) {
+        static const char *names[] = {  nullptr };
+        omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+        const char **baseNames = base ? base->getPropertyNames() : nullptr;
+        propertyNames = mergeLists(baseNames, names);
+    }
+    return propertyNames;
+}
+
+const char *TracerouteRqstMsgDescriptor::getProperty(const char *propertyName) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    return base ? base->getProperty(propertyName) : nullptr;
+}
+
+int TracerouteRqstMsgDescriptor::getFieldCount() const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    return base ? 12+base->getFieldCount() : 12;
+}
+
+unsigned int TracerouteRqstMsgDescriptor::getFieldTypeFlags(int field) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldTypeFlags(field);
+        field -= base->getFieldCount();
+    }
+    static unsigned int fieldTypeFlags[] = {
+        FD_ISEDITABLE,    // FIELD_hopLimit
+        FD_ISEDITABLE,    // FIELD_lifetime
+        FD_ISEDITABLE,    // FIELD_placeholder
+        FD_ISEDITABLE,    // FIELD_prefixName
+        FD_ISEDITABLE,    // FIELD_dataName
+        FD_ISEDITABLE,    // FIELD_versionName
+        FD_ISEDITABLE,    // FIELD_segmentNum
+        FD_ISEDITABLE,    // FIELD_headerSize
+        FD_ISEDITABLE,    // FIELD_payloadSize
+        FD_ISEDITABLE,    // FIELD_hopsTravelled
+        FD_ISEDITABLE,    // FIELD_arrivalFaceID
+        FD_ISEDITABLE,    // FIELD_arrivalFaceType
+    };
+    return (field >= 0 && field < 12) ? fieldTypeFlags[field] : 0;
+}
+
+const char *TracerouteRqstMsgDescriptor::getFieldName(int field) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldName(field);
+        field -= base->getFieldCount();
+    }
+    static const char *fieldNames[] = {
+        "hopLimit",
+        "lifetime",
+        "placeholder",
+        "prefixName",
+        "dataName",
+        "versionName",
+        "segmentNum",
+        "headerSize",
+        "payloadSize",
+        "hopsTravelled",
+        "arrivalFaceID",
+        "arrivalFaceType",
+    };
+    return (field >= 0 && field < 12) ? fieldNames[field] : nullptr;
+}
+
+int TracerouteRqstMsgDescriptor::findField(const char *fieldName) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    int baseIndex = base ? base->getFieldCount() : 0;
+    if (strcmp(fieldName, "hopLimit") == 0) return baseIndex + 0;
+    if (strcmp(fieldName, "lifetime") == 0) return baseIndex + 1;
+    if (strcmp(fieldName, "placeholder") == 0) return baseIndex + 2;
+    if (strcmp(fieldName, "prefixName") == 0) return baseIndex + 3;
+    if (strcmp(fieldName, "dataName") == 0) return baseIndex + 4;
+    if (strcmp(fieldName, "versionName") == 0) return baseIndex + 5;
+    if (strcmp(fieldName, "segmentNum") == 0) return baseIndex + 6;
+    if (strcmp(fieldName, "headerSize") == 0) return baseIndex + 7;
+    if (strcmp(fieldName, "payloadSize") == 0) return baseIndex + 8;
+    if (strcmp(fieldName, "hopsTravelled") == 0) return baseIndex + 9;
+    if (strcmp(fieldName, "arrivalFaceID") == 0) return baseIndex + 10;
+    if (strcmp(fieldName, "arrivalFaceType") == 0) return baseIndex + 11;
+    return base ? base->findField(fieldName) : -1;
+}
+
+const char *TracerouteRqstMsgDescriptor::getFieldTypeString(int field) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldTypeString(field);
+        field -= base->getFieldCount();
+    }
+    static const char *fieldTypeStrings[] = {
+        "int",    // FIELD_hopLimit
+        "omnetpp::simtime_t",    // FIELD_lifetime
+        "int",    // FIELD_placeholder
+        "string",    // FIELD_prefixName
+        "string",    // FIELD_dataName
+        "string",    // FIELD_versionName
+        "int",    // FIELD_segmentNum
+        "int",    // FIELD_headerSize
+        "int",    // FIELD_payloadSize
+        "int",    // FIELD_hopsTravelled
+        "long",    // FIELD_arrivalFaceID
+        "int",    // FIELD_arrivalFaceType
+    };
+    return (field >= 0 && field < 12) ? fieldTypeStrings[field] : nullptr;
+}
+
+const char **TracerouteRqstMsgDescriptor::getFieldPropertyNames(int field) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldPropertyNames(field);
+        field -= base->getFieldCount();
+    }
+    switch (field) {
+        default: return nullptr;
+    }
+}
+
+const char *TracerouteRqstMsgDescriptor::getFieldProperty(int field, const char *propertyName) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldProperty(field, propertyName);
+        field -= base->getFieldCount();
+    }
+    switch (field) {
+        default: return nullptr;
+    }
+}
+
+int TracerouteRqstMsgDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldArraySize(object, field);
+        field -= base->getFieldCount();
+    }
+    TracerouteRqstMsg *pp = omnetpp::fromAnyPtr<TracerouteRqstMsg>(object); (void)pp;
+    switch (field) {
+        default: return 0;
+    }
+}
+
+void TracerouteRqstMsgDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount()){
+            base->setFieldArraySize(object, field, size);
+            return;
+        }
+        field -= base->getFieldCount();
+    }
+    TracerouteRqstMsg *pp = omnetpp::fromAnyPtr<TracerouteRqstMsg>(object); (void)pp;
+    switch (field) {
+        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'TracerouteRqstMsg'", field);
+    }
+}
+
+const char *TracerouteRqstMsgDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldDynamicTypeString(object,field,i);
+        field -= base->getFieldCount();
+    }
+    TracerouteRqstMsg *pp = omnetpp::fromAnyPtr<TracerouteRqstMsg>(object); (void)pp;
+    switch (field) {
+        default: return nullptr;
+    }
+}
+
+std::string TracerouteRqstMsgDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldValueAsString(object,field,i);
+        field -= base->getFieldCount();
+    }
+    TracerouteRqstMsg *pp = omnetpp::fromAnyPtr<TracerouteRqstMsg>(object); (void)pp;
+    switch (field) {
+        case FIELD_hopLimit: return long2string(pp->getHopLimit());
+        case FIELD_lifetime: return simtime2string(pp->getLifetime());
+        case FIELD_placeholder: return long2string(pp->getPlaceholder());
+        case FIELD_prefixName: return oppstring2string(pp->getPrefixName());
+        case FIELD_dataName: return oppstring2string(pp->getDataName());
+        case FIELD_versionName: return oppstring2string(pp->getVersionName());
+        case FIELD_segmentNum: return long2string(pp->getSegmentNum());
+        case FIELD_headerSize: return long2string(pp->getHeaderSize());
+        case FIELD_payloadSize: return long2string(pp->getPayloadSize());
+        case FIELD_hopsTravelled: return long2string(pp->getHopsTravelled());
+        case FIELD_arrivalFaceID: return long2string(pp->getArrivalFaceID());
+        case FIELD_arrivalFaceType: return long2string(pp->getArrivalFaceType());
+        default: return "";
+    }
+}
+
+void TracerouteRqstMsgDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount()){
+            base->setFieldValueAsString(object, field, i, value);
+            return;
+        }
+        field -= base->getFieldCount();
+    }
+    TracerouteRqstMsg *pp = omnetpp::fromAnyPtr<TracerouteRqstMsg>(object); (void)pp;
+    switch (field) {
+        case FIELD_hopLimit: pp->setHopLimit(string2long(value)); break;
+        case FIELD_lifetime: pp->setLifetime(string2simtime(value)); break;
+        case FIELD_placeholder: pp->setPlaceholder(string2long(value)); break;
+        case FIELD_prefixName: pp->setPrefixName((value)); break;
+        case FIELD_dataName: pp->setDataName((value)); break;
+        case FIELD_versionName: pp->setVersionName((value)); break;
+        case FIELD_segmentNum: pp->setSegmentNum(string2long(value)); break;
+        case FIELD_headerSize: pp->setHeaderSize(string2long(value)); break;
+        case FIELD_payloadSize: pp->setPayloadSize(string2long(value)); break;
+        case FIELD_hopsTravelled: pp->setHopsTravelled(string2long(value)); break;
+        case FIELD_arrivalFaceID: pp->setArrivalFaceID(string2long(value)); break;
+        case FIELD_arrivalFaceType: pp->setArrivalFaceType(string2long(value)); break;
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'TracerouteRqstMsg'", field);
+    }
+}
+
+omnetpp::cValue TracerouteRqstMsgDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldValue(object,field,i);
+        field -= base->getFieldCount();
+    }
+    TracerouteRqstMsg *pp = omnetpp::fromAnyPtr<TracerouteRqstMsg>(object); (void)pp;
+    switch (field) {
+        case FIELD_hopLimit: return pp->getHopLimit();
+        case FIELD_lifetime: return pp->getLifetime().dbl();
+        case FIELD_placeholder: return pp->getPlaceholder();
+        case FIELD_prefixName: return pp->getPrefixName();
+        case FIELD_dataName: return pp->getDataName();
+        case FIELD_versionName: return pp->getVersionName();
+        case FIELD_segmentNum: return pp->getSegmentNum();
+        case FIELD_headerSize: return pp->getHeaderSize();
+        case FIELD_payloadSize: return pp->getPayloadSize();
+        case FIELD_hopsTravelled: return pp->getHopsTravelled();
+        case FIELD_arrivalFaceID: return (omnetpp::intval_t)(pp->getArrivalFaceID());
+        case FIELD_arrivalFaceType: return pp->getArrivalFaceType();
+        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'TracerouteRqstMsg' as cValue -- field index out of range?", field);
+    }
+}
+
+void TracerouteRqstMsgDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount()){
+            base->setFieldValue(object, field, i, value);
+            return;
+        }
+        field -= base->getFieldCount();
+    }
+    TracerouteRqstMsg *pp = omnetpp::fromAnyPtr<TracerouteRqstMsg>(object); (void)pp;
+    switch (field) {
+        case FIELD_hopLimit: pp->setHopLimit(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_lifetime: pp->setLifetime(value.doubleValue()); break;
+        case FIELD_placeholder: pp->setPlaceholder(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_prefixName: pp->setPrefixName(value.stringValue()); break;
+        case FIELD_dataName: pp->setDataName(value.stringValue()); break;
+        case FIELD_versionName: pp->setVersionName(value.stringValue()); break;
+        case FIELD_segmentNum: pp->setSegmentNum(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_headerSize: pp->setHeaderSize(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_payloadSize: pp->setPayloadSize(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_hopsTravelled: pp->setHopsTravelled(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_arrivalFaceID: pp->setArrivalFaceID(omnetpp::checked_int_cast<long>(value.intValue())); break;
+        case FIELD_arrivalFaceType: pp->setArrivalFaceType(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'TracerouteRqstMsg'", field);
+    }
+}
+
+const char *TracerouteRqstMsgDescriptor::getFieldStructName(int field) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldStructName(field);
+        field -= base->getFieldCount();
+    }
+    switch (field) {
+        default: return nullptr;
+    };
+}
+
+omnetpp::any_ptr TracerouteRqstMsgDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldStructValuePointer(object, field, i);
+        field -= base->getFieldCount();
+    }
+    TracerouteRqstMsg *pp = omnetpp::fromAnyPtr<TracerouteRqstMsg>(object); (void)pp;
+    switch (field) {
+        default: return omnetpp::any_ptr(nullptr);
+    }
+}
+
+void TracerouteRqstMsgDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount()){
+            base->setFieldStructValuePointer(object, field, i, ptr);
+            return;
+        }
+        field -= base->getFieldCount();
+    }
+    TracerouteRqstMsg *pp = omnetpp::fromAnyPtr<TracerouteRqstMsg>(object); (void)pp;
+    switch (field) {
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'TracerouteRqstMsg'", field);
+    }
+}
+
+Register_Enum(TracerouteReplyCodes, (TracerouteReplyCodes::ReturnCodeForwarderNameMatch, TracerouteReplyCodes::ReturnCodeCSHit, TracerouteReplyCodes::ReturnCodeFIBLocalHit, TracerouteReplyCodes::ReturnCodeHopLimitExceeded));
+
+Register_Class(TracerouteRplMsg)
+
+TracerouteRplMsg::TracerouteRplMsg(const char *name, short kind) : ::omnetpp::cPacket(name, kind)
+{
+}
+
+TracerouteRplMsg::TracerouteRplMsg(const TracerouteRplMsg& other) : ::omnetpp::cPacket(other)
+{
+    copy(other);
+}
+
+TracerouteRplMsg::~TracerouteRplMsg()
+{
+}
+
+TracerouteRplMsg& TracerouteRplMsg::operator=(const TracerouteRplMsg& other)
+{
+    if (this == &other) return *this;
+    ::omnetpp::cPacket::operator=(other);
+    copy(other);
+    return *this;
+}
+
+void TracerouteRplMsg::copy(const TracerouteRplMsg& other)
+{
+    this->cachetime = other.cachetime;
+    this->placeholder = other.placeholder;
+    this->tracerouteReplyCode = other.tracerouteReplyCode;
+    this->prefixName = other.prefixName;
+    this->dataName = other.dataName;
+    this->versionName = other.versionName;
+    this->segmentNum = other.segmentNum;
+    this->expirytime = other.expirytime;
+    this->headerSize = other.headerSize;
+    this->payloadSize = other.payloadSize;
+    this->totalNumSegments = other.totalNumSegments;
+    this->payloadAsString = other.payloadAsString;
+}
+
+void TracerouteRplMsg::parsimPack(omnetpp::cCommBuffer *b) const
+{
+    ::omnetpp::cPacket::parsimPack(b);
+    doParsimPacking(b,this->cachetime);
+    doParsimPacking(b,this->placeholder);
+    doParsimPacking(b,this->tracerouteReplyCode);
+    doParsimPacking(b,this->prefixName);
+    doParsimPacking(b,this->dataName);
+    doParsimPacking(b,this->versionName);
+    doParsimPacking(b,this->segmentNum);
+    doParsimPacking(b,this->expirytime);
+    doParsimPacking(b,this->headerSize);
+    doParsimPacking(b,this->payloadSize);
+    doParsimPacking(b,this->totalNumSegments);
+    doParsimPacking(b,this->payloadAsString);
+}
+
+void TracerouteRplMsg::parsimUnpack(omnetpp::cCommBuffer *b)
+{
+    ::omnetpp::cPacket::parsimUnpack(b);
+    doParsimUnpacking(b,this->cachetime);
+    doParsimUnpacking(b,this->placeholder);
+    doParsimUnpacking(b,this->tracerouteReplyCode);
+    doParsimUnpacking(b,this->prefixName);
+    doParsimUnpacking(b,this->dataName);
+    doParsimUnpacking(b,this->versionName);
+    doParsimUnpacking(b,this->segmentNum);
+    doParsimUnpacking(b,this->expirytime);
+    doParsimUnpacking(b,this->headerSize);
+    doParsimUnpacking(b,this->payloadSize);
+    doParsimUnpacking(b,this->totalNumSegments);
+    doParsimUnpacking(b,this->payloadAsString);
+}
+
+omnetpp::simtime_t TracerouteRplMsg::getCachetime() const
+{
+    return this->cachetime;
+}
+
+void TracerouteRplMsg::setCachetime(omnetpp::simtime_t cachetime)
+{
+    this->cachetime = cachetime;
+}
+
+int TracerouteRplMsg::getPlaceholder() const
+{
+    return this->placeholder;
+}
+
+void TracerouteRplMsg::setPlaceholder(int placeholder)
+{
+    this->placeholder = placeholder;
+}
+
+int TracerouteRplMsg::getTracerouteReplyCode() const
+{
+    return this->tracerouteReplyCode;
+}
+
+void TracerouteRplMsg::setTracerouteReplyCode(int tracerouteReplyCode)
+{
+    this->tracerouteReplyCode = tracerouteReplyCode;
+}
+
+const char * TracerouteRplMsg::getPrefixName() const
+{
+    return this->prefixName.c_str();
+}
+
+void TracerouteRplMsg::setPrefixName(const char * prefixName)
+{
+    this->prefixName = prefixName;
+}
+
+const char * TracerouteRplMsg::getDataName() const
+{
+    return this->dataName.c_str();
+}
+
+void TracerouteRplMsg::setDataName(const char * dataName)
+{
+    this->dataName = dataName;
+}
+
+const char * TracerouteRplMsg::getVersionName() const
+{
+    return this->versionName.c_str();
+}
+
+void TracerouteRplMsg::setVersionName(const char * versionName)
+{
+    this->versionName = versionName;
+}
+
+int TracerouteRplMsg::getSegmentNum() const
+{
+    return this->segmentNum;
+}
+
+void TracerouteRplMsg::setSegmentNum(int segmentNum)
+{
+    this->segmentNum = segmentNum;
+}
+
+omnetpp::simtime_t TracerouteRplMsg::getExpirytime() const
+{
+    return this->expirytime;
+}
+
+void TracerouteRplMsg::setExpirytime(omnetpp::simtime_t expirytime)
+{
+    this->expirytime = expirytime;
+}
+
+int TracerouteRplMsg::getHeaderSize() const
+{
+    return this->headerSize;
+}
+
+void TracerouteRplMsg::setHeaderSize(int headerSize)
+{
+    this->headerSize = headerSize;
+}
+
+int TracerouteRplMsg::getPayloadSize() const
+{
+    return this->payloadSize;
+}
+
+void TracerouteRplMsg::setPayloadSize(int payloadSize)
+{
+    this->payloadSize = payloadSize;
+}
+
+int TracerouteRplMsg::getTotalNumSegments() const
+{
+    return this->totalNumSegments;
+}
+
+void TracerouteRplMsg::setTotalNumSegments(int totalNumSegments)
+{
+    this->totalNumSegments = totalNumSegments;
+}
+
+const char * TracerouteRplMsg::getPayloadAsString() const
+{
+    return this->payloadAsString.c_str();
+}
+
+void TracerouteRplMsg::setPayloadAsString(const char * payloadAsString)
+{
+    this->payloadAsString = payloadAsString;
+}
+
+class TracerouteRplMsgDescriptor : public omnetpp::cClassDescriptor
+{
+  private:
+    mutable const char **propertyNames;
+    enum FieldConstants {
+        FIELD_cachetime,
+        FIELD_placeholder,
+        FIELD_tracerouteReplyCode,
+        FIELD_prefixName,
+        FIELD_dataName,
+        FIELD_versionName,
+        FIELD_segmentNum,
+        FIELD_expirytime,
+        FIELD_headerSize,
+        FIELD_payloadSize,
+        FIELD_totalNumSegments,
+        FIELD_payloadAsString,
+    };
+  public:
+    TracerouteRplMsgDescriptor();
+    virtual ~TracerouteRplMsgDescriptor();
+
+    virtual bool doesSupport(omnetpp::cObject *obj) const override;
+    virtual const char **getPropertyNames() const override;
+    virtual const char *getProperty(const char *propertyName) const override;
+    virtual int getFieldCount() const override;
+    virtual const char *getFieldName(int field) const override;
+    virtual int findField(const char *fieldName) const override;
+    virtual unsigned int getFieldTypeFlags(int field) const override;
+    virtual const char *getFieldTypeString(int field) const override;
+    virtual const char **getFieldPropertyNames(int field) const override;
+    virtual const char *getFieldProperty(int field, const char *propertyName) const override;
+    virtual int getFieldArraySize(omnetpp::any_ptr object, int field) const override;
+    virtual void setFieldArraySize(omnetpp::any_ptr object, int field, int size) const override;
+
+    virtual const char *getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const override;
+    virtual std::string getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const override;
+    virtual void setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const override;
+    virtual omnetpp::cValue getFieldValue(omnetpp::any_ptr object, int field, int i) const override;
+    virtual void setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const override;
+
+    virtual const char *getFieldStructName(int field) const override;
+    virtual omnetpp::any_ptr getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const override;
+    virtual void setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const override;
+};
+
+Register_ClassDescriptor(TracerouteRplMsgDescriptor)
+
+TracerouteRplMsgDescriptor::TracerouteRplMsgDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(TracerouteRplMsg)), "omnetpp::cPacket")
+{
+    propertyNames = nullptr;
+}
+
+TracerouteRplMsgDescriptor::~TracerouteRplMsgDescriptor()
+{
+    delete[] propertyNames;
+}
+
+bool TracerouteRplMsgDescriptor::doesSupport(omnetpp::cObject *obj) const
+{
+    return dynamic_cast<TracerouteRplMsg *>(obj)!=nullptr;
+}
+
+const char **TracerouteRplMsgDescriptor::getPropertyNames() const
+{
+    if (!propertyNames) {
+        static const char *names[] = {  nullptr };
+        omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+        const char **baseNames = base ? base->getPropertyNames() : nullptr;
+        propertyNames = mergeLists(baseNames, names);
+    }
+    return propertyNames;
+}
+
+const char *TracerouteRplMsgDescriptor::getProperty(const char *propertyName) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    return base ? base->getProperty(propertyName) : nullptr;
+}
+
+int TracerouteRplMsgDescriptor::getFieldCount() const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    return base ? 12+base->getFieldCount() : 12;
+}
+
+unsigned int TracerouteRplMsgDescriptor::getFieldTypeFlags(int field) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldTypeFlags(field);
+        field -= base->getFieldCount();
+    }
+    static unsigned int fieldTypeFlags[] = {
+        FD_ISEDITABLE,    // FIELD_cachetime
+        FD_ISEDITABLE,    // FIELD_placeholder
+        FD_ISEDITABLE,    // FIELD_tracerouteReplyCode
+        FD_ISEDITABLE,    // FIELD_prefixName
+        FD_ISEDITABLE,    // FIELD_dataName
+        FD_ISEDITABLE,    // FIELD_versionName
+        FD_ISEDITABLE,    // FIELD_segmentNum
+        FD_ISEDITABLE,    // FIELD_expirytime
+        FD_ISEDITABLE,    // FIELD_headerSize
+        FD_ISEDITABLE,    // FIELD_payloadSize
+        FD_ISEDITABLE,    // FIELD_totalNumSegments
+        FD_ISEDITABLE,    // FIELD_payloadAsString
+    };
+    return (field >= 0 && field < 12) ? fieldTypeFlags[field] : 0;
+}
+
+const char *TracerouteRplMsgDescriptor::getFieldName(int field) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldName(field);
+        field -= base->getFieldCount();
+    }
+    static const char *fieldNames[] = {
+        "cachetime",
+        "placeholder",
+        "tracerouteReplyCode",
+        "prefixName",
+        "dataName",
+        "versionName",
+        "segmentNum",
+        "expirytime",
+        "headerSize",
+        "payloadSize",
+        "totalNumSegments",
+        "payloadAsString",
+    };
+    return (field >= 0 && field < 12) ? fieldNames[field] : nullptr;
+}
+
+int TracerouteRplMsgDescriptor::findField(const char *fieldName) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    int baseIndex = base ? base->getFieldCount() : 0;
+    if (strcmp(fieldName, "cachetime") == 0) return baseIndex + 0;
+    if (strcmp(fieldName, "placeholder") == 0) return baseIndex + 1;
+    if (strcmp(fieldName, "tracerouteReplyCode") == 0) return baseIndex + 2;
+    if (strcmp(fieldName, "prefixName") == 0) return baseIndex + 3;
+    if (strcmp(fieldName, "dataName") == 0) return baseIndex + 4;
+    if (strcmp(fieldName, "versionName") == 0) return baseIndex + 5;
+    if (strcmp(fieldName, "segmentNum") == 0) return baseIndex + 6;
+    if (strcmp(fieldName, "expirytime") == 0) return baseIndex + 7;
+    if (strcmp(fieldName, "headerSize") == 0) return baseIndex + 8;
+    if (strcmp(fieldName, "payloadSize") == 0) return baseIndex + 9;
+    if (strcmp(fieldName, "totalNumSegments") == 0) return baseIndex + 10;
+    if (strcmp(fieldName, "payloadAsString") == 0) return baseIndex + 11;
+    return base ? base->findField(fieldName) : -1;
+}
+
+const char *TracerouteRplMsgDescriptor::getFieldTypeString(int field) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldTypeString(field);
+        field -= base->getFieldCount();
+    }
+    static const char *fieldTypeStrings[] = {
+        "omnetpp::simtime_t",    // FIELD_cachetime
+        "int",    // FIELD_placeholder
+        "int",    // FIELD_tracerouteReplyCode
+        "string",    // FIELD_prefixName
+        "string",    // FIELD_dataName
+        "string",    // FIELD_versionName
+        "int",    // FIELD_segmentNum
+        "omnetpp::simtime_t",    // FIELD_expirytime
+        "int",    // FIELD_headerSize
+        "int",    // FIELD_payloadSize
+        "int",    // FIELD_totalNumSegments
+        "string",    // FIELD_payloadAsString
+    };
+    return (field >= 0 && field < 12) ? fieldTypeStrings[field] : nullptr;
+}
+
+const char **TracerouteRplMsgDescriptor::getFieldPropertyNames(int field) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldPropertyNames(field);
+        field -= base->getFieldCount();
+    }
+    switch (field) {
+        case FIELD_tracerouteReplyCode: {
+            static const char *names[] = { "enum", "enum",  nullptr };
+            return names;
+        }
+        default: return nullptr;
+    }
+}
+
+const char *TracerouteRplMsgDescriptor::getFieldProperty(int field, const char *propertyName) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldProperty(field, propertyName);
+        field -= base->getFieldCount();
+    }
+    switch (field) {
+        case FIELD_tracerouteReplyCode:
+            if (!strcmp(propertyName, "enum")) return "TracerouteReplyCodes";
+            if (!strcmp(propertyName, "enum")) return "TracerouteReplyCodes";
+            return nullptr;
+        default: return nullptr;
+    }
+}
+
+int TracerouteRplMsgDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldArraySize(object, field);
+        field -= base->getFieldCount();
+    }
+    TracerouteRplMsg *pp = omnetpp::fromAnyPtr<TracerouteRplMsg>(object); (void)pp;
+    switch (field) {
+        default: return 0;
+    }
+}
+
+void TracerouteRplMsgDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount()){
+            base->setFieldArraySize(object, field, size);
+            return;
+        }
+        field -= base->getFieldCount();
+    }
+    TracerouteRplMsg *pp = omnetpp::fromAnyPtr<TracerouteRplMsg>(object); (void)pp;
+    switch (field) {
+        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'TracerouteRplMsg'", field);
+    }
+}
+
+const char *TracerouteRplMsgDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldDynamicTypeString(object,field,i);
+        field -= base->getFieldCount();
+    }
+    TracerouteRplMsg *pp = omnetpp::fromAnyPtr<TracerouteRplMsg>(object); (void)pp;
+    switch (field) {
+        default: return nullptr;
+    }
+}
+
+std::string TracerouteRplMsgDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldValueAsString(object,field,i);
+        field -= base->getFieldCount();
+    }
+    TracerouteRplMsg *pp = omnetpp::fromAnyPtr<TracerouteRplMsg>(object); (void)pp;
+    switch (field) {
+        case FIELD_cachetime: return simtime2string(pp->getCachetime());
+        case FIELD_placeholder: return long2string(pp->getPlaceholder());
+        case FIELD_tracerouteReplyCode: return enum2string(pp->getTracerouteReplyCode(), "TracerouteReplyCodes");
+        case FIELD_prefixName: return oppstring2string(pp->getPrefixName());
+        case FIELD_dataName: return oppstring2string(pp->getDataName());
+        case FIELD_versionName: return oppstring2string(pp->getVersionName());
+        case FIELD_segmentNum: return long2string(pp->getSegmentNum());
+        case FIELD_expirytime: return simtime2string(pp->getExpirytime());
+        case FIELD_headerSize: return long2string(pp->getHeaderSize());
+        case FIELD_payloadSize: return long2string(pp->getPayloadSize());
+        case FIELD_totalNumSegments: return long2string(pp->getTotalNumSegments());
+        case FIELD_payloadAsString: return oppstring2string(pp->getPayloadAsString());
+        default: return "";
+    }
+}
+
+void TracerouteRplMsgDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount()){
+            base->setFieldValueAsString(object, field, i, value);
+            return;
+        }
+        field -= base->getFieldCount();
+    }
+    TracerouteRplMsg *pp = omnetpp::fromAnyPtr<TracerouteRplMsg>(object); (void)pp;
+    switch (field) {
+        case FIELD_cachetime: pp->setCachetime(string2simtime(value)); break;
+        case FIELD_placeholder: pp->setPlaceholder(string2long(value)); break;
+        case FIELD_tracerouteReplyCode: pp->setTracerouteReplyCode((TracerouteReplyCodes)string2enum(value, "TracerouteReplyCodes")); break;
+        case FIELD_prefixName: pp->setPrefixName((value)); break;
+        case FIELD_dataName: pp->setDataName((value)); break;
+        case FIELD_versionName: pp->setVersionName((value)); break;
+        case FIELD_segmentNum: pp->setSegmentNum(string2long(value)); break;
+        case FIELD_expirytime: pp->setExpirytime(string2simtime(value)); break;
+        case FIELD_headerSize: pp->setHeaderSize(string2long(value)); break;
+        case FIELD_payloadSize: pp->setPayloadSize(string2long(value)); break;
+        case FIELD_totalNumSegments: pp->setTotalNumSegments(string2long(value)); break;
+        case FIELD_payloadAsString: pp->setPayloadAsString((value)); break;
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'TracerouteRplMsg'", field);
+    }
+}
+
+omnetpp::cValue TracerouteRplMsgDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldValue(object,field,i);
+        field -= base->getFieldCount();
+    }
+    TracerouteRplMsg *pp = omnetpp::fromAnyPtr<TracerouteRplMsg>(object); (void)pp;
+    switch (field) {
+        case FIELD_cachetime: return pp->getCachetime().dbl();
+        case FIELD_placeholder: return pp->getPlaceholder();
+        case FIELD_tracerouteReplyCode: return pp->getTracerouteReplyCode();
+        case FIELD_prefixName: return pp->getPrefixName();
+        case FIELD_dataName: return pp->getDataName();
+        case FIELD_versionName: return pp->getVersionName();
+        case FIELD_segmentNum: return pp->getSegmentNum();
+        case FIELD_expirytime: return pp->getExpirytime().dbl();
+        case FIELD_headerSize: return pp->getHeaderSize();
+        case FIELD_payloadSize: return pp->getPayloadSize();
+        case FIELD_totalNumSegments: return pp->getTotalNumSegments();
+        case FIELD_payloadAsString: return pp->getPayloadAsString();
+        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'TracerouteRplMsg' as cValue -- field index out of range?", field);
+    }
+}
+
+void TracerouteRplMsgDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount()){
+            base->setFieldValue(object, field, i, value);
+            return;
+        }
+        field -= base->getFieldCount();
+    }
+    TracerouteRplMsg *pp = omnetpp::fromAnyPtr<TracerouteRplMsg>(object); (void)pp;
+    switch (field) {
+        case FIELD_cachetime: pp->setCachetime(value.doubleValue()); break;
+        case FIELD_placeholder: pp->setPlaceholder(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_tracerouteReplyCode: pp->setTracerouteReplyCode((TracerouteReplyCodes)value.intValue()); break;
+        case FIELD_prefixName: pp->setPrefixName(value.stringValue()); break;
+        case FIELD_dataName: pp->setDataName(value.stringValue()); break;
+        case FIELD_versionName: pp->setVersionName(value.stringValue()); break;
+        case FIELD_segmentNum: pp->setSegmentNum(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_expirytime: pp->setExpirytime(value.doubleValue()); break;
+        case FIELD_headerSize: pp->setHeaderSize(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_payloadSize: pp->setPayloadSize(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_totalNumSegments: pp->setTotalNumSegments(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_payloadAsString: pp->setPayloadAsString(value.stringValue()); break;
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'TracerouteRplMsg'", field);
+    }
+}
+
+const char *TracerouteRplMsgDescriptor::getFieldStructName(int field) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldStructName(field);
+        field -= base->getFieldCount();
+    }
+    switch (field) {
+        default: return nullptr;
+    };
+}
+
+omnetpp::any_ptr TracerouteRplMsgDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount())
+            return base->getFieldStructValuePointer(object, field, i);
+        field -= base->getFieldCount();
+    }
+    TracerouteRplMsg *pp = omnetpp::fromAnyPtr<TracerouteRplMsg>(object); (void)pp;
+    switch (field) {
+        default: return omnetpp::any_ptr(nullptr);
+    }
+}
+
+void TracerouteRplMsgDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
+{
+    omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
+    if (base) {
+        if (field < base->getFieldCount()){
+            base->setFieldStructValuePointer(object, field, i, ptr);
+            return;
+        }
+        field -= base->getFieldCount();
+    }
+    TracerouteRplMsg *pp = omnetpp::fromAnyPtr<TracerouteRplMsg>(object); (void)pp;
+    switch (field) {
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'TracerouteRplMsg'", field);
+    }
+}
+
 namespace omnetpp {
 
 }  // namespace omnetpp

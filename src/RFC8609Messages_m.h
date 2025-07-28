@@ -19,6 +19,8 @@
 class InterestMsg;
 class ContentObjMsg;
 class InterestRtnMsg;
+class TracerouteRqstMsg;
+class TracerouteRplMsg;
 /**
  * Class generated from <tt>RFC8609Messages.msg:16</tt> by opp_msgtool.
  * <pre>
@@ -346,12 +348,273 @@ class InterestRtnMsg : public ::omnetpp::cPacket
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const InterestRtnMsg& obj) {obj.parsimPack(b);}
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, InterestRtnMsg& obj) {obj.parsimUnpack(b);}
 
+/**
+ * Class generated from <tt>RFC8609Messages.msg:141</tt> by opp_msgtool.
+ * <pre>
+ * //
+ * // Format of Traceroute Request interest packet
+ * //
+ * packet TracerouteRqstMsg
+ * {
+ *     // number of hops left to travel
+ *     int hopLimit;
+ * 
+ *     // lifetime of interest
+ *     simtime_t lifetime;
+ * 
+ *     // Pathsteering
+ *     // TODO create actual pathsteering data type
+ *     int placeholder;
+ * 
+ * 
+ *     //====== Body Name (BodyName)
+ * 
+ *     // CCNx name segments
+ *     string prefixName;
+ *     string dataName;
+ *     string versionName;
+ *     int segmentNum;
+ * 
+ *     //====== Validation (Validation)
+ * 
+ *     // no security aspects incorporated yet
+ * 
+ * 
+ *     //====== Others fields used only by simulator
+ * 
+ *     // msg sizes in bytes
+ *     int headerSize;
+ *     int payloadSize;
+ * 
+ *     // hops
+ *     int hopsTravelled;
+ * 
+ *     // arrival face ID and type at the forwarding (CCN) layer
+ *     long arrivalFaceID;
+ *     int arrivalFaceType;
+ * }
+ * </pre>
+ */
+class TracerouteRqstMsg : public ::omnetpp::cPacket
+{
+  protected:
+    int hopLimit = 0;
+    omnetpp::simtime_t lifetime = SIMTIME_ZERO;
+    int placeholder = 0;
+    omnetpp::opp_string prefixName;
+    omnetpp::opp_string dataName;
+    omnetpp::opp_string versionName;
+    int segmentNum = 0;
+    int headerSize = 0;
+    int payloadSize = 0;
+    int hopsTravelled = 0;
+    long arrivalFaceID = 0;
+    int arrivalFaceType = 0;
+
+  private:
+    void copy(const TracerouteRqstMsg& other);
+
+  protected:
+    bool operator==(const TracerouteRqstMsg&) = delete;
+
+  public:
+    TracerouteRqstMsg(const char *name=nullptr, short kind=0);
+    TracerouteRqstMsg(const TracerouteRqstMsg& other);
+    virtual ~TracerouteRqstMsg();
+    TracerouteRqstMsg& operator=(const TracerouteRqstMsg& other);
+    virtual TracerouteRqstMsg *dup() const override {return new TracerouteRqstMsg(*this);}
+    virtual void parsimPack(omnetpp::cCommBuffer *b) const override;
+    virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
+
+    virtual int getHopLimit() const;
+    virtual void setHopLimit(int hopLimit);
+
+    virtual omnetpp::simtime_t getLifetime() const;
+    virtual void setLifetime(omnetpp::simtime_t lifetime);
+
+    virtual int getPlaceholder() const;
+    virtual void setPlaceholder(int placeholder);
+
+    virtual const char * getPrefixName() const;
+    virtual void setPrefixName(const char * prefixName);
+
+    virtual const char * getDataName() const;
+    virtual void setDataName(const char * dataName);
+
+    virtual const char * getVersionName() const;
+    virtual void setVersionName(const char * versionName);
+
+    virtual int getSegmentNum() const;
+    virtual void setSegmentNum(int segmentNum);
+
+    virtual int getHeaderSize() const;
+    virtual void setHeaderSize(int headerSize);
+
+    virtual int getPayloadSize() const;
+    virtual void setPayloadSize(int payloadSize);
+
+    virtual int getHopsTravelled() const;
+    virtual void setHopsTravelled(int hopsTravelled);
+
+    virtual long getArrivalFaceID() const;
+    virtual void setArrivalFaceID(long arrivalFaceID);
+
+    virtual int getArrivalFaceType() const;
+    virtual void setArrivalFaceType(int arrivalFaceType);
+};
+
+inline void doParsimPacking(omnetpp::cCommBuffer *b, const TracerouteRqstMsg& obj) {obj.parsimPack(b);}
+inline void doParsimUnpacking(omnetpp::cCommBuffer *b, TracerouteRqstMsg& obj) {obj.parsimUnpack(b);}
+
+/**
+ * Enum generated from <tt>RFC8609Messages.msg:184</tt> by opp_msgtool.
+ * <pre>
+ * enum TracerouteReplyCodes
+ * {
+ *     ReturnCodeForwarderNameMatch = 0;
+ *     ReturnCodeCSHit = 1;
+ *     ReturnCodeFIBLocalHit = 2;
+ *     ReturnCodeHopLimitExceeded = 4;
+ * }
+ * </pre>
+ */
+enum TracerouteReplyCodes {
+    ReturnCodeForwarderNameMatch = 0,
+    ReturnCodeCSHit = 1,
+    ReturnCodeFIBLocalHit = 2,
+    ReturnCodeHopLimitExceeded = 4
+};
+
+inline void doParsimPacking(omnetpp::cCommBuffer *b, const TracerouteReplyCodes& e) { b->pack(static_cast<int>(e)); }
+inline void doParsimUnpacking(omnetpp::cCommBuffer *b, TracerouteReplyCodes& e) { int n; b->unpack(n); e = static_cast<TracerouteReplyCodes>(n); }
+
+/**
+ * Class generated from <tt>RFC8609Messages.msg:196</tt> by opp_msgtool.
+ * <pre>
+ * //
+ * // Format of Traceroute Request reply packet
+ * //
+ * packet TracerouteRplMsg
+ * {
+ *     // cache time of content
+ *     simtime_t cachetime;
+ * 
+ *      // Pathsteering
+ *     // TODO create actual pathsteering data type
+ *     int placeholder;
+ * 
+ *     // Reply Code
+ *     int tracerouteReplyCode \@enum(TracerouteReplyCodes);
+ * 
+ *     //====== Body Opt Name (BodyOptName)
+ * 
+ *     // CCNx name segments
+ *     string prefixName;
+ *     string dataName;
+ *     string versionName;
+ *     int segmentNum;
+ * 
+ *     // expiry time of con obj
+ *     simtime_t expirytime;
+ * 
+ *     //====== Validation (Validation)
+ * 
+ *     // no security aspects incorporated yet
+ * 
+ * 
+ *     //====== Others fields used only by simulator
+ * 
+ *     // msg sizes in bytes
+ *     int headerSize;
+ *     int payloadSize;
+ * 
+ *     // total segments in the requested data (identified by prefixName + dataName)
+ *     int totalNumSegments;
+ * 
+ *     // any payload
+ *     string payloadAsString;
+ * }
+ * </pre>
+ */
+class TracerouteRplMsg : public ::omnetpp::cPacket
+{
+  protected:
+    omnetpp::simtime_t cachetime = SIMTIME_ZERO;
+    int placeholder = 0;
+    int tracerouteReplyCode = 0;
+    omnetpp::opp_string prefixName;
+    omnetpp::opp_string dataName;
+    omnetpp::opp_string versionName;
+    int segmentNum = 0;
+    omnetpp::simtime_t expirytime = SIMTIME_ZERO;
+    int headerSize = 0;
+    int payloadSize = 0;
+    int totalNumSegments = 0;
+    omnetpp::opp_string payloadAsString;
+
+  private:
+    void copy(const TracerouteRplMsg& other);
+
+  protected:
+    bool operator==(const TracerouteRplMsg&) = delete;
+
+  public:
+    TracerouteRplMsg(const char *name=nullptr, short kind=0);
+    TracerouteRplMsg(const TracerouteRplMsg& other);
+    virtual ~TracerouteRplMsg();
+    TracerouteRplMsg& operator=(const TracerouteRplMsg& other);
+    virtual TracerouteRplMsg *dup() const override {return new TracerouteRplMsg(*this);}
+    virtual void parsimPack(omnetpp::cCommBuffer *b) const override;
+    virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
+
+    virtual omnetpp::simtime_t getCachetime() const;
+    virtual void setCachetime(omnetpp::simtime_t cachetime);
+
+    virtual int getPlaceholder() const;
+    virtual void setPlaceholder(int placeholder);
+
+    virtual int getTracerouteReplyCode() const;
+    virtual void setTracerouteReplyCode(int tracerouteReplyCode);
+
+    virtual const char * getPrefixName() const;
+    virtual void setPrefixName(const char * prefixName);
+
+    virtual const char * getDataName() const;
+    virtual void setDataName(const char * dataName);
+
+    virtual const char * getVersionName() const;
+    virtual void setVersionName(const char * versionName);
+
+    virtual int getSegmentNum() const;
+    virtual void setSegmentNum(int segmentNum);
+
+    virtual omnetpp::simtime_t getExpirytime() const;
+    virtual void setExpirytime(omnetpp::simtime_t expirytime);
+
+    virtual int getHeaderSize() const;
+    virtual void setHeaderSize(int headerSize);
+
+    virtual int getPayloadSize() const;
+    virtual void setPayloadSize(int payloadSize);
+
+    virtual int getTotalNumSegments() const;
+    virtual void setTotalNumSegments(int totalNumSegments);
+
+    virtual const char * getPayloadAsString() const;
+    virtual void setPayloadAsString(const char * payloadAsString);
+};
+
+inline void doParsimPacking(omnetpp::cCommBuffer *b, const TracerouteRplMsg& obj) {obj.parsimPack(b);}
+inline void doParsimUnpacking(omnetpp::cCommBuffer *b, TracerouteRplMsg& obj) {obj.parsimUnpack(b);}
+
 
 namespace omnetpp {
 
 template<> inline InterestMsg *fromAnyPtr(any_ptr ptr) { return check_and_cast<InterestMsg*>(ptr.get<cObject>()); }
 template<> inline ContentObjMsg *fromAnyPtr(any_ptr ptr) { return check_and_cast<ContentObjMsg*>(ptr.get<cObject>()); }
 template<> inline InterestRtnMsg *fromAnyPtr(any_ptr ptr) { return check_and_cast<InterestRtnMsg*>(ptr.get<cObject>()); }
+template<> inline TracerouteRqstMsg *fromAnyPtr(any_ptr ptr) { return check_and_cast<TracerouteRqstMsg*>(ptr.get<cObject>()); }
+template<> inline TracerouteRplMsg *fromAnyPtr(any_ptr ptr) { return check_and_cast<TracerouteRplMsg*>(ptr.get<cObject>()); }
 
 }  // namespace omnetpp
 
