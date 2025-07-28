@@ -63,6 +63,8 @@ struct SameWirelessGroup {
 #define INBAVER_INTEREST_MSG_HEADER_SIZE                   16
 #define INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE             16
 #define INBAVER_INTEREST_RTN_MSG_HEADER_SIZE               16
+#define INVAVER_TRACEROUTE_RQST_MSG_HEADER_SIZE            16
+#define INBAVER_TRACEROUTE_RPL_MSG_HEADER_SIZE             16
 
 
 struct HostedContentEntry {
