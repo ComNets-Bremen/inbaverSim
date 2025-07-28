@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -22,10 +22,6 @@ using namespace std;
 class Demiurge;
 class Numen;
 
-/**
- * A file download client (content requester) application that
- * implements the IApplication interface.
- */
 class ContentDownloadApp : public cSimpleModule
 {
   protected:

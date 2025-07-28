@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -30,14 +30,14 @@ network WirelessNetwork
         @statistic[fwdNetworkCacheHitRatio](source=fwdNetworkCacheHitRatio; record=min,max,count,last,vector);
         @statistic[fwdNetworkCacheMissRatio](source=fwdNetworkCacheMissRatio; record=min,max,count,last,vector);
 
-        @display("bgb=410,372");
+        @display("bgb=400,400;bgg=100,0,grey95;bgu=m");
 
     submodules:
         wirelessAccessRouter: WirelessAccessRouter {
-            @display("p=68,162");
+            @display("p=100,98");
         }
         wirelessNode: WirelessNode {
-            @display("p=68,105");
+            @display("p=62,63");
         }
         coreRouter: CoreRouter {
             @display("p=226,163");
@@ -46,7 +46,7 @@ network WirelessNetwork
             @display("p=354,166");
         }
         demiurge: Demiurge {
-            @display("p=226,27");
+            @display("p=280,27");
         }
     connections allowunconnected:
         wirelessAccessRouter.wiredInOut++ <--> DatarateChannel {  datarate = 1e6bps; } <--> coreRouter.wiredInOut++;

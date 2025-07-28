@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -26,11 +26,11 @@ module CCNInternet extends Node
         @networkNode();
 
         // transports used in node
-        int internetNumWiredTransports = default(0);
+        int internetNumWiredTransports = default(1);
         int internetNumWirelessTransports = default(0);
 
         // forwarder used in node
-        string forwarder = default("RFC8569Forwarder");
+        string forwarder = default("RFC8569WithRFForwarder");
 
         // Ethernet transport parameters
         double ethDataRate @unit(bps) = default(1Gbps);
@@ -57,6 +57,7 @@ module CCNInternet extends Node
 
         @display("i=misc/cloud;bgb=418,317");
 
+		@statistic[fwddelayInRetrievingContent](source=fwddelayInRetrievingContent; record=min,max,count,last,vector,sum,mean);
     submodules:
 
 

@@ -6,22 +6,14 @@
 
 package inbaversim;
 
-//
-// Client application that periodically retrieves sensor data from IoT networks
-// through gateway nodes. Requests various types of sensor readings (temperature,
-// humidity, etc.) using CCN Interest messages and stores historical data.
-// Configurable for different retrieval patterns and data types.
-//
-// The model implements the CCN-based sensor data retrieval mechanisms in detail,
-// including interest generation and content processing. However, it abstracts
-// the actual data usage and analysis processes. User behavior is simplified to
-// statistical distributions rather than context-aware patterns, and data
-// visualization or processing algorithms are not modeled. Storage constraints
-// are approximated through a simple limit on historical readings.
-//
-simple ThingsApp like IApplication
+// A module to simulate an application that interacts with sensor networks, 
+// specifically for managing the retrieval and processing of sensor data. 
+// The model is designed to simulate the process of collecting sensor data 
+// from a network with parameters for the timing and structure of data requests.
+
+simple AdminThingsApp like IApplication
 {
-    parameters:
+        parameters:
 
         // start time of sensor data retrieval
         double sensorDataRetrievalStartTime @unit(s) = default(10s);
@@ -55,7 +47,12 @@ simple ThingsApp like IApplication
         //Subscription details
         double subscriptionStartTime @unit(s) = default(10s);
         bool subscriptionON = default(true);
-        double subscriptionDuration @unit(s) = default(3600s);
+        double subscriptionDuration @unit(s);
+        
+        //Configuration Settings
+        double configurationSettingsStartTime @unit(s) = default(2s);
+        string configurationParameter = default("TempLow");
+        double configurationValue = default(13);
 
         // statistic signals
         @signal[appContentDownloadDuration](type=simtime_t);
@@ -67,12 +64,13 @@ simple ThingsApp like IApplication
         @signal[appNetworkInterestRetransmissionCount](type=long);
         @signal[appNetworkInterestInjectedCount](type=long);
         @signal[appContentFreshnessSignal](type=simtime_t);
+        @signal[apptotalContentObjectReceivedCount](type=long);
+        @signal[apptotalInterestsSentCount](type=long);
         @signal[appSubContentObjectsReceivedByUserCount](type=long);
-         
+
         // display icon
         @display("i=block/app");
 
     gates:
         inout forwarderInOut;
-
 }

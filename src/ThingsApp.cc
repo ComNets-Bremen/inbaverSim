@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -17,7 +17,11 @@ void ThingsApp::initialize(int stage)
         requestedSensorNetworkPrefixName = par("requestedSensorNetworkPrefixName").stringValue();
         sensorDataNames = par("sensorDataNames").stringValue();
         maxSensorDataReadingsToKeep = par("maxSensorDataReadingsToKeep");
+        interestLifetime = par("interestLifetime");
         maxHopsAllowed = par("maxHopsAllowed");
+        subscriptionON = par("subscriptionON");
+        subscriptionStartTime = par("subscriptionStartTime");
+        subscriptionDuration = par("subscriptionDuration");
 
     } else if (stage == 1) {
 
@@ -76,12 +80,20 @@ void ThingsApp::initialize(int stage)
         sensorDataRetrievalStartTime = par("sensorDataRetrievalStartTime");
         scheduleAt(simTime() + sensorDataRetrievalStartTime, firstSensorDataDownloadReminderEvent);
 
+        // reminder to send subscription interest
+        cMessage *subscriptionReminderEvent = new cMessage("Subscription Reminder Event");
+        subscriptionReminderEvent->setKind(THINGSAPP_SUBSCRIPTION_REMINDER_CODE);
+        scheduleAt(simTime() + subscriptionStartTime, subscriptionReminderEvent);
+
+
         // register stat signals
         totalInterestsBytesSentSignal = registerSignal("appTotalInterestsBytesSent");
         totalContentObjsBytesReceivedSignal = registerSignal("appTotalContentObjsBytesReceived");
         totalDataBytesReceivedSignal = registerSignal("appTotalDataBytesReceived");
         networkInterestRetransmissionCountSignal = registerSignal("appNetworkInterestRetransmissionCount");
         networkInterestInjectedCountSignal = registerSignal("appNetworkInterestInjectedCount");
+        contentFreshnessSignal = registerSignal("appContentFreshnessSignal");
+        subContentObjectReceivedCount = registerSignal("appSubContentObjectsReceivedByUserCount");
 
     } else {
         EV_FATAL << "Something is radically wrong\n";
@@ -111,7 +123,7 @@ void ThingsApp::handleMessage(cMessage *msg)
         int index = par("nextIndexOfSensorDataToRetrieve");
         SensorDataEntry *sensorDataEntry = servedSensorDataList[index];
 
-        InterestMsg* interestMsg = new InterestMsg("Interest");
+        InterestMsg* interestMsg = new InterestMsg("Interest requesting Sensor Data");
         interestMsg->setHopLimit(maxHopsAllowed);
         interestMsg->setLifetime(simTime() + par("interestLifetime"));
         interestMsg->setPrefixName(requestedSensorNetworkPrefixName.c_str());
@@ -122,16 +134,11 @@ void ThingsApp::handleMessage(cMessage *msg)
         interestMsg->setPayloadSize(0);
         interestMsg->setHopsTravelled(0);
         interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
-
-//        cout << simTime() << " ==== " << getFullPath()
-//                << " ThingsApp: sending interest "
-//                << interestMsg->getPrefixName()
-//                << " " << interestMsg->getDataName()
-//                << endl;
+        interestMsg->setReflexiveNamePrefix("0");
 
         EV_INFO << simTime() << " Sending Interest: " << interestMsg->getPrefixName()
                 << " " << interestMsg->getDataName() << " " << interestMsg->getVersionName()
-                << " " << interestMsg->getSegmentNum() << endl;
+                << " " << interestMsg->getSegmentNum()<<" RNP:"<< interestMsg->getReflexiveNamePrefix()<< endl;
 
         // send interest to forwarding layer
         send(interestMsg, "forwarderInOut$o");
@@ -145,8 +152,66 @@ void ThingsApp::handleMessage(cMessage *msg)
 
         scheduleAt(simTime() + par("interDataDownloadInterval"), msg);
 
-    // process the sensor data received
-    } else {
+    }//Subscription reminder
+    else if (msg->isSelfMessage() && msg->getKind() == THINGSAPP_SUBSCRIPTION_REMINDER_CODE) {
+
+        //Check if Subscription is ON
+        if(subscriptionON == true){
+
+            // identify what type of data to download
+            int index = par("nextIndexOfSensorDataToRetrieve");
+            SensorDataEntry *sensorDataEntry = servedSensorDataList[index];
+
+            char completeDataName[64];
+            strcpy(completeDataName,"SubscriptionRequest:");
+            strcat(completeDataName,getParentModule()->getName());
+            strcat(completeDataName,"/");
+            strcat(completeDataName,sensorDataEntry->sensorDataName.c_str());
+
+            //Send Subscription interest to the gateway
+            InterestMsg* interestMsg = new InterestMsg("Subscription Interest");
+            interestMsg->setHopLimit(10);
+            interestMsg->setLifetime(simTime() + interestLifetime);
+            interestMsg->setPrefixName(requestedSensorNetworkPrefixName.c_str());
+            interestMsg->setDataName(completeDataName);
+            interestMsg->setVersionName("v01");
+            interestMsg->setSegmentNum(0);
+            interestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
+            interestMsg->setPayloadSize(0);
+            interestMsg->setHopsTravelled(0);
+            interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
+
+            //Generate RNP
+            string s = to_string(intuniform(1, 16777217));
+            char const *random_cstring = s.c_str();
+
+            //Assign RNP
+            interestMsg->setReflexiveNamePrefix(random_cstring);
+
+            //Store the RNP details
+            reflexiveNamePrefix = interestMsg->getReflexiveNamePrefix();
+
+            EV_INFO << simTime() << " Sending Subscription Interest to the gateway: " << interestMsg->getPrefixName()
+                            << " " << interestMsg->getDataName()
+                            << " " << interestMsg->getVersionName()
+                            << " " << interestMsg->getSegmentNum()
+                            << " RNP:" << interestMsg->getReflexiveNamePrefix()
+                            << " FPT:" << interestMsg->getForwardPendingToken()
+                            << " RPT:" << interestMsg->getReversePendingToken()
+                            << endl;
+
+            // send msg to forwarding layer
+            send(interestMsg, "forwarderInOut$o");
+
+        }
+        else{
+
+            EV_INFO << simTime() << " Subscription is turned Off "<<endl;
+
+        }
+
+    }//If interest or Content is received
+    else {
         cGate *gate;
         char gateName[32];
 
@@ -154,54 +219,222 @@ void ThingsApp::handleMessage(cMessage *msg)
         gate = msg->getArrivalGate();
         strcpy(gateName, gate->getName());
 
+        // cast to message types for later use
+        InterestMsg *interestMsg = dynamic_cast<InterestMsg*>(msg);
         ContentObjMsg* contentObjMsg = dynamic_cast<ContentObjMsg*>(msg);
+        InterestRtnMsg *interestRtnMsg = dynamic_cast<InterestRtnMsg*>(msg);
+
+        //If interest is received
+        if(interestMsg != NULL){
+
+            EV_INFO << simTime() << " Received Interest: "
+                    << interestMsg->getPrefixName()
+                    << " " << interestMsg->getDataName()
+                    << " " << interestMsg->getVersionName()
+                    << " " << interestMsg->getSegmentNum()
+                    << " RNP:" << interestMsg->getReflexiveNamePrefix()
+                    << " FPT:" << interestMsg->getForwardPendingToken()
+                    << " RPT:" << interestMsg->getReversePendingToken()
+                    << endl;
+
+            //If it is a Reflexive interest asking to fetch data from Gateway
+            if(string(interestMsg->getDataName()).find("SubscriptionDetails") != string::npos){
+
+                //Store Sensor Data and ID that needs to be used in the Query Interest to be sent
+
+                string dataname =interestMsg->getDataName();
+                nextSensorData = dataname.substr(dataname.find(':') + 1 ,dataname.find('/') - dataname.find(':') - 1 );
+                nextdataReadingID = stoi(dataname.substr(dataname.find("/")+1));
+
+                //Subscription duration details
+                string s = to_string(subscriptionDuration);
+                char const *subscription_Duration = s.c_str();
+
+                //form complete Data Name
+                char completePayload[64];
+                strcpy(completePayload,getParentModule()->getName());
+                strcat(completePayload,"/");
+                strcat(completePayload,nextSensorData.c_str());
+                strcat(completePayload,":");
+                strcat(completePayload,subscription_Duration);
+
+                segmentSize = par("segmentSize");
+                cacheTime = par("cacheTime");
+
+                //Send Acknowledgement for the Reflexive interest
+                ContentObjMsg* contentObjMsg = new ContentObjMsg("Acknowledgement with Subscription Details");
+                contentObjMsg->setPrefixName(interestMsg->getPrefixName());
+                contentObjMsg->setDataName(interestMsg->getDataName());
+                contentObjMsg->setVersionName(interestMsg->getVersionName());
+                contentObjMsg->setSegmentNum(interestMsg->getSegmentNum());
+                contentObjMsg->setCachetime(0); // Cache Time is 0 because it is a response to reflexive Interest
+                contentObjMsg->setExpirytime(simTime() + cacheTime);
+                contentObjMsg->setHeaderSize(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE);
+                contentObjMsg->setPayloadSize(segmentSize);
+                contentObjMsg->setTotalNumSegments(1);
+                contentObjMsg->setPayloadAsString(completePayload);
+                contentObjMsg->setByteLength(INBAVER_CONTENT_OBJECT_MSG_HEADER_SIZE + segmentSize);
+                contentObjMsg->setReversePendingToken(interestMsg->getForwardPendingToken());
+
+                EV_INFO << simTime() << " Acknowledgement with Subscription Details: "
+                        << contentObjMsg->getPrefixName()
+                        << " " << contentObjMsg->getDataName()
+                        << " " << contentObjMsg->getVersionName()
+                        << " " << contentObjMsg->getSegmentNum()
+                        << " " << contentObjMsg->getTotalNumSegments()
+                        << " " << contentObjMsg->getExpirytime()
+                        << " " << contentObjMsg->getPayloadSize()
+                        << " RPT: " << contentObjMsg->getReversePendingToken()
+                        << " Payload: " << contentObjMsg->getPayloadAsString()
+                        << endl;
+
+                // send msg to forwarding layer
+                send(contentObjMsg, "forwarderInOut$o");
 
 
-//        cout << simTime() << " ==== " << getFullPath()
-//                << " ThingsApp: received content obj "
-//                << contentObjMsg->getPrefixName()
-//                << " " << contentObjMsg->getDataName()
-//                << " payload: " << contentObjMsg->getPayloadAsString()
-//                << endl;
+                //Send Query Interest to fetch the Subscribed Data
+                char completeDataname[64];
+                strcpy(completeDataname,nextSensorData.c_str());
+                strcat(completeDataname,"/");
+                char nextdatareadingID[16];
+                sprintf(nextdatareadingID, "%d", nextdataReadingID);
+                strcat(completeDataname,nextdatareadingID);
 
+                InterestMsg* interestMsg = new InterestMsg("Query Interest to fetch Subscribed Data");
+                interestMsg->setHopLimit(10);
+                interestMsg->setLifetime(simTime() + interestLifetime);
+                interestMsg->setPrefixName(requestedSensorNetworkPrefixName.c_str());
+                interestMsg->setDataName(completeDataname);
+                interestMsg->setVersionName("v01");
+                interestMsg->setSegmentNum(0);
+                interestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
+                interestMsg->setPayloadSize(0);
+                interestMsg->setHopsTravelled(0);
+                interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
+                interestMsg->setReflexiveNamePrefix("0");
 
-        EV_INFO << simTime() << " Received ContentObj: "
-                << contentObjMsg->getPrefixName()
-                << " " << contentObjMsg->getDataName()
-                << " " << contentObjMsg->getVersionName()
-                << " " << contentObjMsg->getSegmentNum()
-                << " " << contentObjMsg->getTotalNumSegments()
-                << " " << contentObjMsg->getExpirytime()
-                << " " << contentObjMsg->getPayloadSize()
-                << " " << contentObjMsg->getPayloadAsString()
-                << endl;
+                //Store the RNP details
+                reflexiveNamePrefix = interestMsg->getReflexiveNamePrefix();
 
-        emit(totalContentObjsBytesReceivedSignal, (long) contentObjMsg->getByteLength());
-        emit(totalDataBytesReceivedSignal, contentObjMsg->getPayloadSize());
+                EV_INFO << simTime() << " Query Interest to fetch Subscribed Data: " << interestMsg->getPrefixName()
+                                << " " << interestMsg->getDataName()
+                                << " " << interestMsg->getVersionName()
+                                << " " << interestMsg->getSegmentNum()
+                                << " RNP:" << interestMsg->getReflexiveNamePrefix()
+                                << " FPT:" << interestMsg->getForwardPendingToken()
+                                << " RPT:" << interestMsg->getReversePendingToken()
+                                << endl;
 
-        EV_INFO << simTime() << " Received sensor data in ContentObj: "
-                << contentObjMsg->getPayloadAsString()
-                << endl;
+                // send msg to forwarding layer
+                send(interestMsg, "forwarderInOut$o");
 
-        for (int i = 0; i < servedSensorDataList.size(); i++) {
+            } // else, send interest return
+            else {
 
-            if (string(contentObjMsg->getDataName()) == servedSensorDataList[i]->sensorDataName) {
+                InterestRtnMsg* interestRtnMsg = new InterestRtnMsg("Interest Return");
+                interestRtnMsg->setReturnCode(ReturnCodeTypeNoRoute);
+                interestRtnMsg->setPrefixName(interestMsg->getPrefixName());
+                interestRtnMsg->setDataName(interestMsg->getDataName());
+                interestRtnMsg->setVersionName(interestMsg->getVersionName());
+                interestRtnMsg->setSegmentNum(interestMsg->getSegmentNum());
+                interestRtnMsg->setHeaderSize(INBAVER_INTEREST_RTN_MSG_HEADER_SIZE);
+                interestRtnMsg->setPayloadSize(0);
+                interestRtnMsg->setByteLength(INBAVER_INTEREST_RTN_MSG_HEADER_SIZE);
+                interestRtnMsg->setReflexiveNamePrefix("0");
 
-                servedSensorDataList[i]->lastDataReading = contentObjMsg->getPayloadAsString();
-                servedSensorDataList[i]->lastDataReadingTime = simTime().dbl();
-                servedSensorDataList[i]->dataLifetime = contentObjMsg->getCachetime().dbl();
-                servedSensorDataList[i]->lastDataReadingsList.push_back(contentObjMsg->getPayloadAsString());
-                servedSensorDataList[i]->lastDataReadingTimesList.push_back(simTime().dbl());
-                if (servedSensorDataList[i]->lastDataReadingsList.size() > maxSensorDataReadingsToKeep) {
-                    servedSensorDataList[i]->lastDataReadingsList.erase(servedSensorDataList[i]->lastDataReadingsList.begin());
-                    servedSensorDataList[i]->lastDataReadingTimesList.erase(servedSensorDataList[i]->lastDataReadingTimesList.begin());
-                }
-                break;
+                EV_INFO << simTime() << " Sending InterestRtn: "
+                        << interestRtnMsg->getPrefixName()
+                        << " " << interestRtnMsg->getDataName()
+                        << " " << interestRtnMsg->getVersionName()
+                        << " " << interestRtnMsg->getSegmentNum()
+                        << " " << interestRtnMsg->getReturnCode() << endl;
+
+                // send msg to forwarding layer
+                send(interestRtnMsg, "forwarderInOut$o");
             }
         }
 
+        else if (contentObjMsg != NULL) {
 
-        delete msg;
+            EV_INFO << simTime() << " Received ContentObj: "
+                    << contentObjMsg->getPrefixName()
+                    << " " << contentObjMsg->getDataName()
+                    << " " << contentObjMsg->getVersionName()
+                    << " " << contentObjMsg->getSegmentNum()
+                    << " " << contentObjMsg->getTotalNumSegments()
+                    << " " << contentObjMsg->getExpirytime()
+                    << " " << contentObjMsg->getPayloadSize()
+                    << " " << contentObjMsg->getPayloadAsString()
+                    << endl;
+
+            emit(totalContentObjsBytesReceivedSignal, (long) contentObjMsg->getByteLength());
+            emit(totalDataBytesReceivedSignal, contentObjMsg->getPayloadSize());
+
+            //If Content Object is a Subscription Content Object, record stats
+            if (string(contentObjMsg->getDataName()).find("/") != string::npos) {
+
+                // update stats
+                demiurgeModel->incrementSubContentobjectReceivedCount();
+
+                // write stats
+                emit(subContentObjectReceivedCount, demiurgeModel->getSubContentobjectReceivedCount());
+
+            }
+
+            EV_INFO << simTime() << " Received sensor data in ContentObj: "
+                    << contentObjMsg->getPayloadAsString()
+                    << endl;
+
+            for (int i = 0; i < servedSensorDataList.size(); i++) {
+
+                if (string(contentObjMsg->getDataName()).find(servedSensorDataList[i]->sensorDataName) != std::string::npos) {
+
+                    //If it is a data with Record ID
+                    if(string(contentObjMsg->getPayloadAsString()).find("/") != string::npos){
+
+                        string payload =contentObjMsg->getPayloadAsString();
+                        string dataReading = payload.substr(0,payload.find("/"));
+                        int dataReadingID = stoi(payload.substr(payload.find("/") + 1, payload.find("-") - payload.find("/") - 1));
+                        double sensorDataRecordedTime = stod(payload.substr(payload.find("-")+1));
+
+                        servedSensorDataList[i]->lastDataReading = dataReading;
+                        servedSensorDataList[i]->lastDataReadingID = dataReadingID;
+                        servedSensorDataList[i]->lastDataReadingTime = simTime().dbl();
+                        servedSensorDataList[i]->dataLifetime = contentObjMsg->getCachetime().dbl();
+                        servedSensorDataList[i]->lastDataReadingsList.push_back(contentObjMsg->getPayloadAsString());
+                        servedSensorDataList[i]->lastDataReadingTimesList.push_back(simTime().dbl());
+                        if (servedSensorDataList[i]->lastDataReadingsList.size() > maxSensorDataReadingsToKeep) {
+                            servedSensorDataList[i]->lastDataReadingsList.erase(servedSensorDataList[i]->lastDataReadingsList.begin());
+                            servedSensorDataList[i]->lastDataReadingTimesList.erase(servedSensorDataList[i]->lastDataReadingTimesList.begin());
+                        }
+                        EV_INFO << simTime() << " lastDataReading: " << servedSensorDataList[i]->lastDataReading
+                                << " lastDataReadingID: " << servedSensorDataList[i]->lastDataReadingID
+                                << " Sensor Data Recoded Time: " << sensorDataRecordedTime << endl;
+
+                        //Keep Track of Content Freshness of Received Content
+                        demiurgeModel->contentFreshness =  simTime()- sensorDataRecordedTime;
+                        EV_INFO << simTime() << " Content Freshness Value: " << demiurgeModel->contentFreshness << endl;
+                        emit(contentFreshnessSignal, demiurgeModel->getContentFreshness());
+
+                        break;
+                                           }
+
+                }
+            }
+
+        }
+        else if (interestRtnMsg != NULL){
+
+            EV_INFO << simTime() << " Received Interest Return: " << interestRtnMsg->getPrefixName()
+                            << " " << interestRtnMsg->getDataName()
+                            << " " << interestRtnMsg->getVersionName()
+                            << " " << interestRtnMsg->getSegmentNum()
+                            << " " << interestRtnMsg->getReflexiveNamePrefix()
+                            << endl;
+
+        }
+         delete msg;
+
     }
 }
 

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -17,7 +17,7 @@ void WiredTransport::initialize(int stage)
         dataRate = par("dataRate");
         packetErrorRate = par("packetErrorRate");
         headerSize = par("headerSize");
-
+        dummyTransport = par("dummyTransport");
 
     } else if (stage == 1) {
 
@@ -33,10 +33,12 @@ void WiredTransport::initialize(int stage)
 
     } else if (stage == 2) {
 
-        // reminder to generate transport registration event
-        cMessage *transportRegReminderEvent = new cMessage("Transport Registration Reminder Event");
-        transportRegReminderEvent->setKind(WIREDTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE);
-        scheduleAt(simTime(), transportRegReminderEvent);
+        // reminder to generate transport registration event, only if not a dummy transport
+        if (!dummyTransport) {
+            cMessage *transportRegReminderEvent = new cMessage("Transport Registration Reminder Event");
+            transportRegReminderEvent->setKind(WIREDTRANSPORT_TRANSPORT_REG_REM_EVENT_CODE);
+            scheduleAt(simTime(), transportRegReminderEvent);
+        }
 
         // setup pkt send event message
         msgSendCompletedEvent = new cMessage("Message Send Completed Event");
@@ -91,6 +93,7 @@ void WiredTransport::handleMessage(cMessage *msg)
     } else {
         cGate *gate;
         char gateName[32];
+
 
        // get message arrival gate name
         gate = msg->getArrivalGate();

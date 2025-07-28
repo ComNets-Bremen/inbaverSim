@@ -4,9 +4,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+#ifndef __INBAVERSIM_ADMINTHINGSAPP_H_
+#define __INBAVERSIM_ADMINTHINGSAPP_H_
 
-#ifndef __INBAVERSIM_THINGSAPP_H_
-#define __INBAVERSIM_THINGSAPP_H_
 
 #include <omnetpp.h>
 
@@ -22,7 +22,7 @@ using namespace std;
 class Demiurge;
 class Numen;
 
-class ThingsApp : public cSimpleModule
+class AdminThingsApp : public cSimpleModule
 {
   protected:
     virtual void initialize(int stage);
@@ -34,17 +34,26 @@ class ThingsApp : public cSimpleModule
   private:
 
     double sensorDataRetrievalStartTime;
-    double subscriptionStartTime;
-    bool subscriptionON;
     string requestedSensorNetworkPrefixName;
     string sensorDataNames;
     int maxSensorDataReadingsToKeep;
     int maxHopsAllowed;
     double interestLifetime;
-    double subscriptionDuration;
     int segmentSize;
     // int numSegmentsPerFile;
     double cacheTime;
+    long intCount;
+    long coCount;
+
+    //Subscription Settings
+    double subscriptionStartTime;
+    double subscriptionDuration;
+    bool subscriptionON;
+
+    //Configuration Settings
+    double configurationSettingsStartTime;
+    string configurationParameter;
+    double configurationValue;
 
     //Details needed for next Query/Response Request
     int nextdataReadingID;
@@ -67,10 +76,13 @@ class ThingsApp : public cSimpleModule
     simsignal_t networkInterestInjectedCountSignal;
     simsignal_t contentFreshnessSignal;
     simsignal_t subContentObjectReceivedCount;
+    simsignal_t totalContentObjectReceivedCount;
+    simsignal_t totalInterestsSentCount;
 };
 
 #define THINGSAPP_APP_REG_REM_EVENT_CODE              116
 #define THINGSAPP_NEXT_DATA_DOWNLOAD_EVENT_CODE       117
-#define THINGSAPP_SUBSCRIPTION_REMINDER_CODE      118
+#define THINGSAPP_SUBSCRIPTION_REMINDER_CODE          118
+#define THINGSAPP_CONFIG_SETTINGS_REMINDER_CODE          119
 
 #endif

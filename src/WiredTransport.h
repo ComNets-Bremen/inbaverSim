@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -42,6 +42,7 @@ class WiredTransport : public cSimpleModule
       double dataRate;
       double packetErrorRate;
       int headerSize;
+      bool dummyTransport;
 
       // globally unique MAC-like address
       string macAddress;

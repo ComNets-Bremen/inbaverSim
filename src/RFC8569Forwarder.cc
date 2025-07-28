@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -260,7 +260,8 @@ void RFC8569Forwarder::processInterest(InterestMsg *interestMsg)
     // check and get Face and transport address info of sender of Interest,
     ExchangedTransportInfo *arrivalTransportInfo = NULL;
     if (interestMsg->hasObject("ExchangedTransportInfo")) {
-        arrivalTransportInfo = check_and_cast<ExchangedTransportInfo*>(interestMsg->getObject("ExchangedTransportInfo"));
+        //arrivalTransportInfo = check_and_cast<ExchangedTransportInfo*>(interestMsg->getObject("ExchangedTransportInfo"));
+        arrivalTransportInfo = dynamic_cast<ExchangedTransportInfo*>(interestMsg->getObject("ExchangedTransportInfo"));
         interestMsg->removeObject("ExchangedTransportInfo");
     }
 

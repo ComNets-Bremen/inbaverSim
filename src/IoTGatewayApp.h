@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -13,6 +13,9 @@
 #include <string>
 #include <queue>
 #include <iostream>
+#include <cstring>
+#include <cstdio>
+
 
 #include "Demiurge.h"
 #include "inbaver.h"
@@ -24,12 +27,6 @@ using namespace std;
 
 class Demiurge;
 
-/**
- * An application that connects an IoT with the Internet
- * and is able to handle the functionality required to
- * manage the duty cycled IoT and the permently-on
- * Internet. It implements the IApplication interface.
- */
 class IoTGatewayApp : public cSimpleModule
 {
 
@@ -45,19 +42,44 @@ class IoTGatewayApp : public cSimpleModule
     string sensorPrefixName;
     double interestLifetime;
     int maximumSensorReadingsToKeep;
+    double sensorDataRetrievalStartTime;
+    int maxHopsAllowed;
+    string otherGatewayAvailable;
+
+    //For Controller action
+    double temperatureLowerLimit;
+    double temperatureHigherLimit;
+    double lightIntensityLowerLimit;
+    double lightIntensityUpperLimit;
+
+    //Reminder for de-subscription
+    vector <SubscriptionExpiryData*> subscriptionExpiryData;
+
+    // interest retransmission event
+    cMessage *endOfUserSubscriptionEvent;
 
     Demiurge *demiurgeModel;
 
     // list of sensors and the recent data received
     vector <SensorEntry*> servedSensorList;
 
+    // list of actuators and the recent data received
+    vector <ActuatorEntry*> servedActuatorList;
+
+    //list of Subscriptions
+    vector <SubscriptionData*> subscriptionData;
+
+
     // stat signals
     simsignal_t totalInterestsBytesReceivedSignal;
     simsignal_t totalContentObjsBytesSentSignal;
     simsignal_t totalDataBytesSentSignal;
+    simsignal_t subContentObjectsSentCount;
 
 };
 
 #define IOTGATEWAYAPP_APP_REG_REM_EVENT_CODE             116
+#define IOTGATEWAYAPP_QUERY_OTHER_GATEWAY_EVENT_CODE     117
+#define IOTGATEWAYAPP_SUB_END_REMINDER_EVENT_CODE        118
 
 #endif

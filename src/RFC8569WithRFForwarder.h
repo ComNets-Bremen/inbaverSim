@@ -4,9 +4,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-
-#ifndef __INBAVERSIM_RFC8569FORWARDER_H_
-#define __INBAVERSIM_RFC8569FORWARDER_H_
+#ifndef __INBAVERSIM_RFC8569WITHRFFORWAEDER_H_
+#define __INBAVERSIM_RFC8569WITHRFFORWAEDER_H_
 
 #include <omnetpp.h>
 #include <cstdlib>
@@ -25,11 +24,7 @@ using namespace std;
 class Demiurge;
 class Numen;
 
-/**
- * A CCN forwarder implementing the RFC 8569 using the
- * IForwarder interface.
- */
-class RFC8569Forwarder : public cSimpleModule
+class RFC8569WithRFForwarder : public cSimpleModule
 {
   protected:
     virtual void initialize(int stage);
@@ -51,6 +46,14 @@ class RFC8569Forwarder : public cSimpleModule
 
     long hitCount;
     long missCount;
+    long interestCount;
+    long contentObjectCount;
+    long firstCacheEmitCount;
+  //  long totalBytesReceivedAndSent;
+
+    long lastPITSize;
+    long lastFIBSize;
+    long lastCSSize;
 
     void processApplicationRegistration(AppRegistrationMsg *appRegMsg);
     void processPrefixRegistration(PrefixRegistrationMsg *prefixRegMsg);
@@ -65,11 +68,14 @@ class RFC8569Forwarder : public cSimpleModule
     PITEntry *getPITEntry(string prefixName, string dataName, string versionName, int segmentNum);
     FIBEntry *updateFIB(string prefixName, FaceEntry *faceEntry);
     FIBEntry *longestPrefixMatchingInFIB(string prefixName);
+    PITEntry *getPITEntryUsingRPT(int rpt);
 
     void dumpFIB();
     void dumpFaces();
     void dumpCS();
     void dumpPIT();
+    void updateCSEntry();
+    void updatePITEntry();
 
     simsignal_t totalInterestsBytesReceivedSignal;
     simsignal_t totalInterestRtnsBytesReceivedSignal;
@@ -86,7 +92,24 @@ class RFC8569Forwarder : public cSimpleModule
     simsignal_t cacheMissRatioSignal;
     simsignal_t networkCacheHitRatioSignal;
     simsignal_t networkCacheMissRatioSignal;
+    simsignal_t interesttoContentRatioSignal;
+    simsignal_t totalTrafficSignal;
+    simsignal_t totalTrafficBytesSignal;
+    simsignal_t totalExpiredPITCountSignal;
+    simsignal_t totalSatisfiedPITCountSignal;
+    simsignal_t durationOfPITEntrySignal;
+    simsignal_t totalCacheEntriesCountSignal;
+    simsignal_t durationOfFirstCacheEmitSignal;
+    simsignal_t delayInRetrievingContent;
+
+    simsignal_t totalNetworkPITEntryCountEmitSignal;
+    simsignal_t totalNetworkFIBEntryCountEmitSignal;
+    simsignal_t totalNetworkCSEntryCountEmitSignal;
+
+    cMessage *statGenReminderEvent;
 
 };
+
+#define RFC8569WITHRFFWD_STAT_GEN_REM_EVENT_CODE      271
 
 #endif

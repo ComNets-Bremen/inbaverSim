@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -26,7 +26,7 @@ simple ContentHostApp like IApplication
         string dataNamePrefix = default("file");
         volatile int segmentSize @unit(byte) = default(10000byte);
         volatile int numSegmentsPerFile = default(intuniform(5, 100));
-        volatile double cacheTime @unit(s) = default(3600s); // 0 means infinite
+        volatile double cacheTime @unit(s) = default(3600s); // 0 means infinite 
 
         // statistic signals
         @signal[appTotalInterestsBytesReceived](type=long);

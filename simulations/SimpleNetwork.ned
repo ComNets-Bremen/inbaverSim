@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 Asanga Udugama (adu@comnets.uni-bremen.de)
+// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -25,18 +25,19 @@ network SimpleNetwork
 
         // statistics
         @statistic[appNetworkInterestRetransmissionCount](source=appNetworkInterestRetransmissionCount; record=last,vector);
+        @statistic[appNetworkInterestInjectedCount](source=appNetworkInterestInjectedCount; record=last,vector);
 
         @statistic[fwdNetworkCacheHitRatio](source=fwdNetworkCacheHitRatio; record=min,max,count,last,vector);
         @statistic[fwdNetworkCacheMissRatio](source=fwdNetworkCacheMissRatio; record=min,max,count,last,vector);
 
-        @display("bgb=410,372");
+        @display("bgb=400,400;bgg=100,0,grey95;bgu=m");
 
     submodules:
         accessRouter: AccessRouter {
             @display("p=90,217");
         }
         wirelessAccessRouter: WirelessAccessRouter {
-            @display("p=90,119");
+            @display("p=102,96");
         }
         wiredNode1: WiredNode {
             @display("p=51,307");
@@ -45,7 +46,7 @@ network SimpleNetwork
             @display("p=151,307");
         }
         wirelessNode[2]: WirelessNode {
-            @display("p=72,32");
+            @display("p=103,51");
         }
         coreRouter1: CoreRouter {
             @display("p=246,237");
