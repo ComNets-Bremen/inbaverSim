@@ -60,9 +60,13 @@ void RFC8569WithPingForwarder::initialize(int stage)
             totalInterestsBytesReceivedSignal = registerSignal("fwdTotalInterestsBytesReceived");
             totalInterestRtnsBytesReceivedSignal = registerSignal("fwdTotalInterestRtnsBytesReceived");
             totalContentObjsBytesReceivedSignal = registerSignal("fwdTotalContentObjsBytesReceived");
+            totalTracerouteRqstBytesReceivedSignal = registerSignal("fwdTotalTracerouteRqstBytesReceived");
+            totalTracerouteRplBytesReceivedSignal = registerSignal("fwdTotalTracerouteRplBytesReceived");
             totalInterestsBytesSentSignal = registerSignal("fwdTotalInterestsBytesSent");
             totalInterestRtnsBytesSentSignal = registerSignal("fwdTotalInterestRtnsBytesSent");
             totalContentObjsBytesSentSignal = registerSignal("fwdTotalContentObjsBytesSent");
+            totalTracerouteRqstBytesSentSignal = registerSignal("fwdTotalTracerouteRqstBytesSent");
+            totalTracerouteRplBytesSentSignal = registerSignal("fwdTotalTracerouteRplBytesSent");
             cacheSizeBytesSignal = registerSignal("fwdCacheSizeBytes");
             cacheAdditionsBytesSignal = registerSignal("fwdCacheAdditionsBytes");
             cacheRemovalsBytesSignal = registerSignal("fwdCacheRemovalsBytes");
@@ -89,6 +93,8 @@ void RFC8569WithPingForwarder::handleMessage(cMessage *msg)
     InterestMsg *interestMsg = NULL;
     ContentObjMsg *contentObjMsg = NULL;
     InterestRtnMsg *interestRtnMsg = NULL;
+    TracerouteRqstMsg *tracerouteRqstMsg = NULL;
+    TracerouteRplMsg *tracerouteRplMsg = NULL;
     NeighbourListMsg *neighbourListMsg;
 
     // get arrival gate details
@@ -130,6 +136,17 @@ void RFC8569WithPingForwarder::handleMessage(cMessage *msg)
         } else if ((interestRtnMsg = dynamic_cast<InterestRtnMsg*>(msg)) != NULL) {
 
             processInterestRtn(interestRtnMsg);
+
+
+        // process received traceroute request
+        } else if ((tracerouteRqstMsg = dynamic_cast<TracerouteRqstMsg*>(msg)) != NULL){
+
+            processTracerouteRqst(tracerouteRqstMsg);
+
+        // process received traceroute reply
+        } else if ((tracerouteRplMsg = dynamic_cast<TracerouteRplMsg*>(msg)) != NULL){
+
+            processTracerouteRpl(tracerouteRplMsg);
 
         // process neighbour list msg when transport is in direct mode
         } else if ((neighbourListMsg = dynamic_cast<NeighbourListMsg*>(msg)) != NULL) {
@@ -771,6 +788,310 @@ void RFC8569WithPingForwarder::processInterestRtn(InterestRtnMsg *interestRtnMsg
 
     // remove the Interest Return as it was sent to the Interest senders
     delete interestRtnMsg;
+}
+
+/**
+ * Processes a traceroute request
+ * Specified in RFC 9507
+ * @param *tracerouteRqstMsg A traceroute request message
+ */
+void RFC8569WithPingForwarder::processTracerouteRqst(TracerouteRqstMsg *tracerouteRqstMsg)
+{
+    cGate *arrivalGate = tracerouteRqstMsg->getArrivalGate();
+    int arrivalGateIndex =  (arrivalGate->isVector() ? arrivalGate->getIndex() : (-1));
+    FaceEntry *arrivalFaceEntry = getFaceEntryFromInputGateName(arrivalGate->getName(), arrivalGateIndex);
+
+    EV_INFO << simTime() << " Received Traceroute Request: "
+            << arrivalFaceEntry->faceID
+            << " " << tracerouteRqstMsg->getPrefixName()
+            << " " << tracerouteRqstMsg->getDataName()
+            << " " << tracerouteRqstMsg->getVersionName()
+            << " " << tracerouteRqstMsg->getSegmentNum()
+            << endl;
+
+    dumpFaces();
+
+    // generate stats
+    if (arrivalFaceEntry->faceType == TransportTypeFace) {
+        emit(totalTracerouteRqstBytesReceivedSignal, (long) tracerouteRqstMsg->getByteLength());
+    }
+
+    // check and get Face and transport address info of sender of Interest,
+    ExchangedTransportInfo *arrivalTransportInfo = NULL;
+    if (tracerouteRqstMsg->hasObject("ExchangedTransportInfo")) {
+        arrivalTransportInfo = check_and_cast<ExchangedTransportInfo*>(tracerouteRqstMsg->getObject("ExchangedTransportInfo"));
+        tracerouteRqstMsg->removeObject("ExchangedTransportInfo");
+    }
+
+
+    // check for Pathsteering value
+    if ((int) tracerouteRqstMsg->getPlaceholder() > 0){
+        EV << "Pathsteering Label exists!\n";
+        // TODO create actual behaviour
+    }
+
+    // lookup in CS for the requested Content Obj
+    CSEntry *csEntry = getCSEntry(tracerouteRqstMsg->getPrefixName(), tracerouteRqstMsg->getDataName(),
+                                    tracerouteRqstMsg->getVersionName(), tracerouteRqstMsg->getSegmentNum());
+
+    // when Content Obj is in CS, send it to the Interest sender
+    if (csEntry != NULL) {
+
+        // generate hit stats
+        hitCount++;
+        emit(cacheHitRatioSignal, (double) hitCount / (hitCount + missCount));
+        emit(cacheMissRatioSignal, (double) missCount / (hitCount + missCount));
+        demiurgeModel->incrementNetworkCacheHitCount();
+        emit(networkCacheHitRatioSignal, demiurgeModel->getNetworkCacheHitRatio());
+        emit(networkCacheMissRatioSignal, demiurgeModel->getNetworkCacheMissRatio());
+
+        // make traceroute reply msg for cache entry
+        // TODO check for actual entries in message
+        TracerouteRplMsg *tracerouteRplMsg = new TracerouteRplMsg("ContentObj");
+        tracerouteRplMsg->setPrefixName(csEntry->prefixName.c_str());
+        tracerouteRplMsg->setDataName(csEntry->dataName.c_str());
+        tracerouteRplMsg->setVersionName(csEntry->versionName.c_str());
+        tracerouteRplMsg->setSegmentNum(csEntry->segmentNum);
+        tracerouteRplMsg->setCachetime(csEntry->cachetime);
+        tracerouteRplMsg->setExpirytime(csEntry->expirytime);
+        tracerouteRplMsg->setHeaderSize(INBAVER_TRACEROUTE_RPL_MSG_HEADER_SIZE);
+        tracerouteRplMsg->setPayloadSize(csEntry->payloadSize);
+        tracerouteRplMsg->setTotalNumSegments(csEntry->totalNumSegments);
+        tracerouteRplMsg->setPayloadAsString(csEntry->payloadAsString.c_str());
+        tracerouteRplMsg->setByteLength(INBAVER_TRACEROUTE_RPL_MSG_HEADER_SIZE);
+        // TODO create pathlabel
+        tracerouteRplMsg->setTracerouteReplyCode(1); // 1 = cache hit
+
+        EV_INFO << simTime() << " Sending Traceroute Reply for Cached Object: "
+                    << csEntry->prefixName
+                    << " " << csEntry->dataName
+                    << " " << csEntry->versionName
+                    << " " << csEntry->segmentNum
+                    << " " << csEntry->expirytime
+                    << " " << csEntry->payloadSize
+                    << " " << csEntry->totalNumSegments
+                    << endl;
+
+        // send traceroute reply
+        cGate *sendingGate = gate(arrivalFaceEntry->outputGateName.c_str(), arrivalFaceEntry->gateIndex);
+        send(tracerouteRplMsg, sendingGate);
+
+        // generate stats
+        if (arrivalFaceEntry->faceType == TransportTypeFace) {
+            emit(totalTracerouteRplBytesSentSignal, (long) tracerouteRplMsg->getByteLength());
+        }
+
+        // remove Interest
+        delete tracerouteRqstMsg;
+        return;
+
+    } else {
+
+        // generate miss stat
+        missCount++;
+        emit(cacheHitRatioSignal, (double) hitCount / (hitCount + missCount));
+        emit(cacheMissRatioSignal, (double) missCount / (hitCount + missCount));
+        demiurgeModel->incrementNetworkCacheMissCount();
+        emit(networkCacheHitRatioSignal, demiurgeModel->getNetworkCacheHitRatio());
+        emit(networkCacheMissRatioSignal, demiurgeModel->getNetworkCacheMissRatio());
+
+    }
+
+    // is there a PIT entry already for previous Interests received
+    // for same content?
+    /**
+     * Because we do not change the PIT entry itself, we cannot distinguish between interest and traceroute request, thus both content messages and traceroute replies will be forwarded equally
+     */
+    PITEntry *pitEntry = getPITEntry(tracerouteRqstMsg->getPrefixName(), tracerouteRqstMsg->getDataName(),
+                                        tracerouteRqstMsg->getVersionName(), tracerouteRqstMsg->getSegmentNum());
+
+    dumpPIT();
+
+    // when there is already a PIT entry, means previous Interests were
+    // received, so add the current Interest to the PIT entry
+    if (pitEntry != NULL) {
+
+        // Check if the same Interest was received through the same Face and transport address
+        bool found = false;
+        for (int i = 0; i < pitEntry->arrivalInfoList.size(); i++) {
+            if (pitEntry->arrivalInfoList[i]->receivedFace->faceID == arrivalFaceEntry->faceID) {
+                if (arrivalTransportInfo != NULL) {
+                    if (arrivalTransportInfo->transportAddress == pitEntry->arrivalInfoList[i]->receivedFace->transportAddress) {
+                        found = true;
+                        break;
+                    }
+                } else {
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        // when same Interest was not received from same Face and same transport address
+        // then add it to PIT entry
+        if (!found) {
+            ArrivalInfo *arrivalInfo = new ArrivalInfo();
+            arrivalInfo->receivedFace = arrivalFaceEntry;
+            if (arrivalTransportInfo != NULL) {
+                arrivalInfo->transportAddress = arrivalTransportInfo->transportAddress;
+            } else {
+                arrivalInfo->transportAddress = "";
+            }
+
+            EV_INFO << simTime() << "PIT entry exists. Adding new arrival Face: "
+                    << pitEntry->prefixName
+                    << " " << pitEntry->dataName
+                    << " " << pitEntry->versionName
+                    << " " << pitEntry->segmentNum
+                    << " " << pitEntry->hopLimit
+                    << " " << pitEntry->hopsTravelled
+                    << " " << arrivalFaceEntry->faceID
+                    << " " << arrivalInfo->transportAddress
+                    << endl;
+
+            pitEntry->arrivalInfoList.push_back(arrivalInfo);
+        }
+
+        // discard Interest
+        delete tracerouteRqstMsg;
+        return;
+    }
+
+    // check hop limit
+    // only if they arrive from transport type faces (not applications)
+    if (arrivalFaceEntry->faceType == TransportTypeFace && (tracerouteRqstMsg->getHopLimit() - 1) <= 0) {
+
+        EV_INFO << simTime() << "Hop limit exceeded. Creating Traceroute Reply: "
+                << tracerouteRqstMsg->getHopLimit()
+                << " " << tracerouteRqstMsg->getHopsTravelled()
+                << " " << arrivalFaceEntry->faceDescription
+                << endl;
+
+        // make traceroute reply for hoplimit reached
+        TracerouteRplMsg *tracerouteRplMsg = new TracerouteRplMsg("TracerouteRpl");
+        tracerouteRplMsg->setHeaderSize(INBAVER_TRACEROUTE_RPL_MSG_HEADER_SIZE);
+        tracerouteRplMsg->setPayloadSize(csEntry->payloadSize);
+        tracerouteRplMsg->setTotalNumSegments(csEntry->totalNumSegments);
+        tracerouteRplMsg->setPayloadAsString(csEntry->payloadAsString.c_str());
+        tracerouteRplMsg->setByteLength(INBAVER_TRACEROUTE_RPL_MSG_HEADER_SIZE);
+        // TODO create pathlabel
+        tracerouteRplMsg->setTracerouteReplyCode(4); // 4 = hopLimit reached
+
+        delete tracerouteRqstMsg;
+        return;
+    }
+
+
+    // save Interest in PIT - create new PIT entry
+    pitEntry = new PITEntry;
+    pitEntry->prefixName = tracerouteRqstMsg->getPrefixName();
+    pitEntry->dataName = tracerouteRqstMsg->getDataName();
+    pitEntry->versionName = tracerouteRqstMsg->getVersionName();
+    pitEntry->segmentNum = tracerouteRqstMsg->getSegmentNum();
+    pitEntry->hopLimit = tracerouteRqstMsg->getHopLimit() - 1;
+    pitEntry->hopsTravelled = tracerouteRqstMsg->getHopsTravelled() + 1;
+
+    ArrivalInfo *arrivalInfo = new ArrivalInfo();
+    arrivalInfo->receivedFace = arrivalFaceEntry;
+    if (arrivalTransportInfo != NULL) {
+        arrivalInfo->transportAddress = arrivalTransportInfo->transportAddress;
+    } else {
+        arrivalInfo->transportAddress = "";
+    }
+    pitEntry->arrivalInfoList.push_back(arrivalInfo);
+
+    EV_INFO << simTime() << "Adding PIT entry: "
+            << pitEntry->prefixName
+            << " " << pitEntry->dataName
+            << " " << pitEntry->versionName
+            << " " << pitEntry->segmentNum
+            << " " << pitEntry->hopLimit
+            << " " << pitEntry->hopsTravelled
+            << " " << arrivalFaceEntry->faceID
+            << " " << arrivalInfo->transportAddress
+            << endl;
+
+    pit.push_back(pitEntry);
+
+    // gen stats
+    emit(pitEntryCountSignal, (long) pit.size());
+
+    // TODO Pathsteering
+
+    // find which FIB entry to use to forward the Interest
+    // TODO local name match
+    FIBEntry *fibEntry = longestPrefixMatchingInFIB(tracerouteRqstMsg->getPrefixName());
+
+    EV_INFO << simTime() << "Longest Prefix Matching and found: "
+            << fibEntry->prefixName << " " << fibEntry->forwardedFaces.size() << endl;
+
+    // forward interest to all the faces listed in the FIB entry
+    FaceEntry *faceEntry = NULL;
+    list<FaceEntry*>::iterator iteratorFaceEntry = fibEntry->forwardedFaces.begin();
+    while (iteratorFaceEntry != fibEntry->forwardedFaces.end()) {
+        faceEntry = *iteratorFaceEntry;
+
+        // select face if it is not the arrival face
+        if (faceEntry->faceID != arrivalFaceEntry->faceID) {
+
+            TracerouteRqstMsg *newTracerouteRqstMsg = new TracerouteRqstMsg("Traceroute Request");
+            newTracerouteRqstMsg->setHopLimit(tracerouteRqstMsg->getHopLimit() - 1);
+            newTracerouteRqstMsg->setLifetime(tracerouteRqstMsg->getLifetime());
+            newTracerouteRqstMsg->setPrefixName(tracerouteRqstMsg->getPrefixName());
+            newTracerouteRqstMsg->setDataName(tracerouteRqstMsg->getDataName());
+            newTracerouteRqstMsg->setVersionName(tracerouteRqstMsg->getVersionName());
+            newTracerouteRqstMsg->setSegmentNum(tracerouteRqstMsg->getSegmentNum());
+            newTracerouteRqstMsg->setHeaderSize(INVAVER_TRACEROUTE_RQST_MSG_HEADER_SIZE);
+            newTracerouteRqstMsg->setPayloadSize(tracerouteRqstMsg->getPayloadSize());
+            newTracerouteRqstMsg->setHopsTravelled(tracerouteRqstMsg->getHopsTravelled() + 1);
+            newTracerouteRqstMsg->setByteLength(INVAVER_TRACEROUTE_RQST_MSG_HEADER_SIZE + 0);
+
+            // set the arrival face, if the interest is sent to an application face
+            if (arrivalFaceEntry->faceType == TransportTypeFace
+                    && faceEntry->faceType == ApplicationTypeFace) {
+                newTracerouteRqstMsg->setArrivalFaceID(arrivalFaceEntry->faceID);
+                newTracerouteRqstMsg->setArrivalFaceType(TransportTypeFace);
+            } else {
+                newTracerouteRqstMsg->setArrivalFaceID(-1);
+                newTracerouteRqstMsg->setArrivalFaceType(-1);
+            }
+
+            cGate *sendingGate = gate(faceEntry->outputGateName.c_str(), faceEntry->gateIndex);
+
+            EV_INFO << simTime() << "Sending Traceroute Request to Face: "
+                    << tracerouteRqstMsg->getPrefixName()
+                    << " " << tracerouteRqstMsg->getDataName()
+                    << " " << tracerouteRqstMsg->getVersionName()
+                    << " " << tracerouteRqstMsg->getSegmentNum()
+                    << " " << faceEntry->faceID << endl;
+
+            send(newTracerouteRqstMsg, sendingGate);
+
+            // generate stats
+            if (faceEntry->faceType == TransportTypeFace) {
+                emit(totalTracerouteRqstBytesSentSignal, (long) newTracerouteRqstMsg->getByteLength());
+            }
+        }
+
+        iteratorFaceEntry++;
+    }
+
+
+    // discard Interest
+    delete tracerouteRqstMsg;
+    return;
+
+
+}
+
+/**
+ * Processes a traceroute reply
+ * Specified in RFC 9507
+ * @param *tracerouteRplMsg A traceroute reply message
+ */
+void RFC8569WithPingForwarder::processTracerouteRpl(TracerouteRplMsg *tracerrouteRplMsg)
+{
+    // TODO
 }
 
 FaceEntry *RFC8569WithPingForwarder::getFaceEntryFromInputGateName(string inputGateName, int gateIndex)
