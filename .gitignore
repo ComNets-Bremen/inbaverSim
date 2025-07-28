@@ -13,6 +13,7 @@ src/**/*_m.cc
 
 # settings
 .settings/*
+.project
 
 # gcc output
 out/*
