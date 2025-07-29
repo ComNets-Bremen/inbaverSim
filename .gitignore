@@ -12,12 +12,12 @@ src/**/*_m.h
 src/**/*_m.cc
 
 # settings
-.settings/*
+.settings/
 .project
 .cproject
 
 # gcc output
-out/*
+out/
 *.o
 
 # Qt files

@@ -22,6 +22,7 @@ class Demiurge : public cSimpleModule
         long networkCacheMissCount;
         long networkInterstInjectedCount;
         long networkInterstRetransmissionCount;
+        long networkTracerouteRqstInjectedCount;
         long totalTraffic;
         long subContentObjectSentCount;
         long subContentObjectReceivedCount;
@@ -30,6 +31,8 @@ class Demiurge : public cSimpleModule
         long cacheEntriesRemovedCount;
         long totalNetworkCountOfInterests;
         long totalNetworkCountOfContentObjects;
+        long totalNetworkCountOfTracerouteRqsts;
+        long totalNetworkCountOfTracerouteRpls;
 
         long totalNetworkPITEntryCount;
         long totalNetworkFIBEntryCount;
@@ -54,6 +57,8 @@ class Demiurge : public cSimpleModule
         long getNetworkInterestRetransmissionCount();
         void incrementNetworkInterestInjectedCount();
         long getNetworkInterestInjectedCount();
+        void incrementNetworkTracerouteRqstInjectedCount();
+        long getNetworkTracerouteRqstInjectedCount();
         void incrementTrafficCount();
         long getTotalTrafficCount();
         long getTotalTrafficBytesCount();
@@ -74,6 +79,10 @@ class Demiurge : public cSimpleModule
         void incrementTotalNetworkCountOfInterests();
         long getTotalNetworkCountOfContentObjects();
         void incrementTotalNetworkCountOfContentObjects();
+        long getTotalNetworkCountOfTracerouteRqsts();
+        void incrementTotalNetworkCountOfTracerouteRqsts();
+        long getTotalNetworkCountOfTracerouteRpls();
+        void incrementTotalNetworkCountOfTracerouteRpls();
         void adjustTotalNetworkPITEntryCount(long oldVal, long newVal);
         long getTotalNetworkPITEntryCount();
         void adjustTotalNetworkFIBEntryCount(long oldVal, long newVal);

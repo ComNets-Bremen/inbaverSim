@@ -37,7 +37,7 @@ protected:
     vector <string> requestedPrefixList;
 
     // start traceroute event
-    cMessage *traceRouteStartEvent
+    cMessage *traceRouteStartEvent;
 
     // interest retransmission event
     cMessage *interestRetransmitEvent;

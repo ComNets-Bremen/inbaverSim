@@ -23,6 +23,8 @@ void Demiurge::initialize()
     cacheEntriesRemovedCount = 0;
     totalNetworkCountOfInterests = 0;
     totalNetworkCountOfContentObjects = 0;
+    totalNetworkCountOfTracerouteRqsts = 0;
+    totalNetworkCountOfTracerouteRpls = 0;
 
     totalNetworkPITEntryCount = 0;
     totalNetworkFIBEntryCount = 0;
@@ -111,6 +113,17 @@ long Demiurge::getNetworkInterestInjectedCount()
 {
     return networkInterstInjectedCount;
 }
+
+void Demiurge::incrementNetworkTracerouteRqstInjectedCount()
+{
+    networkTracerouteRqstInjectedCount++;
+}
+
+long Demiurge::getNetworkTracerouteRqstInjectedCount()
+{
+    return networkTracerouteRqstInjectedCount;
+}
+
 void Demiurge::incrementExpiredPITCount()
 {
     expiredPITCount++;
@@ -163,6 +176,25 @@ void Demiurge::incrementTotalNetworkCountOfContentObjects()
     totalNetworkCountOfContentObjects++;
 }
 
+long Demiurge::getTotalNetworkCountOfTracerouteRqsts()
+{
+    return totalNetworkCountOfTracerouteRqsts;
+}
+
+void Demiurge::incrementTotalNetworkCountOfTracerouteRqsts()
+{
+    totalNetworkCountOfTracerouteRqsts++;
+}
+
+long Demiurge::getTotalNetworkCountOfTracerouteRpls()
+{
+    return totalNetworkCountOfTracerouteRpls;
+}
+
+void Demiurge::incrementTotalNetworkCountOfTracerouteRpls()
+{
+    totalNetworkCountOfTracerouteRpls++;
+}
 
 
 void Demiurge::adjustTotalNetworkPITEntryCount(long oldVal, long newVal)
