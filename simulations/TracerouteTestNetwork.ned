@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2025 Asanga Udugama (udugama@uni-bremen.de)
+//  Created by Finke, Tarek & Wieker, Lars as part of the Network Simulation Project
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
@@ -15,11 +15,7 @@ import inbaversim.WirelessAccessRouter;
 import inbaversim.WirelessNode;
 import ned.DatarateChannel;
 
-
-//
-// Mirrors SimpleNetwork for traceroute tests
-//
-network SimpleNetwork
+network TracerouteTestNetwork
 {
     parameters:
 
@@ -29,6 +25,18 @@ network SimpleNetwork
 
         @statistic[fwdNetworkCacheHitRatio](source=fwdNetworkCacheHitRatio; record=min,max,count,last,vector);
         @statistic[fwdNetworkCacheMissRatio](source=fwdNetworkCacheMissRatio; record=min,max,count,last,vector);
+       	@statistic[fwdInterestToContentRatio](source=fwdInterestToContentRatio; record=min,max,count,last,vector,mean);
+       	@statistic[fwdRequestToReplyRatio](source=fwdRequestToReplyRatio; record=min,max,count,last,vector,mean);
+        @statistic[fwdTotalTraffic](source=fwdTotalTraffic; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdTotalTrafficBytes](source=fwdTotalTrafficBytes; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdtotalExpiredPITCountSignal](source=fwdtotalExpiredPITCountSignal; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdtotalSatisfiedPITCountSignal](source=fwdtotalSatisfiedPITCountSignal; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwddurationOfPITEntrySignal](source=fwddurationOfPITEntrySignal; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdtotalCacheEntriesCountSignal](source=fwdtotalCacheEntriesCountSignal; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwddurationOfFirstCacheEmitSignal](source=fwddurationOfFirstCacheEmitSignal; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdTotalNetworkPITEntryCount](source=fwdTotalNetworkPITEntryCount; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdTotalNetworkFIBEntryCount](source=fwdTotalNetworkFIBEntryCount; record=min,max,count,last,vector,sum,mean);
+        @statistic[fwdTotalNetworkCSEntryCount](source=fwdTotalNetworkCSEntryCount; record=min,max,count,last,vector,sum,mean);
 
         @display("bgb=400,400;bgg=100,0,grey95;bgu=m");
 
