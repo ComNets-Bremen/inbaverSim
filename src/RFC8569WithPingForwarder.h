@@ -51,6 +51,15 @@ class RFC8569WithPingForwarder : public cSimpleModule
 
       long hitCount;
       long missCount;
+      long interestCount;
+      long contentObjectCount;
+      long firstCacheEmitCount;
+      long tracerouteRqstCount;
+      long tracerouteRplCount;
+
+      long lastPITSize;
+      long lastFIBSize;
+      long lastCSSize;
 
       void processApplicationRegistration(AppRegistrationMsg *appRegMsg);
       void processPrefixRegistration(PrefixRegistrationMsg *prefixRegMsg);
@@ -67,31 +76,61 @@ class RFC8569WithPingForwarder : public cSimpleModule
       PITEntry *getPITEntry(string prefixName, string dataName, string versionName, int segmentNum);
       FIBEntry *updateFIB(string prefixName, FaceEntry *faceEntry);
       FIBEntry *longestPrefixMatchingInFIB(string prefixName);
+      PITEntry *getPITEntryUsingRPT(int rpt);
 
       void dumpFIB();
       void dumpFaces();
       void dumpCS();
       void dumpPIT();
+      void updateCSEntry();
+      void updatePITEntry();
 
       simsignal_t totalInterestsBytesReceivedSignal;
       simsignal_t totalInterestRtnsBytesReceivedSignal;
       simsignal_t totalContentObjsBytesReceivedSignal;
-      simsignal_t totalTracerouteRqstBytesReceivedSignal;
-      simsignal_t totalTracerouteRplBytesReceivedSignal;
+      simsignal_t totalTracerouteRqstsBytesReceivedSignal;
+      simsignal_t totalTracerouteRplsBytesReceivedSignal;
+
       simsignal_t totalInterestsBytesSentSignal;
       simsignal_t totalInterestRtnsBytesSentSignal;
       simsignal_t totalContentObjsBytesSentSignal;
-      simsignal_t totalTracerouteRqstBytesSentSignal;
-      simsignal_t totalTracerouteRplBytesSentSignal;
+      simsignal_t totalTracerouteRqstsBytesSentSignal;
+      simsignal_t totalTracerouteRplsBytesSentSignal;
+
       simsignal_t cacheSizeBytesSignal;
       simsignal_t cacheAdditionsBytesSignal;
       simsignal_t cacheRemovalsBytesSignal;
+
       simsignal_t fibEntryCountSignal;
       simsignal_t pitEntryCountSignal;
+
       simsignal_t cacheHitRatioSignal;
       simsignal_t cacheMissRatioSignal;
+
       simsignal_t networkCacheHitRatioSignal;
       simsignal_t networkCacheMissRatioSignal;
+
+      simsignal_t interestToContentRatioSignal;
+      simsignal_t totalTrafficSignal;
+      simsignal_t totalTrafficBytesSignal;
+
+      simsignal_t requestToReplyRatioSignal;
+
+      simsignal_t totalExpiredPITCountSignal;
+      simsignal_t totalSatisfiedPITCountSignal;
+      simsignal_t durationOfPITEntrySignal;
+
+      simsignal_t totalCacheEntriesCountSignal;
+      simsignal_t durationOfFirstCacheEmitSignal;
+      simsignal_t delayInRetrievingContent;
+
+      simsignal_t totalNetworkPITEntryCountEmitSignal;
+      simsignal_t totalNetworkFIBEntryCountEmitSignal;
+      simsignal_t totalNetworkCSEntryCountEmitSignal;
+
+      cMessage *statGenReminderEvent;
 };
+
+#define RFC8569WITHPINGFWD_STAT_GEN_REM_EVENT_CODE 271
 
 #endif
