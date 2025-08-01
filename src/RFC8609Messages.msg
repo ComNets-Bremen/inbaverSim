@@ -160,12 +160,10 @@ packet TracerouteRqstMsg
     int hopLimit;
 
     // lifetime of interest
-    simtime_t lifetime;
+    simtime_t lifetime;    
     
     // Pathsteering
-    // TODO create actual pathsteering data type
-    int placeholder;
-    
+    string pathlabel;
     
     //====== Body Name (BodyName)
 
@@ -174,6 +172,7 @@ packet TracerouteRqstMsg
     string dataName;
     string versionName;
     int segmentNum;
+    
 
     //====== Validation (Validation)
 
@@ -215,8 +214,7 @@ packet TracerouteRplMsg
     simtime_t cachetime;
     
      // Pathsteering
-    // TODO create actual pathsteering data type
-    int placeholder;
+    string pathlabel;
     
     // Reply Code
     int tracerouteReplyCode @enum(TracerouteReplyCodes);

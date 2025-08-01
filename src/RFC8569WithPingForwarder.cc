@@ -252,6 +252,15 @@ void RFC8569WithPingForwarder::processApplicationRegistration(AppRegistrationMsg
     }
     registeredFaces.push_back(faceEntry);
 
+    // update and check if pathsteering still works
+    if(++currentFaceCounter >= MAX_FACES){
+        EV_FATAL << simTime() " To many faces registered at: "
+                << this
+                << endl;
+
+        endSimulation();
+    }
+
     EV_INFO << simTime() << " Received application registration: "
             << appRegMsg->getAppID()
             << endl;
@@ -261,7 +270,6 @@ void RFC8569WithPingForwarder::processApplicationRegistration(AppRegistrationMsg
         for (int i = 0; i < appRegMsg->getHostedPrefixNamesArraySize(); i++) {
             string prefixName = appRegMsg->getHostedPrefixNames(i);
             updateFIB(prefixName, faceEntry);
-
         }
     }
 
@@ -1547,12 +1555,6 @@ void RFC8569WithPingForwarder::processTracerouteRqst(TracerouteRqstMsg *tracerou
 
     }
 
-    // check for Pathsteering value
-    if ((int) tracerouteRqstMsg->getPlaceholder() > 0){
-        EV << "Pathsteering Label exists!\n";
-        // TODO create actual behaviour
-    }
-
     // is there a PIT entry already for previous Interests received
     // for same content?
     /**
@@ -1672,8 +1674,63 @@ void RFC8569WithPingForwarder::processTracerouteRqst(TracerouteRqstMsg *tracerou
     // gen stats
     emit(pitEntryCountSignal, (long) pit.size());
 
-    // TODO Pathsteering
-    // if pathlable exists, we only want to forward accordingly
+    // check for Pathsteering value
+    if ((int) tracerouteRqstMsg->getPathlabel().length() > 0){
+        EV << "Pathsteering Label exists!\n";
+
+        if(tracerouteRqstMsg->getHopsTravelled() < (int) tracerouteRqstMsg->getPathlabel().length()){
+            char pathvalue = tracerouteRqstMsg->getPathlabel()[tracerouteRqstMsg->getHopsTravelled()];
+            int faceIndex = charToFaceIndex(pathvalue);
+            FaceEntry *outFace = registeredFaces[faceIndex];
+
+            if (outFace->faceID != arrivalFaceEntry->faceID) {
+
+                TracerouteRqstMsg *newTracerouteRqstMsg = new TracerouteRqstMsg("Traceroute Request");
+                newTracerouteRqstMsg->setHopLimit(tracerouteRqstMsg->getHopLimit() - 1);
+                newTracerouteRqstMsg->setLifetime(tracerouteRqstMsg->getLifetime());
+                newTracerouteRqstMsg->setPrefixName(tracerouteRqstMsg->getPrefixName());
+                newTracerouteRqstMsg->setDataName(tracerouteRqstMsg->getDataName());
+                newTracerouteRqstMsg->setVersionName(tracerouteRqstMsg->getVersionName());
+                newTracerouteRqstMsg->setSegmentNum(tracerouteRqstMsg->getSegmentNum());
+                newTracerouteRqstMsg->setHeaderSize(INVAVER_TRACEROUTE_RQST_MSG_HEADER_SIZE);
+                newTracerouteRqstMsg->setPayloadSize(tracerouteRqstMsg->getPayloadSize());
+                newTracerouteRqstMsg->setHopsTravelled(tracerouteRqstMsg->getHopsTravelled() + 1);
+                newTracerouteRqstMsg->setByteLength(INVAVER_TRACEROUTE_RQST_MSG_HEADER_SIZE + 0);
+
+                // set the arrival face, if the interest is sent to an application face
+                if (arrivalFaceEntry->faceType == TransportTypeFace
+                        && faceEntry->faceType == ApplicationTypeFace) {
+                    newTracerouteRqstMsg->setArrivalFaceID(arrivalFaceEntry->faceID);
+                    newTracerouteRqstMsg->setArrivalFaceType(TransportTypeFace);
+                } else {
+                    newTracerouteRqstMsg->setArrivalFaceID(-1);
+                    newTracerouteRqstMsg->setArrivalFaceType(-1);
+                }
+
+                cGate *sendingGate = gate(outFace->outputGateName.c_str(), outFace->gateIndex);
+
+                EV_INFO << simTime() << "Sending Traceroute Request to Face: "
+                        << tracerouteRqstMsg->getPrefixName()
+                        << " " << tracerouteRqstMsg->getDataName()
+                        << " " << tracerouteRqstMsg->getVersionName()
+                        << " " << tracerouteRqstMsg->getSegmentNum()
+                        << " " << outFace->faceID << endl;
+
+                send(newTracerouteRqstMsg, sendingGate);
+
+                // generate stats
+                if (faceEntry->faceType == TransportTypeFace) {
+                    emit(totalTracerouteRqstsBytesSentSignal, (long) newTracerouteRqstMsg->getByteLength());
+                }
+
+                // delete request
+                delete tracerouteRqstMsg;
+                return;
+            }
+        }
+
+        EV_INFO << "Pathlabel not usable, more hops travelled than registered." << endl;
+    }
 
     // find which FIB entry to use to forward the Interest
     // TODO local name match
@@ -1685,6 +1742,13 @@ void RFC8569WithPingForwarder::processTracerouteRqst(TracerouteRqstMsg *tracerou
     // forward interest to all the faces listed in the FIB entry
     FaceEntry *faceEntry = NULL;
     list<FaceEntry*>::iterator iteratorFaceEntry = fibEntry->forwardedFaces.begin();
+
+    if (iteratorFaceEntry == NULL) {
+        // drop message, tracerouteApp will see a timeout
+        // TODO delete PIT entries
+        delete tracerouteRqstMsg;
+        return;
+    }
     while (iteratorFaceEntry != fibEntry->forwardedFaces.end()) {
         faceEntry = *iteratorFaceEntry;
 
@@ -1792,6 +1856,10 @@ void RFC8569WithPingForwarder::processTracerouteRpl(TracerouteRplMsg *traceroute
         return;
     }
 
+    // define pathsteering TLV
+    char pathvalue = faceIndexToChar(arrivalFaceIndex);
+    string pathlabel = pathvalue + tracerouteRplMsg->getPathlabel();
+
     // when the PIT entry exists, forward the Traceroute Reply accordingly
     for (int i = 0; i <pitEntry->arrivalInfoList.size(); i++){
         ArrivalInfo *arrivalInfo = pitEntry->arrivalInfoList[i];
@@ -1808,7 +1876,7 @@ void RFC8569WithPingForwarder::processTracerouteRpl(TracerouteRplMsg *traceroute
         newTracerouteRplMsg->setTotalNumSegments(tracerouteRplMsg->getTotalNumSegments());
         newTracerouteRplMsg->setPayloadAsString(tracerouteRplMsg->getPayloadAsString());
         newTracerouteRplMsg->setByteLength(INBAVER_TRACEROUTE_RPL_MSG_HEADER_SIZE + tracerouteRplMsg->getPayloadSize());
-        // TODO add pathsteering
+        newTracerouteRplMsg->setPathlabel(pathlabel);
 
         // add the transport address if it exists
         if(arrivalInfo->transportAddress.size() > 0 ){
@@ -1852,12 +1920,14 @@ FaceEntry *RFC8569WithPingForwarder::getFaceEntryFromInputGateName(string inputG
     FaceEntry *faceEntry = NULL;
 
     list<FaceEntry*>::iterator iteratorFaceEntry = registeredFaces.begin();
+    arrivalFaceIndex = 0;
     while (iteratorFaceEntry != registeredFaces.end()) {
         faceEntry = *iteratorFaceEntry;
         if (strstr(faceEntry->inputGateName.c_str(), inputGateName.c_str()) != NULL && faceEntry->gateIndex == gateIndex) {
             return faceEntry;
         }
         iteratorFaceEntry++;
+        arrivalFaceIndex++;
     }
 
     EV_FATAL << simTime() << " Something is radically wrong - face entry not found - gate name: "
@@ -2179,6 +2249,9 @@ void RFC8569WithPingForwarder::dumpFaces()
 
         iteratorFaceEntry++;
     }
+
+    currentFaceCounter = registeredFaces.size();
+
     EV_INFO << simTime() << "=====\n";
 }
 
@@ -2222,3 +2295,27 @@ void RFC8569WithPingForwarder::dumpPIT()
     EV_INFO << simTime() << "=====\n";
 }
 
+/**
+ * internal method to convert characters to an integer
+ * @param c local pathsteering value
+ */
+int RFC8569WithPingForwarder::charToFaceIndex(char c){
+    return c - CHAR_BASE;
+}
+
+/**
+ * internal method to convert a face index to a character
+ * @param faceIndex local in/outgoing face
+ */
+char RFC8569WithPingForwarder::faceIndexToChar(int faceIndex){
+
+    if(faceIndex < 0 || faceIndex >= MAX_FACES){
+        EV_FATAL << "Face index out of bounds: "
+                << faceIndex
+                << endl;
+
+        return NULL;
+    }
+
+    return static_cast<char>(CHAR_BASE + faceIndex);
+}

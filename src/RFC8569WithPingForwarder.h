@@ -47,6 +47,8 @@ class RFC8569WithPingForwarder : public cSimpleModule
       list <FIBEntry *> fib;
       list <PITEntry *> pit;
       list <CSEntry *> cs;
+      int currentFaceCounter;
+      int arrivalFaceIndex;
       long currentCSSize;
 
       long hitCount;
@@ -77,6 +79,8 @@ class RFC8569WithPingForwarder : public cSimpleModule
       FIBEntry *updateFIB(string prefixName, FaceEntry *faceEntry);
       FIBEntry *longestPrefixMatchingInFIB(string prefixName);
       PITEntry *getPITEntryUsingRPT(int rpt);
+      int charToFaceIndex(char c);
+      char faceIndexToChar(int faceIndex);
 
       void dumpFIB();
       void dumpFaces();
@@ -132,5 +136,9 @@ class RFC8569WithPingForwarder : public cSimpleModule
 };
 
 #define RFC8569WITHPINGFWD_STAT_GEN_REM_EVENT_CODE 271
+
+#define CHAR_BASE "!"
+
+#define MAX_FACES 94
 
 #endif
