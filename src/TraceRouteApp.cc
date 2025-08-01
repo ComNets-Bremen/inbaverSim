@@ -115,7 +115,8 @@ void TraceRouteApp::handleMessage(cMessage *msg)
             totalSegments = -1;
             TraceStartTime = simTime();
 
-            EV_INFO << simTime() << " New Trace for " << requestingPrefixName << " " << requestingDataName << " v01" << " starts " << endl;
+            EV_INFO << simTime() << " New Trace for " << requestingPrefixName << " "
+                    << requestingDataName << " v01" << " starts " << endl;
 
             // generate 1st interest
             TracerouteRqstMsg* tracerouteRqstMsg = new TracerouteRqstMsg("Interest");
