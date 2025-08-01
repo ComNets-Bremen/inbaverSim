@@ -118,24 +118,24 @@ void TraceRouteApp::handleMessage(cMessage *msg)
             EV_INFO << simTime() << " New Trace for " << requestingPrefixName << " " << requestingDataName << " v01" << " starts " << endl;
 
             // generate 1st interest
-            InterestMsg* interestMsg = new InterestMsg("Interest");
-            interestMsg->setHopLimit(maxHopsAllowed);
-            interestMsg->setLifetime(simTime() + interestRetransmitTimeout);
-            interestMsg->setPrefixName(requestingPrefixName.c_str());
-            interestMsg->setDataName(requestingDataName.c_str());
-            interestMsg->setVersionName("v01");
-            interestMsg->setSegmentNum(requestedSegNum);
-            interestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
-            interestMsg->setPayloadSize(0);
-            interestMsg->setHopsTravelled(0);
-            interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
+            TracerouteRqstMsg* tracerouteRqstMsg = new TracerouteRqstMsg("Interest");
+            tracerouteRqstMsg->setHopLimit(maxHopsAllowed);
+            tracerouteRqstMsg->setLifetime(simTime() + interestRetransmitTimeout);
+            tracerouteRqstMsg->setPrefixName(requestingPrefixName.c_str());
+            tracerouteRqstMsg->setDataName(requestingDataName.c_str());
+            tracerouteRqstMsg->setVersionName("v01");
+            tracerouteRqstMsg->setSegmentNum(requestedSegNum);
+            tracerouteRqstMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
+            tracerouteRqstMsg->setPayloadSize(0);
+            tracerouteRqstMsg->setHopsTravelled(0);
+            tracerouteRqstMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
 
             EV_INFO << simTime() << " Sending Trace for: " << requestingPrefixName
                     << " " << requestingDataName << " v01 " << requestedSegNum
                     << " " << totalSegments << endl;
 
             // send msg to forwarding layer
-            send(interestMsg, "forwarderInOut$o");
+            send(tracerouteRqstMsg, "forwarderInOut$o");
 
             maxHopsAllowed++;
 
@@ -146,16 +146,17 @@ void TraceRouteApp::handleMessage(cMessage *msg)
             demiurgeModel->incrementNetworkInterestInjectedCount();
 
             // write stats
-            emit(totalInterestsBytesSentSignal, (long) interestMsg->getByteLength());
+            emit(totalInterestsBytesSentSignal, (long) tracerouteRqstMsg->getByteLength());
             emit(networkInterestInjectedCountSignal, demiurgeModel->getNetworkInterestInjectedCount());
 
             scheduleAt(simTime() + interestRetransmitTimeout, traceTimeoutEvent);
 
         }
 
-        else if (msg->getKind() == TRACEROUTEAPP_INTEREST_RETRANSMIT_EVENT_CODE){
+        else if ((tracerouteRplMsg = dynamic_cast<TracerouteRplMsg*>(msg)) != NULL){
+
             char tempString[128];
-            list <sting> pathTLV;
+            string pathTLV;
             pathTLV = msg->getPathTLV();
 
             // identify data to download
@@ -168,25 +169,25 @@ void TraceRouteApp::handleMessage(cMessage *msg)
             contentDownloadStartTime = simTime();
 
             // generate 1st interest
-            InterestMsg* interestMsg = new InterestMsg("Interest");
-            interestMsg->setHopLimit(maxHopsAllowed);
-            interestMsg->setLifetime(simTime() + interestRetransmitTimeout);
-            interestMsg->setPrefixName(requestingPrefixName.c_str());
-            interestMsg->setDataName(requestingDataName.c_str());
-            interestMsg->setVersionName("v01");
-            interestMsg->setSegmentNum(requestedSegNum);
-            interestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
-            interestMsg->setPayloadSize(0);
-            interestMsg->setHopsTravelled(0);
-            interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
-            interestMsg->setPathTLV(pathTLV);
+            TracerouteRqstMsg* tracerouteRqstMsg = new TracerouteRqstMsg("Interest");
+            tracerouteRqstMsg->setHopLimit(maxHopsAllowed);
+            tracerouteRqstMsg->setLifetime(simTime() + interestRetransmitTimeout);
+            tracerouteRqstMsg->setPrefixName(requestingPrefixName.c_str());
+            tracerouteRqstMsg->setDataName(requestingDataName.c_str());
+            tracerouteRqstMsg->setVersionName("v01");
+            tracerouteRqstMsg->setSegmentNum(requestedSegNum);
+            tracerouteRqstMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
+            tracerouteRqstMsg->setPayloadSize(0);
+            tracerouteRqstMsg->setHopsTravelled(0);
+            tracerouteRqstMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
+            tracerouteRqstMsg->setPathTLV(pathTLV);
 
             EV_INFO << simTime() << " Sending next Trace for: " << requestingPrefixName
                     << " " << requestingDataName << " v01 " << requestedSegNum
                     << " " << totalSegments << endl;
 
             // send msg to forwarding layer
-            send(interestMsg, "forwarderInOut$o");
+            send(tracerouteRqstMsg, "forwarderInOut$o");
 
             // remember last interest sent time for statistic
             lastInterestSentTime = simTime();
@@ -195,7 +196,7 @@ void TraceRouteApp::handleMessage(cMessage *msg)
             demiurgeModel->incrementNetworkInterestInjectedCount();
 
             // write stats
-            emit(totalInterestsBytesSentSignal, (long) interestMsg->getByteLength());
+            emit(totalInterestsBytesSentSignal, (long) tracerouteRqstMsg->getByteLength());
             emit(networkInterestInjectedCountSignal, demiurgeModel->getNetworkInterestInjectedCount());
 
             maxHopsAllowed++;
@@ -211,12 +212,11 @@ void TraceRouteApp::handleMessage(cMessage *msg)
 
         else if (msg->isSelfMessage() && msg->getKind() == TRACEROUTEAPP_TIMEOUT_EVENT_CODE){
 
-            EV << "Trace timeout. Trace has finished.";
-            maxHopsAllowed = maxHopsAllowed = par("maxHopsAllowed");
-            pathTLV.clear();
+                       EV << "Trace timeout. Trace has finished.";
+                       maxHopsAllowed = par("maxHopsAllowed");
+                       pathTLV = "";
 
         }
-
 }
 
 void TraceRouteApp::finish(){
