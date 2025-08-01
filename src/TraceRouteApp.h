@@ -30,6 +30,7 @@ protected:
     string dataNamePrefix;
     int maxHopsAllowed;
     double interestRetransmitTimeout;
+    string PathTLV;
 
     Demiurge *demiurgeModel;
     Numen *numenModel;
@@ -41,6 +42,9 @@ protected:
 
     // interest retransmission event
     cMessage *interestRetransmitEvent;
+
+    //trace timeout event
+    cMessage *traceTimeoutEvent;
 
     // details of current download
     string requestingPrefixName;
@@ -62,5 +66,6 @@ protected:
 #define TRACEROUTEAPP_APP_REG_REM_EVENT_CODE            116
 #define TRACEROUTEAPP_START_TRACEROUTE_EVENT_CODE       117
 #define TRACEROUTEAPP_INTEREST_RETRANSMIT_EVENT_CODE    118
+#define TRACEROUTEAPP_TIMEOUT_EVENT_CODE                119
 
 #endif

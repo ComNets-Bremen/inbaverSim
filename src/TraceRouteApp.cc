@@ -102,16 +102,120 @@ void TraceRouteApp::handleMessage(cMessage *msg)
 
         delete msg;
     }
+
     else if (msg->isSelfMessage() && msg->getKind() == TRACEROUTEAPP_START_TRACEROUTE_EVENT_CODE){
-        /*
-         * TODO
-         */
-    }
-    else if(msg->isSelfMessage() && msg->getKind() == TRACEROUTEAPP_INTEREST_RETRANSMIT_EVENT_CODE){
-        /*
-         * TODO
-         */
-    }
+
+            char tempString[128];
+            // identify data to download
+            requestingPrefixName = requestedPrefixList[0];
+            rndNum = par("nextFileSuffix");
+            snprintf(tempString, sizeof(tempString), "%s%04d", dataNamePrefix.c_str(), rndNum);
+            requestingDataName = string(tempString);
+            requestedSegNum = 0;
+            totalSegments = -1;
+            TraceStartTime = simTime();
+
+            EV_INFO << simTime() << " New Trace for " << requestingPrefixName << " " << requestingDataName << " v01" << " starts " << endl;
+
+            // generate 1st interest
+            InterestMsg* interestMsg = new InterestMsg("Interest");
+            interestMsg->setHopLimit(maxHopsAllowed);
+            interestMsg->setLifetime(simTime() + interestRetransmitTimeout);
+            interestMsg->setPrefixName(requestingPrefixName.c_str());
+            interestMsg->setDataName(requestingDataName.c_str());
+            interestMsg->setVersionName("v01");
+            interestMsg->setSegmentNum(requestedSegNum);
+            interestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
+            interestMsg->setPayloadSize(0);
+            interestMsg->setHopsTravelled(0);
+            interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
+
+            EV_INFO << simTime() << " Sending Trace for: " << requestingPrefixName
+                    << " " << requestingDataName << " v01 " << requestedSegNum
+                    << " " << totalSegments << endl;
+
+            // send msg to forwarding layer
+            send(interestMsg, "forwarderInOut$o");
+
+            maxHopsAllowed++;
+
+            // remember last interest sent time for statistic
+            lastInterestSentTime = simTime();
+
+            // update stats
+            demiurgeModel->incrementNetworkInterestInjectedCount();
+
+            // write stats
+            emit(totalInterestsBytesSentSignal, (long) interestMsg->getByteLength());
+            emit(networkInterestInjectedCountSignal, demiurgeModel->getNetworkInterestInjectedCount());
+
+            scheduleAt(simTime() + interestRetransmitTimeout, traceTimeoutEvent);
+
+        }
+
+        else if (msg->getKind() == TRACEROUTEAPP_INTEREST_RETRANSMIT_EVENT_CODE){
+            char tempString[128];
+            list <sting> pathTLV;
+            pathTLV = msg->getPathTLV();
+
+            // identify data to download
+            requestingPrefixName = requestedPrefixList[0];
+            rndNum = par("nextFileSuffix");
+            snprintf(tempString, sizeof(tempString), "%s%04d", dataNamePrefix.c_str(), rndNum);
+            requestingDataName = string(tempString);
+            requestedSegNum = 0;
+            totalSegments = -1;
+            contentDownloadStartTime = simTime();
+
+            // generate 1st interest
+            InterestMsg* interestMsg = new InterestMsg("Interest");
+            interestMsg->setHopLimit(maxHopsAllowed);
+            interestMsg->setLifetime(simTime() + interestRetransmitTimeout);
+            interestMsg->setPrefixName(requestingPrefixName.c_str());
+            interestMsg->setDataName(requestingDataName.c_str());
+            interestMsg->setVersionName("v01");
+            interestMsg->setSegmentNum(requestedSegNum);
+            interestMsg->setHeaderSize(INBAVER_INTEREST_MSG_HEADER_SIZE);
+            interestMsg->setPayloadSize(0);
+            interestMsg->setHopsTravelled(0);
+            interestMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
+            interestMsg->setPathTLV(pathTLV);
+
+            EV_INFO << simTime() << " Sending next Trace for: " << requestingPrefixName
+                    << " " << requestingDataName << " v01 " << requestedSegNum
+                    << " " << totalSegments << endl;
+
+            // send msg to forwarding layer
+            send(interestMsg, "forwarderInOut$o");
+
+            // remember last interest sent time for statistic
+            lastInterestSentTime = simTime();
+
+            // update stats
+            demiurgeModel->incrementNetworkInterestInjectedCount();
+
+            // write stats
+            emit(totalInterestsBytesSentSignal, (long) interestMsg->getByteLength());
+            emit(networkInterestInjectedCountSignal, demiurgeModel->getNetworkInterestInjectedCount());
+
+            maxHopsAllowed++;
+
+            if (traceTimeoutEvent -> isScheduled()){
+
+                cancelEvent(traceTimeoutEvent);
+
+                scheduleAt(simTime() + interestRetransmitTimeout, traceTimeoutEvent);
+
+            }
+        }
+
+        else if (msg->isSelfMessage() && msg->getKind() == TRACEROUTEAPP_TIMEOUT_EVENT_CODE){
+
+            EV << "Trace timeout. Trace has finished.";
+            maxHopsAllowed = maxHopsAllowed = par("maxHopsAllowed");
+            pathTLV.clear();
+
+        }
 
 }
 
