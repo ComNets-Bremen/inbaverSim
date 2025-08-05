@@ -30,7 +30,7 @@ protected:
     string dataNamePrefix;
     int maxHopsAllowed;
     double interestRetransmitTimeout;
-    string PathTLV;
+    string pathTLV;
 
     Demiurge *demiurgeModel;
     Numen *numenModel;

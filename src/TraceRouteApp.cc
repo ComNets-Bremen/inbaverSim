@@ -89,6 +89,8 @@ void TraceRouteApp::initialize(int stage)
 
 void TraceRouteApp::handleMessage(cMessage *msg)
 {
+    TracerouteRplMsg *tracerouteRplMsg = NULL;
+
     // register app with lower layer (forwarder)
     if (msg->isSelfMessage() && msg->getKind() == TRACEROUTEAPP_APP_REG_REM_EVENT_CODE) {
 
@@ -143,7 +145,7 @@ void TraceRouteApp::handleMessage(cMessage *msg)
             lastInterestSentTime = simTime();
 
             // update stats
-            demiurgeModel->incrementNetworkInterestInjectedCount();
+            demiurgeModel->incrementNetworkInterestInjectedCount(); //@Lars sollten wir hier nicht unterscheiden -> incrementNetworkTracerouteRqstInjectedCount ?
 
             // write stats
             emit(totalInterestsBytesSentSignal, (long) tracerouteRqstMsg->getByteLength());
@@ -156,8 +158,8 @@ void TraceRouteApp::handleMessage(cMessage *msg)
         else if ((tracerouteRplMsg = dynamic_cast<TracerouteRplMsg*>(msg)) != NULL){
 
             char tempString[128];
-            string pathTLV;
-            pathTLV = msg->getPathTLV();
+            const char* pathTLV;
+            pathTLV = tracerouteRplMsg->getPathlabel();
 
             // identify data to download
             requestingPrefixName = requestedPrefixList[0];
@@ -180,7 +182,7 @@ void TraceRouteApp::handleMessage(cMessage *msg)
             tracerouteRqstMsg->setPayloadSize(0);
             tracerouteRqstMsg->setHopsTravelled(0);
             tracerouteRqstMsg->setByteLength(INBAVER_INTEREST_MSG_HEADER_SIZE);
-            tracerouteRqstMsg->setPathTLV(pathTLV);
+            tracerouteRqstMsg->setPathlabel(pathTLV);
 
             EV_INFO << simTime() << " Sending next Trace for: " << requestingPrefixName
                     << " " << requestingDataName << " v01 " << requestedSegNum
