@@ -51,7 +51,12 @@ class ContentHostApp : public cSimpleModule
     // stat signals
     simsignal_t totalInterestsBytesReceivedSignal;
     simsignal_t totalContentObjsBytesSentSignal;
+    simsignal_t totalTracerouteRqstsBytesReceivedSignal;
+    simsignal_t totalTracerouteRplsBytesSentSignal;
     simsignal_t totalDataBytesSentSignal;
+
+    void processInterest(InterestMsg *interestMsg);
+    void processTracerouteRqst(TracerouteRqstMsg *tracerouteRqstMsg);
 
 };
 
