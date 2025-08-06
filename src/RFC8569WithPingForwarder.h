@@ -81,7 +81,7 @@ class RFC8569WithPingForwarder : public cSimpleModule
       FIBEntry *longestPrefixMatchingInFIB(string prefixName);
       PITEntry *getPITEntryUsingRPT(int rpt);
       int charToFaceIndex(char c);
-      const char *faceIndexToChar(int faceIndex);
+      const char faceIndexToChar(int faceIndex);
 
       void dumpFIB();
       void dumpFaces();
@@ -138,7 +138,7 @@ class RFC8569WithPingForwarder : public cSimpleModule
 
 #define RFC8569WITHPINGFWD_STAT_GEN_REM_EVENT_CODE 271
 
-#define CHAR_BASE "!"
+#define CHAR_BASE '!'
 
 #define MAX_FACES 94
 

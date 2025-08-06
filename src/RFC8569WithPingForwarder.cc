@@ -1887,9 +1887,11 @@ void RFC8569WithPingForwarder::processTracerouteRpl(TracerouteRplMsg *traceroute
     }
 
     // define pathsteering TLV
-    const char *pathvalue = faceIndexToChar(arrivalFaceIndex); //arrivalFaceIndex is a global variable
+    char *pathvalue = new char[2];
+    pathvalue[0] = faceIndexToChar(arrivalFaceIndex); //arrivalFaceIndex is a global variable
+    pathvalue[1] = '\0';
     const char *oldPathlabel = tracerouteRplMsg->getPathlabel();
-    char *pathlabel = new char[opp_strlen(pathvalue) + opp_strlen(oldPathlabel) + 1];
+    char *pathlabel = new char[1 + opp_strlen(oldPathlabel) + 1];
     opp_strcpy(pathlabel, pathvalue);
     strcat(pathlabel, oldPathlabel);
 
@@ -2362,14 +2364,14 @@ void RFC8569WithPingForwarder::dumpPIT()
  * @param c local pathsteering value
  */
 int RFC8569WithPingForwarder::charToFaceIndex(char c){
-    return c - CHAR_BASE[0];
+    return c - CHAR_BASE;
 }
 
 /**
  * internal method to convert a face index to a character
  * @param faceIndex local in/outgoing face
  */
-const char *RFC8569WithPingForwarder::faceIndexToChar(int faceIndex){
+const char RFC8569WithPingForwarder::faceIndexToChar(int faceIndex){
 
     if(faceIndex < 0 || faceIndex >= MAX_FACES){
         EV_FATAL << "Face index out of bounds: "
@@ -2379,5 +2381,6 @@ const char *RFC8569WithPingForwarder::faceIndexToChar(int faceIndex){
         return NULL;
     }
 
-    return CHAR_BASE + faceIndex;
+    char c = static_cast<char>(CHAR_BASE + faceIndex);
+    return c;
 }
