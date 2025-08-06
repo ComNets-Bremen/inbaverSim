@@ -31,6 +31,7 @@ protected:
     int maxHopsAllowed;
     double interestRetransmitTimeout;
     string pathTLV;
+    simtime_t TraceStartTime;
 
     Demiurge *demiurgeModel;
     Numen *numenModel;
@@ -65,7 +66,7 @@ protected:
 
 #define TRACEROUTEAPP_APP_REG_REM_EVENT_CODE            116
 #define TRACEROUTEAPP_START_TRACEROUTE_EVENT_CODE       117
-#define TRACEROUTEAPP_RPLY_EVENT_CODE    118
+#define TRACEROUTEAPP_RPLY_EVENT_CODE                   118
 #define TRACEROUTEAPP_TIMEOUT_EVENT_CODE                119
 
 #endif

@@ -69,9 +69,9 @@ void TraceRouteApp::initialize(int stage)
         traceRouteStartEvent->setKind(TRACEROUTEAPP_START_TRACEROUTE_EVENT_CODE);
         scheduleAt(simTime(), traceRouteStartEvent);
 
-        // interest retransmission event
-        interestRetransmitEvent = new cMessage("Interest Retransmission Event");
-        interestRetransmitEvent->setKind(TRACEROUTEAPP_INTEREST_RETRANSMIT_EVENT_CODE);
+        // Trace timeout event
+        interestRetransmitEvent = new cMessage("Trace timeout");
+        interestRetransmitEvent->setKind(TRACEROUTEAPP_TIMEOUT_EVENT_CODE);
 
         // register stat signals
         totalInterestsBytesSentSignal = registerSignal("appTotalInterestsBytesSent");
@@ -107,6 +107,7 @@ void TraceRouteApp::handleMessage(cMessage *msg)
 
     else if (msg->isSelfMessage() && msg->getKind() == TRACEROUTEAPP_START_TRACEROUTE_EVENT_CODE){
 
+            int rndNum;
             char tempString[128];
             // identify data to download
             requestingPrefixName = requestedPrefixList[0];
@@ -146,7 +147,7 @@ void TraceRouteApp::handleMessage(cMessage *msg)
             lastInterestSentTime = simTime();
 
             // update stats
-            demiurgeModel->incrementNetworkInterestInjectedCount(); //@Lars sollten wir hier nicht unterscheiden -> incrementNetworkTracerouteRqstInjectedCount ?
+            demiurgeModel->incrementNetworkInterestInjectedCount(); //@Lars sollten wir hier nicht unterscheiden -> incrementNetworkTracerouteRqstInjectedCount ? Ja der meinung bin ich auch, ich habe mir noch keine gedanken über die Statistik gemacht.
 
             // write stats
             emit(totalInterestsBytesSentSignal, (long) tracerouteRqstMsg->getByteLength());
@@ -158,6 +159,7 @@ void TraceRouteApp::handleMessage(cMessage *msg)
 
         else if ((tracerouteRplMsg = dynamic_cast<TracerouteRplMsg*>(msg)) != NULL){
 
+            int rndNum;
             char tempString[128];
             const char* pathTLV;
             pathTLV = tracerouteRplMsg->getPathlabel();
@@ -169,7 +171,7 @@ void TraceRouteApp::handleMessage(cMessage *msg)
             requestingDataName = string(tempString);
             requestedSegNum = 0;
             totalSegments = -1;
-            contentDownloadStartTime = simTime();
+            TraceStartTime = simTime();
 
             // generate 1st interest
             TracerouteRqstMsg* tracerouteRqstMsg = new TracerouteRqstMsg("Interest");

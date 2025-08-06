@@ -28,3 +28,6 @@ out/
 *.txt
 *.png
 res/
+
+#apple special 
+.DS_Store
