@@ -31,6 +31,8 @@ simple ContentHostApp like IApplication
         // statistic signals
         @signal[appTotalInterestsBytesReceived](type=long);
         @signal[appTotalContentObjsBytesSent](type=long);
+        @signal[appTotalTracerouteRqstsBytesReceived](type=long);
+        @signal[appTotalTracerouteRplsBytesSent](type=long);
         @signal[appTotalDataBytesSent](type=long);
 
 

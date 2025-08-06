@@ -40,10 +40,14 @@ module Node
         @statistic[appTotalInterestsBytesSent](source=appTotalInterestsBytesSent; record=count,mean,sum,vector);
         @statistic[appRetransmissionInterestsBytesSent](source=appRetransmissionInterestsBytesSent; record=count,mean,sum,vector);
         @statistic[appTotalContentObjsBytesReceived](source=appTotalContentObjsBytesReceived; record=count,mean,sum,vector);
+        @statistic[appTotalTracerouteRqstsBytesSent](source=appTotalTracerouteRqstsBytesSent; record=count,mean,sum,vector);
+        @statistic[appTotalTracerouteRplsBytesReceived](source=appTotalTracerouteRplsBytesReceived; record=count,mean,sum,vector);
         @statistic[appTotalDataBytesReceived](source=appTotalDataBytesReceived; record=count,mean,sum,vector);
 
         @statistic[appTotalInterestsBytesReceived](source=appTotalInterestsBytesReceived; record=count,mean,sum,vector);
         @statistic[appTotalContentObjsBytesSent](source=appTotalContentObjsBytesSent; record=count,mean,sum,vector);
+        @statistic[appTotalTracerouteRqstsBytesReceived](source=appTotalTracerouteRqstsBytesReceived; record=count,mean,sum,vector);
+        @statistic[appTotalTracerouteRplsBytesSent](source=appTotalTracerouteRplsBytesSent; record=count,mean,sum,vector);
         @statistic[appTotalDataBytesSent](source=appTotalDataBytesSent; record=count,mean,sum,vector);
 
         @statistic[fwdTotalInterestsBytesReceived](source=fwdTotalInterestsBytesReceived; record=count,mean,sum,vector);
