@@ -9,8 +9,10 @@ cleanall: checkmakefiles
 	cd src && $(MAKE) MODE=debug clean
 	rm -f src/Makefile
 
+INET_PROJ = $(shell inet_root)
+
 makefiles:
-	cd src && opp_makemake -f --deep
+	cd src && opp_makemake -f --deep -KINET_PROJ=$(INET_PROJ) -I. -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\)/src -lINET$$\(D\)
 
 checkmakefiles:
 	@if [ ! -f src/Makefile ]; then \
